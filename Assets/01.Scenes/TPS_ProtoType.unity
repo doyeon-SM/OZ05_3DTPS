@@ -1710,7 +1710,7 @@ GameObject:
   - component: {fileID: 697948585}
   - component: {fileID: 697948584}
   - component: {fileID: 697948583}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3617,6 +3617,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 3935003075654220466, guid: befb1b1e366200241a1ed8adf4e4bf2a, type: 3}
+      propertyPath: GroundLayers.m_Bits
+      value: 1024
+      objectReference: {fileID: 0}
     - target: {fileID: 3963043432473255746, guid: befb1b1e366200241a1ed8adf4e4bf2a, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -4831,7 +4835,7 @@ MonoBehaviour:
   m_cam: {fileID: 0}
   m_hittableMask:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   m_InteractDistance: 10
   _input: {fileID: 0}
   _fire:
