@@ -22,6 +22,8 @@ namespace StarterAssets
 
 		public bool Interact;
 		public bool Attack;
+		public bool Inventory;
+
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
 		{
@@ -57,6 +59,10 @@ namespace StarterAssets
 		{
 			InteractInput(value.isPressed);
 		}
+		public void OnInventory(InputValue value)
+        {
+			InventoryInput(value.isPressed);
+        }
 #endif
 
 
@@ -91,6 +97,10 @@ namespace StarterAssets
 		{
 			Attack = newAttackState;
 		}
+		public void InventoryInput(bool newInventoryState)
+        {
+			Inventory = newInventoryState;
+        }
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
