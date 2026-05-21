@@ -17,6 +17,7 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField]private TPS_TwoStepHitscanWeapon tpsTwoStepHitscanWeapon;
         [SerializeField] private Transform attackPoint;
         [SerializeField]private Collider[] hitColliders;
+        //폐기 될 변수들  
         [SerializeField] private int Damage = 20;
         [SerializeField] private float attackOverlapRadius = 1.0f;
         
@@ -38,14 +39,12 @@ namespace _01.Scenes.PhaseValidation
         }
         private void OnEnable()
         {
-            _fire.performed += attackAlgorithm;
+            /*_fire.performed += attackAlgorithm;*/
         }
-
-     
-
+        
         private void OnDisable()
         {
-            _fire.performed -= attackAlgorithm;
+            /*_fire.performed -= attackAlgorithm;*/
         }
         #endregion
 

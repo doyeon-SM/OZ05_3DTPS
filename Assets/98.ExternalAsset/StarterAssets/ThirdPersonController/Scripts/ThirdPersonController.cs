@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using _01.Scenes.PhaseValidation;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -73,10 +74,10 @@ namespace StarterAssets
         public float BottomClamp = -30.0f;
 
         [Tooltip("Additional degress to override the camera. Useful for fine tuning camera position when locked")]
-        public float CameraAngleOverride = 0.0f;
+        public float CameraAngleOverride;
 
         [Tooltip("For locking the camera position on all axis")]
-        public bool LockCameraPosition = false;
+        public bool LockCameraPosition;
         
         
         // cinemachine
@@ -86,7 +87,7 @@ namespace StarterAssets
         // player
         private float _speed;
         private float _animationBlend;
-        private float _targetRotation = 0.0f;
+        private float _targetRotation;
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
@@ -115,6 +116,8 @@ namespace StarterAssets
         private const float _threshold = 0.01f;
 
         private bool _hasAnimator;
+        // 공격을 위한 컴포넌트
+        private TPS_TwoStepHitscanWeapon tpsTwoStepHitscanWeapon;
 
         private bool IsCurrentDeviceMouse
         {
@@ -131,10 +134,14 @@ namespace StarterAssets
 
         private void Awake()
         {
-            // get a reference to our main camera
+            // 컴포넌트 연결용 
             if (_mainCamera == null)
             {
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+            }
+            if (tpsTwoStepHitscanWeapon == null)
+            {
+                tpsTwoStepHitscanWeapon = gameObject.GetComponent<TPS_TwoStepHitscanWeapon>();
             }
         }
 
@@ -200,8 +207,18 @@ namespace StarterAssets
         private void HandleAttack()
         { 
             _animator.SetBool(_animIDAttack,_input.Attack);
+            if (_input.Attack)
+            {
+                tpsTwoStepHitscanWeapon.Fire();
+                targetToRotation(tpsTwoStepHitscanWeapon.AimDirection);
+            }
         }
 
+        private void targetToRotation(Vector3 direction)
+        {
+            direction.y = 0f; // x값은 Rotate 값이 들어가면 몸이 쏠리기 때문에 0으로 초기화.
+            transform.rotation = Quaternion.LookRotation(direction);
+        }
         private void GroundedCheck()
         {
             // set sphere position, with offset
