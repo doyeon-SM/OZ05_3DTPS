@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: test_EnemyData
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.EnemyData
   enemyType: 0
-  prefab: {fileID: 0}
+  prefab: {fileID: 7335133562398112961, guid: b4db974590944ec4781d7e714de7b223, type: 3}
   maxHealth: 100
   attackPower: 10
   respawnDelay: 5

@@ -13,4 +13,7 @@ MonoBehaviour:
   m_Name: test_BattleSectorData
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.BattleSectorData
   sectorName: "\uC804\uD22C \uC139\uD130"
-  enemyPlacements: []
+  enemyPlacements:
+  - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
+    spawnPosition: {x: 8.411877, y: -0.0000004982609, z: -11.88242}
+    spawnRotation: {x: 0, y: 1.0300006, z: 0}
