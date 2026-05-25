@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class ItemPickupCollector : MonoBehaviour
 {
-    [Tooltip("¼ÒÁöÇ° »óÅÂ¸¦ ¹Ù²Ü ÀÎº¥. ºñ¾î ÀÖÀ¸¸é °°Àº ¿ÀºêÁ§Æ®¿¡¼­ PlayerInventory¸¦ Ã£½À´Ï´Ù.")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½Ç° ï¿½ï¿½ï¿½Â¸ï¿½ ï¿½Ù²ï¿½ ï¿½Îºï¿½. ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ PlayerInventoryï¿½ï¿½ Ã£ï¿½ï¿½ï¿½Ï´ï¿½.")]
     [SerializeField] private PlayerInventory playerInventory;
 
-    [Tooltip("idµî·Ï ¿©ºÎ/½ºÅÃ ±ÔÄ¢ÀÇ ±âÁØ. ºñ¾î ÀÖÀ¸¸é ¾À¿¡¼­ ItemCatalogManager¸¦ FindÇÕ´Ï´Ù.")]
+    [Tooltip("idï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¢ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ItemCatalogManagerï¿½ï¿½ Findï¿½Õ´Ï´ï¿½.")]
     [SerializeField] private ItemCatalogManager itemCatalogManager;
 
     private void Awake()
@@ -33,24 +33,24 @@ public class ItemPickupCollector : MonoBehaviour
         string normalizedId = NormalizeItemId(worldItem.itemID);
         if (string.IsNullOrEmpty(normalizedId))
         {
-            Debug.LogWarning($"[ItemPickupCollector] ºñ¾î ÀÖ´Â itemID¸¦ °¡Áø WorldItemÀ» ¹«½ÃÇÕ´Ï´Ù. object = {worldItem.gameObject.name}");
+            Debug.LogWarning($"[ItemPickupCollector] ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ itemIDï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ WorldItemï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½. object = {worldItem.gameObject.name}");
             return;
         }
         if (!itemCatalogManager.IsRegistered(normalizedId))
         {
-            Debug.LogWarning($"[ItemPickupCollector] Ä«Å»·Î±×¿¡ ¾ø´Â itemIdÀÔ´Ï´Ù. id={normalizedId}, object={worldItem.gameObject.name}");
+            Debug.LogWarning($"[ItemPickupCollector] Ä«Å»ï¿½Î±×¿ï¿½ ï¿½ï¿½ï¿½ï¿½ itemIdï¿½Ô´Ï´ï¿½. id={normalizedId}, object={worldItem.gameObject.name}");
             return;
         }
 
         int requestedAmount = Mathf.Max(1, worldItem.amount);
         if (!playerInventory.TryAddItemsFromPickup(normalizedId, requestedAmount, out int addedAmount))
         {
-            Debug.LogWarning($"[ItemPickupCollector] ½Àµæ ½ÇÆÐ(½½·Ô/½ºÅÃ ÇÑµµ). id={normalizedId}, requested={requestedAmount},added={addedAmount}");
+            Debug.LogWarning($"[ItemPickupCollector] ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½Ñµï¿½). id={normalizedId}, requested={requestedAmount},added={addedAmount}");
             return;
         }
 
         playerInventory.EnqueuePickupMessage(normalizedId, addedAmount);
-        Destroy(worldItem.gameObject);
+        worldItem.ReturnOrDestroy();
     }
 
     private static string NormalizeItemId(string rawItemId)

@@ -10,26 +10,19 @@ namespace _01.Scenes.PhaseValidation
         private int currentHealth;
         private bool isDead;
 
-        // 매니저에서 구독 — 적이 죽었을 때 풀 반환 처리를 위임
+        // 섹터 매니저에서 구독 — 풀 반환 처리 위임
         public event Action<EnemyStatus> OnDied;
 
         public int AttackPower => enemyData != null ? enemyData.attackPower : 0;
         public float RespawnDelay => enemyData != null ? enemyData.respawnDelay : 5f;
         public EnemyData Data => enemyData;
 
-        /// <summary>
-        /// 풀에서 꺼낼 때(SetActive true → OnEnable) HP와 사망 플래그를 초기화한다.
-        /// </summary>
         private void OnEnable()
         {
             isDead = false;
             ResetHealth();
         }
 
-        /// <summary>
-        /// 섹터에서 소환 직후 호출 — EnemyData를 주입하고 HP를 초기화한다.
-        /// OnEnable 이후에 호출되므로 data가 바뀐 경우 재설정이 필요하다.
-        /// </summary>
         public void Initialize(EnemyData data)
         {
             enemyData = data;
@@ -60,6 +53,11 @@ namespace _01.Scenes.PhaseValidation
             isDead = true;
 
             Debug.Log($"{gameObject.name}이 죽었습니다.");
+
+            // 드랍 처리 — StageManager에 사망 위치 전달
+            StageManager.Instance?.OnEnemyDied(transform.position);
+
+            // 풀 반환 처리 — 섹터에 위임
             OnDied?.Invoke(this);
         }
     }
