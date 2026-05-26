@@ -2179,7 +2179,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4888732955980038040, guid: 204f75ebe16aca542a4bea4eb11d932f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.53866005
+      value: -0.42066002
       objectReference: {fileID: 0}
     - target: {fileID: 4888732955980038040, guid: 204f75ebe16aca542a4bea4eb11d932f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2509,7 +2509,7 @@ GameObject:
   - component: {fileID: 819106917}
   - component: {fileID: 819106916}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: DamageArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3827,7 +3827,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7042106714766929959, guid: 114c8612be613454792717990b3ca32f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.53866005
+      value: -0.42066002
       objectReference: {fileID: 0}
     - target: {fileID: 7042106714766929959, guid: 114c8612be613454792717990b3ca32f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3867,7 +3867,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8227522178144110140, guid: 114c8612be613454792717990b3ca32f, type: 3}
       propertyPath: CameraSide
-      value: 0.741
+      value: 0.8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
