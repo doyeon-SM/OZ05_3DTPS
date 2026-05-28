@@ -1,4 +1,5 @@
 ﻿using _01.Scenes.PhaseValidation;
+using _02.Script.Combat;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
@@ -117,7 +118,7 @@ namespace StarterAssets
 
         private bool _hasAnimator;
         // 공격을 위한 컴포넌트
-        private TPS_TwoStepHitscanWeapon tpsTwoStepHitscanWeapon;
+        private TPS_TwoStepHitscanSystem _tpsTwoStepHitscanSystem;
 
         private bool IsCurrentDeviceMouse
         {
@@ -139,9 +140,9 @@ namespace StarterAssets
             {
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
-            if (tpsTwoStepHitscanWeapon == null)
+            if (_tpsTwoStepHitscanSystem == null)
             {
-                tpsTwoStepHitscanWeapon = gameObject.GetComponent<TPS_TwoStepHitscanWeapon>();
+                _tpsTwoStepHitscanSystem = gameObject.GetComponent<TPS_TwoStepHitscanSystem>();
             }
         }
 
@@ -199,7 +200,8 @@ namespace StarterAssets
             {
                 Debug.Log("Interact");
                 
-                _animator.SetTrigger(_animIDInteractive);
+                // 상호작용 스크립트 + 상호작용 별 애니메이션 출력 ( out으로 )
+                /*_animator.SetTrigger(_animIDInteractive);*/
                 _input.Interact = false;
             }
         }
@@ -209,8 +211,8 @@ namespace StarterAssets
             _animator.SetBool(_animIDAttack,_input.Attack);
             if (_input.Attack)
             {
-                tpsTwoStepHitscanWeapon.Fire();
-                targetToRotation(tpsTwoStepHitscanWeapon.AimDirection);
+                _tpsTwoStepHitscanSystem.Fire();
+                targetToRotation(_tpsTwoStepHitscanSystem.AimDirection);
             }
         }
 

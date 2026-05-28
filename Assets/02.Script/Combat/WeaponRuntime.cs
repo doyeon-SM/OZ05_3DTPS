@@ -1,17 +1,17 @@
-using UnityEngine;
+using System;
 
-namespace _01.Scenes.PhaseValidation._26._05._14
+namespace _02.Script.Combat
 {
+    [Serializable]
     public class WeaponRuntime
     {
-        [SerializeField] public WeaponData data;
+        public WeaponData data;
         public int currentAmmo;
-
         public WeaponRuntime(WeaponData data)
         {
             this.data = data;
 
-            if (data.useAmmo)
+            if (data.UseAmmo)
                 currentAmmo = data.MagazineSize;
             else
             {
@@ -20,20 +20,20 @@ namespace _01.Scenes.PhaseValidation._26._05._14
         }
         public bool HasAmmo()
         {
-            if (!data.useAmmo) return true;
+            if (!data.UseAmmo) return true;
             
-            return currentAmmo > 0;
+            return currentAmmo >= 0;
         }
 
         public void ConsumeAmmo()
         {
-            if(!data.useAmmo) return;
+            if(!data.UseAmmo) return;
             currentAmmo--;
         }
 
         public void Reload()
         {
-            if (!data.useAmmo) return;
+            if (!data.UseAmmo) return;
             currentAmmo = data.MagazineSize;
         }
     }

@@ -1,3 +1,4 @@
+using _02.Script.Combat;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,7 +15,7 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField]private InputAction _fire;
 
         [Header("Attack Data")]
-        [SerializeField]private TPS_TwoStepHitscanWeapon tpsTwoStepHitscanWeapon;
+        [SerializeField]private TPS_TwoStepHitscanSystem tpsTwoStepHitscanSystem;
         [SerializeField] private Transform attackPoint;
         [SerializeField]private Collider[] hitColliders;
         //폐기 될 변수들  
@@ -29,8 +30,8 @@ namespace _01.Scenes.PhaseValidation
             _fire = _input.actions.FindAction("Attack" , true);
             
             if(m_cam == null) m_cam = Camera.main;
-            if(tpsTwoStepHitscanWeapon == null)
-                tpsTwoStepHitscanWeapon = gameObject.GetComponent<TPS_TwoStepHitscanWeapon>();
+            if(tpsTwoStepHitscanSystem == null)
+                tpsTwoStepHitscanSystem = gameObject.GetComponent<TPS_TwoStepHitscanSystem>();
         }
 
         private void Update()
@@ -91,7 +92,7 @@ namespace _01.Scenes.PhaseValidation
 
         private void attackAlgorithm(InputAction.CallbackContext _)
         {
-            tpsTwoStepHitscanWeapon.Fire();
+            tpsTwoStepHitscanSystem.Fire();
         }
 
         

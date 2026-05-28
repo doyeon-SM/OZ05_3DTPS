@@ -1,28 +1,24 @@
+using _01.Scenes.PhaseValidation;
 using UnityEngine;
 
-namespace _01.Scenes.PhaseValidation
+namespace _02.Script.Combat
 {
-    public class TPS_TwoStepHitscanWeapon : MonoBehaviour
+    public class TPS_TwoStepHitscanSystem : MonoBehaviour
     {
         [Header("RayCast를 적용할 객체")]
         [SerializeField] private Camera aimCamera;
         [SerializeField] private Transform muzzle;
-        
-        // [S.O로 총기 정보 받아오기 전에 구현 먼저 해보기 위한 변수들 ] 
+        [Header("Ray관련 변수")]
+        // 에임 , 샷 사거리 제한은 현재 게임에 구현되어 있지 않기 때문에 기본값 100f로 설정.
         [SerializeField] private float aimRange = 100f;
         [SerializeField] private float shotRange = 100f;
-        [SerializeField] private int damage = 10;
         [SerializeField] private float muzzleBlockRadius = 0.5f;
-        [SerializeField] private float RPM = 800.0f;
-        //무기 변경시 RPM을 받아와서 해당 딜레이 타임 1번 지정
-        [SerializeField] private float shotDelayTime;
-        //격발 시 딜레이 시간 저장
-        [SerializeField] private float saveTime = -999f;
-        //타겟 방향 direction 저장용 변수
-        public Vector3 AimDirection { get; private set; }
-        //탄창 구현
         
-
+        [Header("무기 관리 와 무기 관련 변수")]
+        [SerializeField] private WeaponController weaponController;
+       
+        public Vector3 AimDirection { get; private set; }  //타겟 방향 direction 저장용 변수
+        
         [Header("각 탐지 Ray에 입력가능한 LayerMask 지정 ")]
         [SerializeField] private LayerMask aimMask;
         [SerializeField] private LayerMask shotMask;
@@ -37,10 +33,14 @@ namespace _01.Scenes.PhaseValidation
         private void Awake()
         {
             if(aimCamera == null) aimCamera = Camera.main;
-            if(muzzle == null)Debug.LogError("Aim camera not set", this);
-            
-            //임시
-            shotDelayTime = RPMCalculate(RPM);
+            if (muzzle == null)
+            {
+                Debug.LogError("Aim camera not set", this);
+            }
+            if (weaponController == null)
+            {
+                weaponController = GetComponent<WeaponController>();
+            }
         }
 
         #endregion
@@ -115,11 +115,12 @@ namespace _01.Scenes.PhaseValidation
 
             if (damageable != null)
             {
-                damageable.TakeDamage(damage);
+                damageable.TakeDamage(weaponController.Damage);
             }
 
             if (hitEffectPrefab != null)
             {
+                //맞은 객체위치에 hit Effect 출력
                 GameObject hitEffect = Instantiate(hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                 Destroy(hitEffect , 0.2f);
                 
@@ -144,17 +145,17 @@ namespace _01.Scenes.PhaseValidation
 
         private void OnDrawGizmosSelected()
         {
+            //muzzle이 막혔는지 확인하기 위한 기즈모.
             if (muzzle != null)
+            {
+                Gizmos.color = Color.chartreuse;
                 Gizmos.DrawWireSphere(muzzle.position, muzzleBlockRadius);
+            }
         }
 
         private bool IsMuzzleBlocked()
         {
-            /*if (checkMuzzleBlocked == false)
-            {
-                return false;
-            }*/
-
+            // 총구 주위에 벽이 있는지 확인.
             return Physics.CheckSphere(
                 muzzle.position,
                 muzzleBlockRadius,
@@ -175,14 +176,11 @@ namespace _01.Scenes.PhaseValidation
                 return;
             }
 
-            if ( Time.time <= saveTime + shotDelayTime)
+            if (!weaponController.IsFire())
             {
-                Debug.Log("재장전중..");
+                Debug.Log("총기 딜레이 중 ..");
                 return;
             }
-            //격발 된 시간 저장.
-            saveTime = Time.time;
-            
             AimResult aimResult = ResolveAimPoint();
             ShotResult shotResult = FireFromMuzzle(aimResult);
             
@@ -195,13 +193,6 @@ namespace _01.Scenes.PhaseValidation
                 HandleHit(shotResult.hit, aimResult);
             }
         }
-        
-        private float RPMCalculate(float rpm) //RPM을 받아서 초당 딜레이 타임으로 변환 계산합니다 ( 60sec / RPM ) 
-        {
-            if(rpm <= 0) return 0;
-            return 60.0f / rpm;
-        }
-        //총으로 맞은 목표를 향한 벡터3를 반환
     }
 
 }
