@@ -1,4 +1,0 @@
-repository "OZ05_3DTPS/3DTemplates@14569758690557@cloud"
-  path "/"
-    br "/main"
-    co "/main"
