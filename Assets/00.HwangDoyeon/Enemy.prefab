@@ -291,7 +291,7 @@ PrefabInstance:
     - target: {fileID: 5866666021909216657, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 4457a7bc5cbcec448b168fe11c5798a6, type: 2}
+      objectReference: {fileID: 9100000, guid: 96fc7ee410d4f3c4ea3a1224447e5be7, type: 2}
     - target: {fileID: 6240733294840144465, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -355,6 +355,27 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
       insertIndex: -1
       addedObject: {fileID: -515380037098966369}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -2696413243635427511}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -736639526260804012}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5892434553792215454}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5221344372223057730}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5690791132586316712}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3987154744041680105}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6243719952276605358}
     - targetCorrespondingSourceObject: {fileID: 2670928988342468123, guid: 67d7a6c659515d645be9e7f58f993266, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7484394414246457374}
@@ -450,3 +471,147 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.EnemyStatus
   enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
+--- !u!195 &-2696413243635427511
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335133562398112961}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 12
+  avoidancePriority: 50
+  m_AngularSpeed: 720
+  m_StoppingDistance: 1.8
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &-736639526260804012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335133562398112961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0038c16c34866b4f9e25c9c0dc0f7e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Behavior::Unity.Behavior.BehaviorGraphAgent
+  m_Graph: {fileID: -3255811782610702663, guid: 11f5b387e8723df4ea09603df120b7e7, type: 2}
+  m_BlackboardVariableOverridesList:
+  - rid: 8622044272418357454
+  - rid: 8622044272418357455
+  m_OriginalGraph: {fileID: 0}
+  m_IsInitialised: 0
+  m_IsStarted: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 8622044272418357454
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 1
+          m_Value1: 0
+        Name: Self
+        m_Value: {fileID: 7335133562398112961}
+    - rid: 8622044272418357455
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 3334968843410446804
+          m_Value1: 199332399876590838
+        Name: Self
+        m_Value: {fileID: 7335133562398112961}
+--- !u!114 &5892434553792215454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335133562398112961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8e911c497477054798a55fcdfb54ab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyBehaviorBridge
+  config: {fileID: 11400000, guid: 5f2ec6f20273e2b4882c827d8bb66aa7, type: 2}
+  patrolPoints: []
+--- !u!114 &5221344372223057730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335133562398112961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e3068dc780dd524db831a85c7ecf690, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAIDebugVisualizer
+  toggleKey: 283
+  drawGizmosWhenNotSelected: 1
+  drawDistanceLabels: 1
+  drawNavigationGizmos: 0
+  ringSegments: 40
+  sectorSegments: 18
+  sensorEyeHeight: 1.5
+  targetAimHeight: 1
+--- !u!114 &5690791132586316712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335133562398112961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1fe1bcd93280fa4982ff7af754236d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAIConsoleMonitor
+  enableLogs: 1
+  verboseLogs: 1
+  throttleSeconds: 0.3
+  heartbeatInterval: 1
+--- !u!114 &-3987154744041680105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335133562398112961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5148e5134fe8e9488ae744d05fa8645, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationEventReceiver
+--- !u!114 &6243719952276605358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7335133562398112961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4bcc45832c4775488d2ebce23f4d0c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyRpgAnimatorDriver
+  movingParam: Moving
+  velocityXParam: Velocity X
+  velocityZParam: Velocity Z
+  weaponParam: Weapon
+  actionParam: Action
+  triggerNumberParam: TriggerNumber
+  meleeWeaponValue: 1
+  meleeAttackActionValue: 1
+  meleeAttackTriggerNumberValue: 4
+  movingThreshold: 0.05
