@@ -1,5 +1,4 @@
-﻿using _01.Scenes.PhaseValidation;
-using _02.Script.Combat;
+﻿using _02.Script.Combat;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
@@ -118,7 +117,7 @@ namespace StarterAssets
 
         private bool _hasAnimator;
         // 공격을 위한 컴포넌트
-        private TPS_TwoStepHitscanSystem _tpsTwoStepHitscanSystem;
+        [SerializeField]private TPS_TwoStepHitscanSystem _tpsTwoStepHitscanSystem;
 
         private bool IsCurrentDeviceMouse
         {
