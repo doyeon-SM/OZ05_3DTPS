@@ -7,33 +7,47 @@ namespace _02.Script.Combat
     {
         public WeaponData data;
         public int currentAmmo;
-        public WeaponRuntime(WeaponData data)
+
+        public WeaponRuntime(WeaponData data) // 생성자. 새로운 WeaponRuntime이 입력되면 총알을 채움
         {
             this.data = data;
-
-            if (data.UseAmmo)
-                currentAmmo = data.MagazineSize;
-            else
-            {
-                currentAmmo = 0;
-            }
+            InitializeAmmo();
         }
-        public bool HasAmmo()
+
+        public void InitializeAmmo()
         {
+            if (data == null) return;
+
+            currentAmmo = data.UseAmmo ? data.MagazineSize : 0;
+        }
+
+        public bool HasAmmo() // 총알을 가지고 있나
+        {
+            if (data == null) return false;
             if (!data.UseAmmo) return true;
-            
-            return currentAmmo >= 0;
+
+            return currentAmmo > 0;
         }
 
-        public void ConsumeAmmo()
+        public bool hasEnoughAmmo() // 발사에 충분한 탄약을 가지고 있는가?
         {
-            if(!data.UseAmmo) return;
-            currentAmmo--;
+            if (data == null) return false;
+            if (!data.UseAmmo) return true;
+
+            return currentAmmo > 0;
+        }
+
+        public void ConsumeAmmo() // 발사 1회당 현재 탄창에서 1발 소모
+        {
+            if (data == null || !data.UseAmmo) return;
+
+            currentAmmo = Math.Max(currentAmmo - 1, 0);
         }
 
         public void Reload()
         {
-            if (!data.UseAmmo) return;
+            if (data == null || !data.UseAmmo) return;
+
             currentAmmo = data.MagazineSize;
         }
     }

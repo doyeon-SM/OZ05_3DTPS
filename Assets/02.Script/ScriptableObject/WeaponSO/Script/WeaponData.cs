@@ -15,7 +15,8 @@ using UnityEngine;
         public float CriticalMultiplier;    // 치명타 적용 데미지 배율
         public float RPM;                   // 분당 발사 수 - (Rounds Per Minute)
         public float ReloadTime;            // 재장전 시간
-        public int MagazineSize;            // 탄창당 최대 총알 수 
+        public int MagazineSize;            // 탄창당 최대 총알 수
+        public int BulletCost;              // 1회 사격당 소모되는 Ammo Cost
         public bool UseAmmo;                // 총알 사용 여부
         public bool AutoFire;               // 자동 사격 여부 ( true 라면 꾹 누르면 계속 나가는 )
         

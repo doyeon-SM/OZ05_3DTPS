@@ -4,12 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 #endif
 
-/* Note: animations are called via the controller for both the character and capsule using animator null checks
- */
-
 namespace StarterAssets
 {
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(AnimationController))]
 #if ENABLE_INPUT_SYSTEM 
     [RequireComponent(typeof(PlayerInput))]
 #endif
@@ -28,13 +26,6 @@ namespace StarterAssets
 
         [Tooltip("Acceleration and deceleration")]
         public float SpeedChangeRate = 10.0f;
-
-        public AudioSource AudioFootsteps;
-        public AudioSource LandingAudio;
-        public AudioSource AudioFoley;
-        public AudioClip LandingAudioClip;
-        public AudioClip[] FootstepAudioClips;
-        [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
         [Space(10)]
         [Tooltip("The height the player can jump")]
@@ -96,26 +87,16 @@ namespace StarterAssets
         private float _jumpTimeoutDelta;
         private float _fallTimeoutDelta;
 
-        // animation IDs
-        private int _animIDSpeed;
-        private int _animIDGrounded;
-        private int _animIDJump;
-        private int _animIDFreeFall;
-        private int _animIDMotionSpeed;
-        private int _animIDAttack;
-        private int _animIDInteractive;
-
 #if ENABLE_INPUT_SYSTEM 
         private PlayerInput _playerInput;
 #endif
-        private Animator _animator;
+        private AnimationController _animationController;
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
 
         private const float _threshold = 0.01f;
 
-        private bool _hasAnimator;
         // 공격을 위한 컴포넌트
         [SerializeField]private TPS_TwoStepHitscanSystem _tpsTwoStepHitscanSystem;
 
@@ -139,6 +120,12 @@ namespace StarterAssets
             {
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
+
+            if (!TryGetComponent(out _animationController))
+            {
+                _animationController = gameObject.AddComponent<AnimationController>();
+            }
+
             if (_tpsTwoStepHitscanSystem == null)
             {
                 _tpsTwoStepHitscanSystem = gameObject.GetComponent<TPS_TwoStepHitscanSystem>();
@@ -149,7 +136,7 @@ namespace StarterAssets
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
 
-            _hasAnimator = TryGetComponent(out _animator);
+            _animationController = GetComponent<AnimationController>();
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM 
@@ -158,8 +145,6 @@ namespace StarterAssets
 			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
-            AssignAnimationIDs();
-
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
@@ -167,8 +152,6 @@ namespace StarterAssets
 
         private void Update()
         {
-            _hasAnimator = TryGetComponent(out _animator);
-
             JumpAndGravity();
             GroundedCheck();
             Move();
@@ -183,16 +166,6 @@ namespace StarterAssets
             CameraRotation();
         }
 
-        private void AssignAnimationIDs()
-        {
-            _animIDSpeed = Animator.StringToHash("Speed");
-            _animIDGrounded = Animator.StringToHash("Grounded");
-            _animIDJump = Animator.StringToHash("Jump");
-            _animIDFreeFall = Animator.StringToHash("FreeFall");
-            _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-            _animIDAttack = Animator.StringToHash("Attack");
-            _animIDInteractive = Animator.StringToHash("Interactive");
-        }
         private void HandleInteract()
         {
             if (_input.Interact)
@@ -200,18 +173,26 @@ namespace StarterAssets
                 Debug.Log("Interact");
                 
                 // 상호작용 스크립트 + 상호작용 별 애니메이션 출력 ( out으로 )
-                /*_animator.SetTrigger(_animIDInteractive);*/
+                /*_animationController.SetInteractive();*/
                 _input.Interact = false;
             }
         }
 
         private void HandleAttack()
-        { 
-            _animator.SetBool(_animIDAttack,_input.Attack);
+        {
+            _animationController.SetAttack(false);
+
             if (_input.Attack)
             {
-                _tpsTwoStepHitscanSystem.Fire();
-                targetToRotation(_tpsTwoStepHitscanSystem.AimDirection);
+                if (_tpsTwoStepHitscanSystem == null) return;
+
+                bool fired = _tpsTwoStepHitscanSystem.Fire();
+                _animationController.SetAttack(fired);
+
+                if (fired)
+                {
+                    targetToRotation(_tpsTwoStepHitscanSystem.AimDirection);
+                }
             }
         }
 
@@ -228,11 +209,7 @@ namespace StarterAssets
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
 
-            // update animator if using character
-            if (_hasAnimator)
-            {
-                _animator.SetBool(_animIDGrounded, Grounded);
-            }
+            _animationController.SetGrounded(Grounded);
         }
 
         private void CameraRotation()
@@ -271,6 +248,7 @@ namespace StarterAssets
             float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
 
             float speedOffset = 0.1f;
+            
             float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
 
             // accelerate or decelerate to target speed
@@ -287,10 +265,12 @@ namespace StarterAssets
             }
             else
             {
-                _speed = targetSpeed;
+                _speed = targetSpeed * inputMagnitude;
             }
 
-            _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+            float maxSpeed = Mathf.Max(MoveSpeed, SprintSpeed);
+            float normalizedSpeed = maxSpeed > 0f ? Mathf.Clamp01(_speed / maxSpeed) : 0f;
+            _animationBlend = Mathf.Lerp(_animationBlend, normalizedSpeed, Time.deltaTime * SpeedChangeRate);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
             // normalise input direction
@@ -316,12 +296,7 @@ namespace StarterAssets
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
-            // update animator if using character
-            if (_hasAnimator)
-            {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
-            }
+            _animationController.SetMove(_animationBlend);
         }
 
         private void JumpAndGravity()
@@ -331,12 +306,8 @@ namespace StarterAssets
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
 
-                // update animator if using character
-                if (_hasAnimator)
-                {
-                    _animator.SetBool(_animIDJump, false);
-                    _animator.SetBool(_animIDFreeFall, false);
-                }
+                _animationController.SetJump(false);
+                _animationController.SetFreeFall(false);
 
                 // stop our velocity dropping infinitely when grounded
                 if (_verticalVelocity < 0.0f)
@@ -350,11 +321,7 @@ namespace StarterAssets
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
 
-                    // update animator if using character
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDJump, true);
-                    }
+                    _animationController.SetJump(true);
                 }
 
                 // jump timeout
@@ -375,11 +342,7 @@ namespace StarterAssets
                 }
                 else
                 {
-                    // update animator if using character
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDFreeFall, true);
-                    }
+                    _animationController.SetFreeFall(true);
                 }
 
                 // if we are not grounded, do not jump
@@ -414,26 +377,5 @@ namespace StarterAssets
                 GroundedRadius);
         }
 
-        private void OnFootstep(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
-            {
-
-                if (AudioFootsteps != null)
-                    AudioFootsteps.Play();
-                if (AudioFoley != null)
-                    AudioFoley.Play();
-            }
-        }
-
-        private void OnLand(AnimationEvent animationEvent)
-        {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
-            {
-                if (LandingAudio != null)
-                    LandingAudio.Play();
-
-            }
-        }
     }
 }

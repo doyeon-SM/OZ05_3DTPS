@@ -8,23 +8,23 @@ namespace _02.Script.Combat
         [Header("RayCast를 적용할 객체")]
         [SerializeField] private Camera aimCamera;
         [SerializeField] private Transform muzzle;
-        [Header("Ray관련 변수")]
-        // 에임 , 샷 사거리 제한은 현재 게임에 구현되어 있지 않기 때문에 기본값 100f로 설정.
+
+        [Header("Ray 관련 변수")]
         [SerializeField] private float aimRange = 100f;
         [SerializeField] private float shotRange = 100f;
         [SerializeField] private float muzzleBlockRadius = 0.5f;
-        
-        [Header("무기 관리 와 무기 관련 변수")]
+
+        [Header("무기 관리")]
         [SerializeField] private WeaponController weaponController;
-       
-        public Vector3 AimDirection { get; private set; }  //타겟 방향 direction 저장용 변수
-        
-        [Header("각 탐지 Ray에 입력가능한 LayerMask 지정 ")]
+
+        public Vector3 AimDirection { get; private set; } // 타겟 방향 저장용 변수
+
+        [Header("Ray 입력 가능한 LayerMask 지정")]
         [SerializeField] private LayerMask aimMask;
         [SerializeField] private LayerMask shotMask;
         [SerializeField] private LayerMask muzzleBlockMask;
-        
-        [Header("피격 되면 피격 위치에 나오는 이펙트.")]
+
+        [Header("피격 이펙트")]
         [SerializeField] private GameObject hitEffectPrefab;
         [SerializeField] private float shotRadius;
 
@@ -32,11 +32,16 @@ namespace _02.Script.Combat
 
         private void Awake()
         {
-            if(aimCamera == null) aimCamera = Camera.main;
+            if (aimCamera == null)
+            {
+                aimCamera = Camera.main;
+            }
+
             if (muzzle == null)
             {
-                Debug.LogError("Aim camera not set", this);
+                Debug.LogError("Muzzle이 설정되어 있지 않습니다.", this);
             }
+
             if (weaponController == null)
             {
                 weaponController = GetComponent<WeaponController>();
@@ -44,11 +49,10 @@ namespace _02.Script.Combat
         }
 
         #endregion
-      
+
         private AimResult ResolveAimPoint()
         {
             Ray aimRay = aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            //카메라 중앙점에 적중한 물체의 정보를 담는 그릇.
             AimResult result = new AimResult
             {
                 ray = aimRay,
@@ -56,8 +60,7 @@ namespace _02.Script.Combat
                 point = aimRay.GetPoint(aimRange)
             };
 
-            if (Physics.Raycast(aimRay, out RaycastHit hit,
-                    aimRange, aimMask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(aimRay, out RaycastHit hit, aimRange, aimMask, QueryTriggerInteraction.Ignore))
             {
                 result.didHit = true;
                 result.hit = hit;
@@ -66,6 +69,7 @@ namespace _02.Script.Combat
 
             return result;
         }
+
         private ShotResult FireFromMuzzle(AimResult aimResult)
         {
             Vector3 toAimPoint = aimResult.point - muzzle.position;
@@ -75,16 +79,13 @@ namespace _02.Script.Combat
                 toAimPoint = aimCamera.transform.forward;
             }
 
-            //방향만 얻음 ( normalized ) 
-            //속력 -> 길이 magnitude
             Vector3 shotDirection = toAimPoint.normalized;
             float distanceToAimPoint = toAimPoint.magnitude;
 
             float castDistance = aimResult.didHit
                 ? Mathf.Min(shotRange, distanceToAimPoint + 0.05f)
                 : shotRange;
-            
-            //초기화.
+
             ShotResult result = new ShotResult
             {
                 origin = muzzle.position,
@@ -93,7 +94,8 @@ namespace _02.Script.Combat
                 didHit = false
             };
 
-            if (Physics.Raycast(muzzle.position, shotDirection , out RaycastHit shotHit,shotRange,shotMask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(muzzle.position, shotDirection, out RaycastHit shotHit, castDistance, shotMask,
+                    QueryTriggerInteraction.Ignore))
             {
                 result.didHit = true;
                 result.hit = shotHit;
@@ -101,18 +103,14 @@ namespace _02.Script.Combat
 
             return result;
         }
+
         private void HandleHit(RaycastHit hit, AimResult aimResult)
         {
-            string aimName = aimResult.didHit
-                ? aimResult.hit.collider.name
-                : "없음";
-
+            string aimName = aimResult.didHit ? aimResult.hit.collider.name : "없음";
             string shotName = hit.collider.name;
             Debug.Log($"카메라 조준: {aimName} / 실제 피격: {shotName}");
 
-            IDamageable damageable =
-                hit.collider.GetComponentInParent<IDamageable>();
-
+            IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
                 damageable.TakeDamage(weaponController.Damage);
@@ -120,79 +118,74 @@ namespace _02.Script.Combat
 
             if (hitEffectPrefab != null)
             {
-                //맞은 객체위치에 hit Effect 출력
                 GameObject hitEffect = Instantiate(hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                Destroy(hitEffect , 0.2f);
-                
+                Destroy(hitEffect, 0.2f);
             }
         }
+
         private void DrawDebugRays(AimResult aim, ShotResult shot)
         {
             float aimDistance = aim.didHit ? aim.hit.distance : aimRange;
-            Debug.DrawRay(
-                aim.ray.origin,
-                aim.ray.direction * aimDistance,
-                Color.cyan,
-                0.5f);
+            Debug.DrawRay(aim.ray.origin, aim.ray.direction * aimDistance, Color.cyan, 0.5f);
 
             float shotDistance = shot.didHit ? shot.hit.distance : shot.distance;
-            Debug.DrawRay(
-                shot.origin,
-                shot.direction * shotDistance,
-                shot.didHit ? Color.red : Color.yellow,
-                0.5f);
+            Debug.DrawRay(shot.origin, shot.direction * shotDistance, shot.didHit ? Color.red : Color.yellow, 0.5f);
         }
 
         private void OnDrawGizmosSelected()
         {
-            //muzzle이 막혔는지 확인하기 위한 기즈모.
-            if (muzzle != null)
-            {
-                Gizmos.color = Color.chartreuse;
-                Gizmos.DrawWireSphere(muzzle.position, muzzleBlockRadius);
-            }
+            if (muzzle == null) return;
+
+            Gizmos.color = Color.chartreuse;
+            Gizmos.DrawWireSphere(muzzle.position, muzzleBlockRadius);
         }
 
         private bool IsMuzzleBlocked()
         {
-            // 총구 주위에 벽이 있는지 확인.
             return Physics.CheckSphere(
                 muzzle.position,
                 muzzleBlockRadius,
                 muzzleBlockMask,
                 QueryTriggerInteraction.Ignore);
         }
-        public void Fire()
+
+        public bool Fire()
         {
             if (aimCamera == null || muzzle == null)
             {
                 Debug.LogWarning("Aim Camera 또는 Muzzle이 없습니다.");
-                return;
+                return false;
             }
 
             if (IsMuzzleBlocked())
             {
                 Debug.Log("발사 불가: 총구가 장애물에 너무 가깝습니다.");
-                return;
+                return false;
             }
 
-            if (!weaponController.IsFire())
+            if (weaponController == null)
             {
-                Debug.Log("총기 딜레이 중 ..");
-                return;
+                Debug.LogWarning("WeaponController가 없습니다.");
+                return false;
             }
+
+            if (!weaponController.TryFire())
+            {
+                return false;
+            }
+
             AimResult aimResult = ResolveAimPoint();
             ShotResult shotResult = FireFromMuzzle(aimResult);
-            
-            //타겟방향 direction 저장
-            AimDirection =  shotResult.direction;
+
+            AimDirection = shotResult.direction;
             DrawDebugRays(aimResult, shotResult);
 
             if (shotResult.didHit)
             {
                 HandleHit(shotResult.hit, aimResult);
             }
+
+            return true;
         }
     }
-
 }

@@ -29,7 +29,7 @@ namespace _02.Script.Status
 
             currentTime = 0f;
 
-            if (other.TryGetComponent<IDamageable>(out IDamageable damageable))
+            if (other.TryGetComponent(out IDamageable damageable))
             {
                 damageable.TakeDamage(damage);
             }
