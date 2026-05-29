@@ -86,14 +86,14 @@ public partial class SelectNextPatrolPositionAction : Action
 
         EnemyAIConsoleMonitor monitor = Self.Value.GetComponent<EnemyAIConsoleMonitor>();
         EnemyBehaviorBridge bridge = Self.Value.GetComponent<EnemyBehaviorBridge>();
-        if (bridge == null || !bridge.HasPatrolPoints)
-        {
-            if (monitor != null)
-                monitor.ReportFailure("SelectNextPatrolPositionAction", "Bridge missing or patrolPoints empty");
-            else
-                Debug.LogWarning("[EnemyAI][Unknown] SelectNextPatrolPositionAction FAILED | Bridge missing or patrolPoints empty");
-            return Status.Failure;
-        }
+        //if (bridge == null || !bridge.HasPatrolPoints)
+        //{
+        //    if (monitor != null)
+        //        monitor.ReportFailure("SelectNextPatrolPositionAction", "Bridge missing or patrolPoints empty");
+        //    else
+        //        Debug.LogWarning("[EnemyAI][Unknown] SelectNextPatrolPositionAction FAILED | Bridge missing or patrolPoints empty");
+        //    return Status.Failure;
+        //}
         EnemyAIDebugVisualizer debugVisualizer = Self.Value.GetComponent<EnemyAIDebugVisualizer>();
 
         if (IsTargetVisibleNow(Self.Value, bridge))
@@ -122,7 +122,7 @@ public partial class SelectNextPatrolPositionAction : Action
             isWaitingAtPatrolPoint = false;
         }
 
-        CurrentPatrolPosition.Value = bridge.GetPatrolPosition(CurrentPatrolIndex.Value);
+        //CurrentPatrolPosition.Value = bridge.GetPatrolPosition(CurrentPatrolIndex.Value);
         CurrentPatrolIndex.Value = CurrentPatrolIndex.Value + 1;
         nextPatrolSelectionTime = Time.time + waitSeconds;
         isWaitingAtPatrolPoint = waitSeconds > 0f;

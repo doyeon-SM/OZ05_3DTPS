@@ -383,8 +383,8 @@ public partial class SenseTargetAction : Action
         EnemyAIConsoleMonitor consoleMonitor,
         EnemyAIDebugVisualizer debugVisualizer)
     {
-        if (Self?.Value == null || bridge == null || !bridge.HasPatrolPoints)
-            return;
+        //if (Self?.Value == null || bridge == null || !bridge.HasPatrolPoints)
+         //   return;
 
         NavMeshAgent agent = Self.Value.GetComponent<NavMeshAgent>();
         if (agent == null || !agent.isOnNavMesh)
@@ -405,25 +405,25 @@ public partial class SenseTargetAction : Action
             return;
 
         int selectedPatrolIndex = fallbackPatrolIndex;
-        Vector3 nextPatrolPosition = bridge.GetPatrolPosition(selectedPatrolIndex);
+        //Vector3 nextPatrolPosition = bridge.GetPatrolPosition(selectedPatrolIndex);
         fallbackPatrolIndex++;
 
         agent.isStopped = false;
         agent.speed = patrolSpeed;
-        agent.SetDestination(nextPatrolPosition);
+        //agent.SetDestination(nextPatrolPosition);
         nextFallbackPatrolDecisionTime = Time.time + 0.35f;
 
         if (debugVisualizer != null)
         {
-            debugVisualizer.ReportPatrol(selectedPatrolIndex, nextPatrolPosition);
+            //debugVisualizer.ReportPatrol(selectedPatrolIndex, nextPatrolPosition);
             debugVisualizer.ReportSenseHint("Patrol", "Sense fallback patrol steering");
         }
         if (consoleMonitor != null)
         {
-            consoleMonitor.ReportAction(
-                "SenseTargetAction",
-                $"fallback patrol steer | index={selectedPatrolIndex} speed={patrolSpeed:F2} dest={nextPatrolPosition}",
-                false);
+            //consoleMonitor.ReportAction(
+             //   "SenseTargetAction",
+             //   $"fallback patrol steer | index={selectedPatrolIndex} speed={patrolSpeed:F2} dest={nextPatrolPosition}",
+             //   false);
             consoleMonitor.ReportBranch("Patrol", "Sense fallback patrol steering");
         }
     }

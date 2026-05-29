@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: EnemyConfig_Melee
   m_EditorClassIdentifier: Assembly-CSharp::EnemyConfigSO
   patrolSpeed: 1.8
-  chaseSpeed: 3.8
-  rotationSpeed: 720
-  detectRadius: 10
+  chaseSpeed: 2.5
+  rotationSpeed: 600
+  detectRadius: 20
   viewAngle: 360
   targetLayer:
     serializedVersion: 2

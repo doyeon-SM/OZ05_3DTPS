@@ -53,9 +53,9 @@ public class EnemyAIConsoleMonitor : MonoBehaviour
             return;
         }
 
-        int patrolCount = bridge != null && bridge.PatrolPoints != null ? bridge.PatrolPoints.Length : 0;
+        //int patrolCount = bridge != null && bridge.PatrolPoints != null ? bridge.PatrolPoints.Length : 0;
         bool hasConfig = bridge != null && bridge.HasConfig;
-        Debug.Log($"[EnemyAI][{name}] Monitor start | graph={(graphAgent != null)} config={hasConfig} patrolCount={patrolCount}");
+        //Debug.Log($"[EnemyAI][{name}] Monitor start | graph={(graphAgent != null)} config={hasConfig} patrolCount={patrolCount}");
     }
 
     private void Update()
@@ -76,7 +76,7 @@ public class EnemyAIConsoleMonitor : MonoBehaviour
         float speed = navMeshAgent != null ? navMeshAgent.speed : -1f;
         bool stopped = navMeshAgent != null && navMeshAgent.isStopped;
         bool hasPath = navMeshAgent != null && navMeshAgent.hasPath;
-        Debug.Log($"[EnemyAI][{name}] Heartbeat | branch={branchText} reason={reasonText} speed={speed:F2} stopped={stopped} hasPath={hasPath}");
+        //Debug.Log($"[EnemyAI][{name}] Heartbeat | branch={branchText} reason={reasonText} speed={speed:F2} stopped={stopped} hasPath={hasPath}");
     }
 
     public void ReportAction(string actionName, string detail, bool isImportant = false)
@@ -97,7 +97,7 @@ public class EnemyAIConsoleMonitor : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[EnemyAI][{name}] {actionName} | {detail}");
+        //Debug.Log($"[EnemyAI][{name}] {actionName} | {detail}");
     }
 
     public void ReportFailure(string actionName, string reason)
@@ -113,7 +113,7 @@ public class EnemyAIConsoleMonitor : MonoBehaviour
             return;
         }
 
-        Debug.LogWarning($"[EnemyAI][{name}] {actionName} FAILED | {reason}");
+        //Debug.LogWarning($"[EnemyAI][{name}] {actionName} FAILED | {reason}");
     }
 
     public void ReportBranch(string branch, string reason)
@@ -136,7 +136,7 @@ public class EnemyAIConsoleMonitor : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[EnemyAI][{name}] Branch -> {branch} | {reason}");
+        //Debug.Log($"[EnemyAI][{name}] Branch -> {branch} | {reason}");
     }
 
     // Sense 판정 결과와 실제 실행 branch 로그를 분리해 디버깅 혼선을 줄인다.
@@ -154,7 +154,7 @@ public class EnemyAIConsoleMonitor : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[EnemyAI][{name}] SenseEval | {detail}");
+        //Debug.Log($"[EnemyAI][{name}] SenseEval | {detail}");
     }
 
     // Sense 실패 원인을 분해해 남겨, 왜 Attack/Chase 분기로 못 들어가는지 즉시 추적할 수 있게 한다.
@@ -207,7 +207,7 @@ public class EnemyAIConsoleMonitor : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[EnemyAI][{name}] SenseBreakdown | {detail}");
+        //Debug.Log($"[EnemyAI][{name}] SenseBreakdown | {detail}");
     }
 
     private bool ShouldLog(string key, bool isImportant)
