@@ -16,10 +16,10 @@ MonoBehaviour:
   chaseSpeed: 3.8
   rotationSpeed: 720
   detectRadius: 10
-  viewAngle: 120
+  viewAngle: 360
   targetLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 0
