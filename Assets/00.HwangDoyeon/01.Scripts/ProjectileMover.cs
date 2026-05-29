@@ -30,25 +30,29 @@ namespace TurretDemo
         public void Launch(Vector3 worldPosition, Vector3 worldDirection,
                            float speed, float lifeTime, float damage)
         {
+            // 1. 상태 설정
             fireDirection           = worldDirection.normalized;
             moveSpeedUnitsPerSecond = speed;
             lifeTimeSeconds         = lifeTime;
             damageAmount            = damage;
             remainingLifeSeconds    = lifeTime;
+            isLaunched              = true;
 
+            // 2. 위치·회전을 월드 기준으로 설정 (SetActive 이전에 반드시 처리)
             transform.SetPositionAndRotation(
                 worldPosition,
                 Quaternion.LookRotation(fireDirection));
 
-            isLaunched = true;
+            // 3. 활성화 (이 시점에 이미 올바른 위치가 설정되어 있음)
             gameObject.SetActive(true);
         }
 
         private void OnDisable()
         {
+            // isLaunched만 초기화 — 위치 초기화는 하지 않음
+            // (localPosition = Vector3.zero 가 터렛 회전 시 본체 내부를 가리켜
+            //  다음 Launch에서 오작동을 일으키므로 제거)
             isLaunched = false;
-            transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
         }
 
         private void Update()
@@ -65,7 +69,12 @@ namespace TurretDemo
         private void OnTriggerEnter(Collider other)
         {
             if (!isLaunched) return;
-            if (!other.CompareTag("Player")) return;
+            /*if (!other.CompareTag("Player"))
+            {
+                ReturnToPool();
+                return; 
+            }*/
+
 
             PlayerStatus ps = other.GetComponentInParent<PlayerStatus>();
             if (ps == null) return;
@@ -78,6 +87,14 @@ namespace TurretDemo
         {
             isLaunched = false;
             gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 풀이 고갈됐을 때 외부에서 강제로 슬롯을 회수합니다.
+        /// </summary>
+        public void ForceReturn()
+        {
+            ReturnToPool();
         }
     }
 }

@@ -4,7 +4,8 @@ namespace TurretDemo
 {
     /// <summary>
     /// 포탑류 공통 제어 흐름(조준→판정→발사)을 담당하는 추상 부모 클래스.
-    /// Projectile은 터렛 루트 아래 풀로 유지하며, 발사 시 방향만 주입합니다.
+    /// MuzzlePoint.forward 대신 YawPivot.forward를 발사 기준 방향으로 사용합니다.
+    /// (모델 축이 뒤틀린 경우에도 안정적으로 동작)
     /// </summary>
     [DisallowMultipleComponent]
     public abstract class BaseTurretController : MonoBehaviour, ITurretAimDebugState
@@ -17,7 +18,7 @@ namespace TurretDemo
 
         [Header("Object Pool")]
         [SerializeField]
-        [Tooltip("풀 크기. 이 수만큼 Projectile을 터렛 루트 아래 미리 생성합니다.")]
+        [Tooltip("풀 크기 (수명/쿨타임 기준으로 자동 보정됨).")]
         [Min(1)] private int poolSize = 5;
 
         [Header("Yaw")]
@@ -30,7 +31,7 @@ namespace TurretDemo
 
         [Header("Fire Control")]
         [SerializeField]
-        [Tooltip("MuzzlePoint.forward와 타겟 방향 사이 허용 각(도).")]
+        [Tooltip("YawPivot.forward와 타겟 수평 방향 사이 허용 각(도).")]
         private float fireAngleThresholdDegrees = 5f;
 
         [SerializeField] private float fireIntervalSeconds = 0.5f;
@@ -59,32 +60,28 @@ namespace TurretDemo
         private bool  runtimeIsFireCooldownActive;
 
         // ── ITurretAimDebugState ───────────────────
-        public bool  ShowDebugGizmos             => showDebugGizmos;
-        public float FireAngleThresholdDegrees   => fireAngleThresholdDegrees;
-        public float EngagementRangeWorldUnits   => engagementRangeWorldUnits;
-        public Transform MuzzleTransform         => muzzlePoint;
-        public float AimErrorDegrees             => runtimeAimErrorDegrees;
-        public bool  IsAimedWithinThreshold      => runtimeIsAimedWithinThreshold;
-        public bool  IsFireCooldownActive        => runtimeIsFireCooldownActive;
-        public bool  IsWithinEngagementRange     => runtimeIsWithinEngagementRange;
+        public bool  ShowDebugGizmos           => showDebugGizmos;
+        public float FireAngleThresholdDegrees => fireAngleThresholdDegrees;
+        public float EngagementRangeWorldUnits => engagementRangeWorldUnits;
+        public Transform MuzzleTransform       => muzzlePoint;
+        public float AimErrorDegrees           => runtimeAimErrorDegrees;
+        public bool  IsAimedWithinThreshold    => runtimeIsAimedWithinThreshold;
+        public bool  IsFireCooldownActive      => runtimeIsFireCooldownActive;
+        public bool  IsWithinEngagementRange   => runtimeIsWithinEngagementRange;
 
         // ── 파생 클래스 인터페이스 ─────────────────
-        /// <summary>현재 프레임의 추적 타겟을 반환합니다. null이면 Patrol 상태.</summary>
         protected abstract Transform GetCurrentTarget();
-
-        protected virtual bool CanFireAdditionalConditions(Transform currentTarget) => true;
+        protected virtual bool CanFireAdditionalConditions(Transform currentTarget) { return true; }
         protected virtual void OnProjectileFired(ProjectileMover projectile) { }
 
-        // ── EnemyConfigSO 값 주입 (파생 클래스에서 호출) ──
+        // ── Config 주입 ────────────────────────────
         protected void ApplyConfig(EnemyConfigSO config)
         {
             if (config == null) return;
             engagementRangeWorldUnits = config.detectRadius;
             fireIntervalSeconds       = config.attackCooldown;
-            // 데미지는 EnemyStatus.AttackPower에서 별도로 주입
         }
 
-        /// <summary>EnemyStatus.AttackPower를 발사체 데미지에 적용합니다.</summary>
         protected void ApplyAttackPower(int attackPower)
         {
             projectileDamage = attackPower;
@@ -100,11 +97,16 @@ namespace TurretDemo
         {
             if (projectilePrefab == null) return;
 
+            // 수명 동안 소비되는 슬롯 수 + 여유 1개
+            int requiredSize = Mathf.Max(poolSize,
+                Mathf.CeilToInt(projectileLifeTimeSeconds / Mathf.Max(0.01f, fireIntervalSeconds)) + 1);
+            poolSize = requiredSize;
+
             pool = new ProjectileMover[poolSize];
             for (int i = 0; i < poolSize; i++)
             {
                 GameObject go = Instantiate(projectilePrefab, transform);
-                go.name = $"Projectile_Pool_{i}";
+                go.name = "Projectile_Pool_" + i;
                 go.SetActive(false);
 
                 ProjectileMover mover = go.GetComponent<ProjectileMover>();
@@ -113,32 +115,37 @@ namespace TurretDemo
 
                 pool[i] = mover;
             }
+
+            Debug.Log("[BaseTurretController] Pool=" + poolSize
+                + " (수명=" + projectileLifeTimeSeconds + "s / 쿨타임=" + fireIntervalSeconds + "s)");
         }
 
+        // ── Update ─────────────────────────────────
         protected virtual void Update()
         {
             Transform currentTarget = GetCurrentTarget();
 
-            runtimeHasTargetWorldPosition    = false;
-            runtimeIsWithinEngagementRange   = false;
-            runtimeIsAimedWithinThreshold    = false;
-            runtimeIsFireCooldownActive      = false;
-            runtimeAimErrorDegrees           = 0f;
+            runtimeHasTargetWorldPosition  = false;
+            runtimeIsWithinEngagementRange = false;
+            runtimeIsAimedWithinThreshold  = false;
+            runtimeIsFireCooldownActive    = false;
+            runtimeAimErrorDegrees         = 0f;
 
-            if (yawPivot == null || pitchPivot == null || muzzlePoint == null) return;
+            if (yawPivot == null || muzzlePoint == null) return;
 
             if (currentTarget != null)
             {
-                // ── 타겟 있음: 조준 + 발사 ──────────
-                runtimeHasTargetWorldPosition  = true;
-                runtimeTargetWorldPosition     = currentTarget.position;
+                runtimeHasTargetWorldPosition = true;
+                runtimeTargetWorldPosition    = currentTarget.position;
 
                 float dist = Vector3.Distance(muzzlePoint.position, currentTarget.position);
                 runtimeIsWithinEngagementRange =
                     engagementRangeWorldUnits <= 0f || dist <= engagementRangeWorldUnits;
 
                 UpdateYawTowardsTarget(currentTarget);
-                UpdatePitchTowardsTarget(currentTarget);
+                if (pitchPivot != null)
+                    UpdatePitchTowardsTarget(currentTarget);
+
                 RefreshAimDiagnostics(currentTarget);
 
                 bool canFire = runtimeIsWithinEngagementRange && CanFireAdditionalConditions(currentTarget);
@@ -148,12 +155,11 @@ namespace TurretDemo
                 if (canFire)
                     TryFireIfAimed();
             }
-            // Patrol 회전은 NearestEnemyTurretController에서 직접 처리
         }
 
         public bool TryGetTargetWorldPosition(out Vector3 pos)
         {
-            pos = runtimeHasTargetWorldPosition ? runtimeTargetWorldPosition : default;
+            pos = runtimeHasTargetWorldPosition ? runtimeTargetWorldPosition : default(Vector3);
             return runtimeHasTargetWorldPosition;
         }
 
@@ -180,10 +186,10 @@ namespace TurretDemo
 
         private void UpdatePitchTowardsTarget(Transform target)
         {
-            Vector3 toTarget    = (target.position - pitchPivot.position).normalized;
-            Vector3 localDir    = Quaternion.Inverse(yawPivot.rotation) * toTarget;
-            float desired       = Mathf.Atan2(localDir.y, localDir.z) * Mathf.Rad2Deg;
-            desired             = Mathf.Clamp(desired, minPitchDegrees, maxPitchDegrees);
+            Vector3 toTarget = (target.position - pitchPivot.position).normalized;
+            Vector3 localDir = Quaternion.Inverse(yawPivot.rotation) * toTarget;
+            float desired    = Mathf.Atan2(localDir.y, localDir.z) * Mathf.Rad2Deg;
+            desired          = Mathf.Clamp(desired, minPitchDegrees, maxPitchDegrees);
 
             float current = NormalizeAngle180(pitchPivot.localEulerAngles.x);
             float next    = Mathf.MoveTowardsAngle(current, desired,
@@ -191,16 +197,36 @@ namespace TurretDemo
             pitchPivot.localRotation = Quaternion.Euler(next, 0f, 0f);
         }
 
+        /// <summary>
+        /// 조준 판정: MuzzlePoint.forward 대신 YawPivot.forward(수평)와
+        /// 타겟 수평 방향의 각도로 판단합니다.
+        /// 모델 축이 뒤틀린 경우에도 Yaw 회전 결과만으로 안정적으로 동작합니다.
+        /// </summary>
         private void RefreshAimDiagnostics(Transform target)
         {
-            Vector3 toTarget = target.position - muzzlePoint.position;
-            if (toTarget.sqrMagnitude < 1e-8f)
+            // YawPivot 수평 forward
+            Vector3 yawForward = yawPivot.forward;
+            yawForward.y = 0f;
+            if (yawForward.sqrMagnitude < 1e-6f)
             {
                 runtimeAimErrorDegrees = 0f;
                 runtimeIsAimedWithinThreshold = true;
                 return;
             }
-            float angle = Vector3.Angle(muzzlePoint.forward, toTarget.normalized);
+            yawForward.Normalize();
+
+            // 타겟 수평 방향
+            Vector3 toTarget = target.position - yawPivot.position;
+            toTarget.y = 0f;
+            if (toTarget.sqrMagnitude < 1e-6f)
+            {
+                runtimeAimErrorDegrees = 0f;
+                runtimeIsAimedWithinThreshold = true;
+                return;
+            }
+            toTarget.Normalize();
+
+            float angle = Vector3.Angle(yawForward, toTarget);
             runtimeAimErrorDegrees        = angle;
             runtimeIsAimedWithinThreshold = angle <= fireAngleThresholdDegrees;
         }
@@ -212,7 +238,7 @@ namespace TurretDemo
             if (Time.time < lastFireTimeSeconds + fireIntervalSeconds) return;
             if (pool == null || pool.Length == 0) return;
 
-            // 풀에서 비활성 Projectile 탐색 (Round-Robin)
+            // 비활성 슬롯 탐색 (Round-Robin)
             ProjectileMover mover = null;
             for (int i = 0; i < pool.Length; i++)
             {
@@ -225,15 +251,32 @@ namespace TurretDemo
                 }
             }
 
-            if (mover == null) return; // 모든 풀 슬롯이 활성 중
+            // 모두 활성 중이면 가장 오래된 슬롯 강제 회수
+            if (mover == null)
+            {
+                ProjectileMover oldest = pool[poolIndex % pool.Length];
+                if (oldest != null)
+                {
+                    oldest.ForceReturn();
+                    mover     = oldest;
+                    poolIndex = (poolIndex + 1) % pool.Length;
+                }
+            }
 
-            mover.Launch(
-                muzzlePoint.position,
-                muzzlePoint.forward,
-                projectileSpeed,
-                projectileLifeTimeSeconds,
-                projectileDamage);
+            if (mover == null) return;
 
+            // 발사 방향: YawPivot.forward 수평 벡터 사용
+            // (MuzzlePoint.forward는 모델 축에 따라 신뢰 불가)
+            Vector3 fireDir = yawPivot.forward;
+            fireDir.y = 0f;
+            if (fireDir.sqrMagnitude < 1e-6f)
+                fireDir = Vector3.forward;
+            fireDir.Normalize();
+
+            // 발사 위치는 MuzzlePoint 사용
+            Vector3 spawnPos = muzzlePoint != null ? muzzlePoint.position : yawPivot.position;
+
+            mover.Launch(spawnPos, fireDir, projectileSpeed, projectileLifeTimeSeconds, projectileDamage);
             OnProjectileFired(mover);
             lastFireTimeSeconds = Time.time;
         }
