@@ -62,6 +62,7 @@ namespace _01.Scenes.PhaseValidation
                     SpawnEnemy(entry.enemyData);
             }
 
+            if (timerUI != null) timerUI.Show();
             StartCoroutine(OccupyTimerCoroutine());
             Debug.Log($"[{sectorData.sectorName}] 점령 시작 — {sectorData.occupyDuration}초 버티기");
         }
@@ -125,7 +126,7 @@ namespace _01.Scenes.PhaseValidation
         protected override void OnSectorCleared()
         {
             isOccupying = false;
-            if (timerUI != null) timerUI.OnOccupySuccess();
+            if (timerUI != null) { timerUI.OnOccupySuccess(); timerUI.Hide(); }
             Debug.Log($"[{sectorData.sectorName}] 점령 성공!");
         }
 
