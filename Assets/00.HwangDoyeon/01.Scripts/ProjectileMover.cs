@@ -45,6 +45,7 @@ namespace TurretDemo
 
             // 3. 활성화 (이 시점에 이미 올바른 위치가 설정되어 있음)
             gameObject.SetActive(true);
+            Debug.Log($"[ProjectileMover] Launch {gameObject.name} | {isLaunched}");
         }
 
         private void OnDisable()
@@ -69,24 +70,28 @@ namespace TurretDemo
         private void OnTriggerEnter(Collider other)
         {
             if (!isLaunched) return;
-            /*if (!other.CompareTag("Player"))
+            
+            if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+            {
+                PlayerStatus ps = other.GetComponentInParent<PlayerStatus>();
+                if (ps == null) return;
+
+                ps.TakeDamage((int)damageAmount);
+                ReturnToPool();
+            }
+            else if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
             {
                 ReturnToPool();
-                return; 
-            }*/
-
-
-            PlayerStatus ps = other.GetComponentInParent<PlayerStatus>();
-            if (ps == null) return;
-
-            ps.TakeDamage((int)damageAmount);
-            ReturnToPool();
+            }
+            else return;
+            
         }
 
         private void ReturnToPool()
         {
             isLaunched = false;
             gameObject.SetActive(false);
+            Debug.Log($"[ProjectileMover] ReturnToPool : {gameObject.name} | {isLaunched}");
         }
 
         /// <summary>

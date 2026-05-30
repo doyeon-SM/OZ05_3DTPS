@@ -247,6 +247,7 @@ namespace TurretDemo
                 {
                     mover     = pool[idx];
                     poolIndex = (idx + 1) % pool.Length;
+                    Debug.Log($"[BaseTurretController] TryFireIfaimed find poolIndex: {poolIndex}");
                     break;
                 }
             }
@@ -261,6 +262,7 @@ namespace TurretDemo
                     mover     = oldest;
                     poolIndex = (poolIndex + 1) % pool.Length;
                 }
+                Debug.Log($"[BaseTurretController] TryFireIfaimed find poolIndex (강제회수) : {poolIndex}");
             }
 
             if (mover == null) return;
@@ -278,6 +280,7 @@ namespace TurretDemo
 
             mover.Launch(spawnPos, fireDir, projectileSpeed, projectileLifeTimeSeconds, projectileDamage);
             OnProjectileFired(mover);
+            Debug.Log($"[BaseTurretController] mover.Lauch : {mover}");
             lastFireTimeSeconds = Time.time;
         }
 
