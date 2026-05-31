@@ -46,6 +46,9 @@ namespace ProjectSpedex
     
         [Tooltip("모든 요소에 적용되는 전체 각도 오프셋을 제어합니다. 예를 들어 45로 설정하면 모든 요소가 +45도 이동합니다. 일반적으로 45, 90, 180이 사용하기 좋습니다.")]
         public float globalOffset = 0f;
+
+        [Tooltip("true로 설정하면 각 요소 Transform을 각도에 맞게 회전합니다. 직접 배치한 무기 선택 UI처럼 화면에 일정하게 보여야 하는 UI라면 false로 두세요.")]
+        public bool rotateElementsByAngle = false;
     
     
         [HideInInspector]
@@ -62,15 +65,20 @@ namespace ProjectSpedex
         private int previousActiveIndex = 0; //Lazy Selection에서 어떤 버튼의 하이라이트를 해제할지 판단하는 데 사용됩니다.
     
         private PointerEventData pointer;
+
+        private Canvas parentCanvas;
     
         void Awake() {
     
             pointer = new PointerEventData(EventSystem.current);
     
             rt = GetComponent<RectTransform>();
+            parentCanvas = GetComponentInParent<Canvas>();
     
             if (rt == null)
                 Debug.LogError("Radial Menu: 방사형 메뉴 " + gameObject.name + "의 RectTransform을 찾을 수 없습니다. 이 오브젝트가 Canvas의 자식인지 확인하세요.");
+            if (parentCanvas == null)
+                Debug.LogError("Radial Menu: " + gameObject.name + "에서 부모 Canvas를 찾을 수 없습니다. 방사형 메뉴가 Canvas 아래에 있는지 확인하세요.");
     
             if (useSelectionFollower && selectionFollowerContainer == null)
                 Debug.LogError("Radial Menu: " + gameObject.name + "에서 Selection Follower가 활성화되어 있지만 Selection Follower 컨테이너가 할당되지 않았습니다.");
@@ -81,6 +89,12 @@ namespace ProjectSpedex
             
             
             elementCount = elements.Count;
+
+            if (elementCount <= 0) {
+                Debug.LogError("Radial Menu: " + gameObject.name + "에 등록된 요소가 없습니다. Elements 목록에 RadialMenuElement를 추가해주세요.");
+                enabled = false;
+                return;
+            }
     
             angleOffset = (360f / (float)elementCount);
     
@@ -107,7 +121,7 @@ namespace ProjectSpedex
             if (useGamepad) {
                 EventSystem.current.SetSelectedGameObject(gameObject, null); //시작할 때 이 오브젝트를 활성 오브젝트로 설정합니다. 다른 스크립트에서 수동으로 설정하려면 이 줄을 주석 처리하세요.
                 if (useSelectionFollower && selectionFollowerContainer != null)
-                    selectionFollowerContainer.rotation = Quaternion.Euler(0, 0, -globalOffset); //Selection Follower가 첫 번째 요소를 가리키도록 합니다.
+                    SetSelectionFollowerRotation(-globalOffset); //Selection Follower가 첫 번째 요소를 가리키도록 합니다.
             }
     
         }
@@ -120,16 +134,18 @@ namespace ProjectSpedex
     
     
             float rawAngle;
+            bool hasDirectionInput = true;
             
             if (!useGamepad) {
                 Vector2 pointerPosition = GetPointerPosition();
-                rawAngle = Mathf.Atan2(pointerPosition.y - rt.position.y, pointerPosition.x - rt.position.x) * Mathf.Rad2Deg;
+                hasDirectionInput = TryGetPointerLocalDirection(pointerPosition, out Vector2 pointerDirection);
+                rawAngle = hasDirectionInput ? Mathf.Atan2(pointerDirection.y, pointerDirection.x) * Mathf.Rad2Deg : 0f;
             }
             else
                 rawAngle = Mathf.Atan2(gamepadDirection.y, gamepadDirection.x) * Mathf.Rad2Deg;
     
             //게임패드를 사용하지 않으면 항상 각도를 갱신합니다. 게임패드를 사용하는 경우 조이스틱이 움직였을 때만 갱신합니다.
-            if (!useGamepad)
+            if (!useGamepad && hasDirectionInput)
                 currentAngle = normalizeAngle(-rawAngle + 90 - globalOffset + (angleOffset / 2f));
             else if (joystickMoved)
                 currentAngle = normalizeAngle(-rawAngle + 90 - globalOffset + (angleOffset / 2f));
@@ -138,7 +154,7 @@ namespace ProjectSpedex
             if (angleOffset != 0 && useLazySelection) {
     
                 //현재 가리키고 있는 요소의 인덱스입니다.
-                index = (int)(currentAngle / angleOffset);
+                index = Mathf.Clamp((int)(currentAngle / angleOffset), 0, elementCount - 1);
     
                 if (elements[index] != null) {
     
@@ -159,7 +175,7 @@ namespace ProjectSpedex
             //Selection Follower를 사용 중이라면 위치 방향을 갱신합니다.
             if (useSelectionFollower && selectionFollowerContainer != null) {
                 if (!useGamepad || joystickMoved)
-                    selectionFollowerContainer.rotation = Quaternion.Euler(0, 0, rawAngle + 270);
+                    SetSelectionFollowerRotation(rawAngle + 270);
                
     
             } 
@@ -194,6 +210,44 @@ namespace ProjectSpedex
     
             return angle;
     
+        }
+
+        private bool TryGetPointerLocalDirection(Vector2 screenPosition, out Vector2 direction) {
+
+            direction = Vector2.zero;
+
+            if (rt == null)
+                return false;
+
+            Camera eventCamera = GetCanvasEventCamera();
+
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rt, screenPosition, eventCamera, out Vector2 localPointerPosition))
+                return false;
+
+            direction = localPointerPosition - rt.rect.center;
+            return direction.sqrMagnitude > 0.0001f;
+
+        }
+
+        private Camera GetCanvasEventCamera() {
+
+            if (parentCanvas == null || parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+                return null;
+
+            if (parentCanvas.worldCamera != null)
+                return parentCanvas.worldCamera;
+
+            return Camera.main;
+
+        }
+
+        private void SetSelectionFollowerRotation(float zRotation) {
+
+            if (selectionFollowerContainer == null)
+                return;
+
+            selectionFollowerContainer.localRotation = Quaternion.Euler(0f, 0f, zRotation);
+
         }
     
         private Vector2 GetPointerPosition() {

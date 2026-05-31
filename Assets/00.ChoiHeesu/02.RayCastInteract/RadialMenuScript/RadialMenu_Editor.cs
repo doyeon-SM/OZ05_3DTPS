@@ -48,12 +48,16 @@ namespace ProjectSpedex
                     continue;
                 }
                 RectTransform elemRt = rm.elements[i].GetComponent<RectTransform>();
-                elemRt.rotation = Quaternion.Euler(0, 0, 0);
+                elemRt.localRotation = Quaternion.Euler(0, 0, 0);
+                ResetButtonRotation(rm.elements[i]);
 
             }
 
             return;
         }
+
+        if (!rm.rotateElementsByAngle)
+            return;
 
 
         for (int i = 0; i < rm.elements.Count; i++) {
@@ -62,14 +66,23 @@ namespace ProjectSpedex
                 continue;
             }
             RectTransform elemRt = rm.elements[i].GetComponent<RectTransform>();
-            elemRt.rotation = Quaternion.Euler(0, 0, -((360f / (float)rm.elements.Count) * i) - rm.globalOffset);
+            elemRt.localRotation = Quaternion.Euler(0, 0, -((360f / (float)rm.elements.Count) * i) - rm.globalOffset);
 
         }
 
 
         }
 
+        private void ResetButtonRotation(RadialMenuElement element) {
 
+            if (element.button == null)
+                return;
+
+            RectTransform buttonRectTransform = element.button.GetComponent<RectTransform>();
+            if (buttonRectTransform != null)
+                buttonRectTransform.localRotation = Quaternion.identity;
+
+        }
 
     }
 }

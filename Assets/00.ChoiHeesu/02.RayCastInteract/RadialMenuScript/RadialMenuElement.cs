@@ -24,7 +24,7 @@ namespace ProjectSpedex
     
     [Tooltip("S.O 데이터를 저장할 string 입니다")]
     public string ItemID;
-    
+
     [HideInInspector]
     public float angleMin, angleMax;
 
@@ -61,7 +61,10 @@ namespace ProjectSpedex
 
     void Start () {
 
-        rt.rotation = Quaternion.Euler(0, 0, -angleOffset); //부모 방사형 메뉴에서 결정한 회전을 적용합니다.
+        if (parentRM.rotateElementsByAngle)
+            rt.localRotation = Quaternion.Euler(0, 0, -angleOffset); //부모 방사형 메뉴에서 결정한 회전을 적용합니다.
+        else
+            ResetButtonRotation();
 
         //Lazy Selection을 사용하는 경우 일반 마우스 오버 효과가 방해되지 않도록 raycast를 끕니다.
         if (parentRM.useLazySelection)
@@ -95,6 +98,17 @@ namespace ProjectSpedex
 
 
         }
+
+    }
+
+    private void ResetButtonRotation() {
+
+        if (button == null)
+            return;
+
+        RectTransform buttonRectTransform = button.GetComponent<RectTransform>();
+        if (buttonRectTransform != null)
+            buttonRectTransform.localRotation = Quaternion.identity;
 
     }
 	
