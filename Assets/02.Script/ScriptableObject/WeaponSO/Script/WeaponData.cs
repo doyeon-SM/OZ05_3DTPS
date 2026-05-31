@@ -1,3 +1,4 @@
+using _02.Script.ScriptableObject;
 using UnityEngine;
 
     [CreateAssetMenu(
@@ -9,7 +10,7 @@ using UnityEngine;
         public string WeaponName;           // 총기 Display Name
         [TextArea] public string WeaponDescription;    // UI용 string Text
         public WeaponClass WeaponType;      // 총기 타입
-        
+        public Tier  tier;                  // 총기 등급
         
         [Header("전투 수치")]
         public int Damage;                  // 총기의 기본 데미지
@@ -20,7 +21,7 @@ using UnityEngine;
         public int BulletCost;              // 1회 사격당 소모되는 Ammo Cost
         public bool UseAmmo;                // 총알 사용 여부
         public bool AutoFire;               // 자동 사격 여부 ( true 라면 꾹 누르면 계속 나가는 )
-        /*public bool isLocked ;              // 현재 Lock되어있는가*/
+        
         
         [Header("RayCast관련")]
         [Header("프리팹 및 이펙트")]

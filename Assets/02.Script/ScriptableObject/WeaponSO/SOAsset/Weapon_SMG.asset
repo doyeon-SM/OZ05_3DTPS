@@ -12,17 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b1d2117c386432e9a4d45e087148b53, type: 3}
   m_Name: Weapon_SMG
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.WeaponData
-  weaponId: Weapon_SMG
-  weaponName: UZI
+  WeaponId: Weapon_SMG
+  WeaponName: SMG-Name
+  WeaponDescription: It is a near and medium-range continuous weapon with fast continuous
+    power and ample magazines.
   WeaponType: 1
-  icon: {fileID: 0}
+  tier: 2
   Damage: 5
   CriticalMultiplier: 2
   RPM: 800
   ReloadTime: 2.2
-  MagazineSize: 50
-  useAmmo: 1
-  waeponPrefab: {fileID: 0}
-  MuzzleTransform: {fileID: 0}
-  fireEffect: {fileID: 0}
-  fireSound: {fileID: 0}
+  MagazineSize: 40
+  BulletCost: 1
+  UseAmmo: 0
+  AutoFire: 0
+  WeaponPrefab: {fileID: 0}
+  FireEffect: {fileID: 0}
+  FireSound: {fileID: 0}
+  UnLockIcon: {fileID: -1863459577, guid: 92a4fe653152e9244b4849b9dba1c92b, type: 3}

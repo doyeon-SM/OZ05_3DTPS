@@ -10,22 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b1d2117c386432e9a4d45e087148b53, type: 3}
-  m_Name: Weapon_Cube
+  m_Name: Weapon_MG
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  WeaponId: 
-  WeaponName: 
-  WeaponDescription: 
-  WeaponType: 0
-  Icon: {fileID: 0}
-  Damage: 0
+  WeaponId: Weapon_MG
+  WeaponName: MG_Name
+  WeaponDescription: Based on high elastic capacity, it is an overwhelming weapon
+    based on high elastic capacity.
+  WeaponType: 4
+  tier: 4
+  Damage: 8
   CriticalMultiplier: 0
-  RPM: 0
-  ReloadTime: 0
-  MagazineSize: 0
-  BulletCost: 0
+  RPM: 700
+  ReloadTime: 5
+  MagazineSize: 95
+  BulletCost: 1
   UseAmmo: 0
   AutoFire: 0
-  canPickup: 0
   WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
+  UnLockIcon: {fileID: 1234379130, guid: 92a4fe653152e9244b4849b9dba1c92b, type: 3}

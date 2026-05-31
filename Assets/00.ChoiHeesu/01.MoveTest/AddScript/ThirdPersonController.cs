@@ -1,4 +1,5 @@
 ﻿using _02.Script.Combat;
+using _00.ChoiHeesu._01.MoveTest.Interact;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
@@ -94,18 +95,27 @@ namespace StarterAssets
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
+        private bool _missingAnimationControllerLogged;
+        private bool _missingControllerLogged;
+        private bool _missingInputLogged;
+        private bool _missingMainCameraLogged;
+        private bool _missingCinemachineTargetLogged;
+        private bool _missingPlayerInputLogged;
+        private bool _missingRaycastInteractorLogged;
+        private bool _missingHitscanLogged;
 
         private const float _threshold = 0.01f;
 
         // 공격을 위한 컴포넌트
         [SerializeField]private TPS_TwoStepHitscanSystem _tpsTwoStepHitscanSystem;
+        [SerializeField] private RaycastInteractor _raycastInteractor;
 
         private bool IsCurrentDeviceMouse
         {
             get
             {
 #if ENABLE_INPUT_SYSTEM
-                return _playerInput.currentControlScheme == "KeyboardMouse";
+                return _playerInput != null && _playerInput.currentControlScheme == "KeyboardMouse";
 #else
 				return false;
 #endif
@@ -130,10 +140,25 @@ namespace StarterAssets
             {
                 _tpsTwoStepHitscanSystem = gameObject.GetComponent<TPS_TwoStepHitscanSystem>();
             }
+
+            if (_raycastInteractor == null)
+            {
+                _raycastInteractor = gameObject.GetComponent<RaycastInteractor>();
+            }
+
+            if (_raycastInteractor == null)
+                LogMissingReference(nameof(_raycastInteractor), "픽업 상호작용을 사용하려면 RaycastInteractor 컴포넌트를 같은 오브젝트에 추가하거나 Inspector에 연결해주세요.");
         }
 
         private void Start()
         {
+            if (CinemachineCameraTarget == null)
+            {
+                Debug.LogError($"[ThirdPersonController] CinemachineCameraTarget이 null입니다. {gameObject.name}의 Inspector에서 Cinemachine Camera Target을 연결해주세요.", this);
+                enabled = false;
+                return;
+            }
+
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
 
             _animationController = GetComponent<AnimationController>();
@@ -148,10 +173,16 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+
+            if (!HasRequiredReferences())
+                enabled = false;
         }
 
         private void Update()
         {
+            if (!HasRequiredReferences())
+                return;
+
             JumpAndGravity();
             GroundedCheck();
             Move();
@@ -163,28 +194,44 @@ namespace StarterAssets
    
         private void LateUpdate()
         {
+            if (!HasRequiredReferences())
+                return;
+
             CameraRotation();
         }
 
         private void HandleInteract()
         {
-            if (_input.Interact)
+            if (_input == null || !_input.Interact)
+                return;
+
+            if (_raycastInteractor != null && _raycastInteractor.CanPickupCurrentItem())
             {
-                Debug.Log("Interact");
-                
-                // 상호작용 스크립트 + 상호작용 별 애니메이션 출력 ( out으로 )
-                /*_animationController.SetInteractive();*/
-                _input.Interact = false;
+                _animationController.SetPickup();
+                _raycastInteractor.TryPickupCurrentItem();
             }
+            else
+            {
+                _animationController.SetInteractive();
+            }
+
+            _input.Interact = false;
         }
 
         private void HandleAttack()
         {
+            if (_input == null || _animationController == null)
+                return;
+
             _animationController.SetAttack(false);
 
             if (_input.Attack)
             {
-                if (_tpsTwoStepHitscanSystem == null) return;
+                if (_tpsTwoStepHitscanSystem == null)
+                {
+                    LogMissingReference(nameof(_tpsTwoStepHitscanSystem), "공격 기능을 사용하려면 TPS_TwoStepHitscanSystem을 연결해야 합니다.");
+                    return;
+                }
 
                 bool fired = _tpsTwoStepHitscanSystem.Fire();
                 _animationController.SetAttack(fired);
@@ -203,6 +250,9 @@ namespace StarterAssets
         }
         private void GroundedCheck()
         {
+            if (_animationController == null)
+                return;
+
             // set sphere position, with offset
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
                 transform.position.z);
@@ -214,6 +264,9 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
+            if (_input == null || CinemachineCameraTarget == null)
+                return;
+
             // if there is an input and camera position is not fixed
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {
@@ -281,7 +334,7 @@ namespace StarterAssets
             if (_input.move != Vector2.zero)
             {
                 _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  _mainCamera.transform.eulerAngles.y;
+                                  (_mainCamera != null ? _mainCamera.transform.eulerAngles.y : 0f);
                 float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                     RotationSmoothTime);
 
@@ -297,6 +350,117 @@ namespace StarterAssets
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
             _animationController.SetMove(_animationBlend);
+        }
+
+        private bool HasRequiredReferences()
+        {
+            bool hasReferences = true;
+
+            if (_animationController == null)
+            {
+                LogMissingReference(nameof(_animationController), "AnimationController 컴포넌트가 필요합니다.");
+                hasReferences = false;
+            }
+
+            if (_controller == null)
+            {
+                LogMissingReference(nameof(_controller), "CharacterController 컴포넌트가 필요합니다.");
+                hasReferences = false;
+            }
+
+            if (_input == null)
+            {
+                LogMissingReference(nameof(_input), "StarterAssetsInputs 컴포넌트가 필요합니다.");
+                hasReferences = false;
+            }
+
+            if (_mainCamera == null)
+            {
+                LogMissingReference(nameof(_mainCamera), "MainCamera 태그가 붙은 카메라 오브젝트가 필요합니다.");
+            }
+
+            if (CinemachineCameraTarget == null)
+            {
+                LogMissingReference(nameof(CinemachineCameraTarget), "Inspector에서 CinemachineCameraTarget을 연결해야 합니다.");
+                hasReferences = false;
+            }
+
+            if (_raycastInteractor == null)
+                LogMissingReference(nameof(_raycastInteractor), "픽업 상호작용을 사용하려면 RaycastInteractor 컴포넌트를 연결해야 합니다.");
+
+#if ENABLE_INPUT_SYSTEM
+            if (_playerInput == null)
+            {
+                LogMissingReference(nameof(_playerInput), "PlayerInput 컴포넌트가 필요합니다.");
+                hasReferences = false;
+            }
+#endif
+
+            return hasReferences;
+        }
+
+        private void LogMissingReference(string fieldName, string message)
+        {
+            if (fieldName == nameof(_animationController))
+            {
+                if (_missingAnimationControllerLogged)
+                    return;
+
+                _missingAnimationControllerLogged = true;
+            }
+            else if (fieldName == nameof(_controller))
+            {
+                if (_missingControllerLogged)
+                    return;
+
+                _missingControllerLogged = true;
+            }
+            else if (fieldName == nameof(_input))
+            {
+                if (_missingInputLogged)
+                    return;
+
+                _missingInputLogged = true;
+            }
+            else if (fieldName == nameof(_mainCamera))
+            {
+                if (_missingMainCameraLogged)
+                    return;
+
+                _missingMainCameraLogged = true;
+            }
+            else if (fieldName == nameof(CinemachineCameraTarget))
+            {
+                if (_missingCinemachineTargetLogged)
+                    return;
+
+                _missingCinemachineTargetLogged = true;
+            }
+            else if (fieldName == nameof(_raycastInteractor))
+            {
+                if (_missingRaycastInteractorLogged)
+                    return;
+
+                _missingRaycastInteractorLogged = true;
+            }
+            else if (fieldName == nameof(_tpsTwoStepHitscanSystem))
+            {
+                if (_missingHitscanLogged)
+                    return;
+
+                _missingHitscanLogged = true;
+            }
+#if ENABLE_INPUT_SYSTEM
+            else if (fieldName == nameof(_playerInput))
+            {
+                if (_missingPlayerInputLogged)
+                    return;
+
+                _missingPlayerInputLogged = true;
+            }
+#endif
+
+            Debug.LogError($"[ThirdPersonController] {fieldName}이 null입니다. {message}", this);
         }
 
         private void JumpAndGravity()

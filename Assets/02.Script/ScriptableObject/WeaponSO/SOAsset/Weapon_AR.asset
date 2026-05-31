@@ -12,17 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b1d2117c386432e9a4d45e087148b53, type: 3}
   m_Name: Weapon_AR
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.WeaponData
-  weaponId: Weapon_AR
-  weaponName: AR-15
+  WeaponId: Weapon_AR
+  WeaponName: AR_Name
+  WeaponDescription: It is a balanced weapon with an even range, accuracy, damage,
+    and continuous power.
   WeaponType: 3
-  icon: {fileID: 0}
-  Damage: 0
+  tier: 3
+  Damage: 15
   CriticalMultiplier: 0
-  RPM: 0
-  ReloadTime: 0
-  MagazineSize: 0
-  useAmmo: 1
-  waeponPrefab: {fileID: 0}
-  MuzzleTransform: {fileID: 0}
-  fireEffect: {fileID: 0}
-  fireSound: {fileID: 0}
+  RPM: 600
+  ReloadTime: 1.5
+  MagazineSize: 30
+  BulletCost: 2
+  UseAmmo: 0
+  AutoFire: 0
+  WeaponPrefab: {fileID: 0}
+  FireEffect: {fileID: 0}
+  FireSound: {fileID: 0}
+  UnLockIcon: {fileID: 1821818961, guid: 92a4fe653152e9244b4849b9dba1c92b, type: 3}

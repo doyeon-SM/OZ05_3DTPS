@@ -6,8 +6,8 @@ namespace _02.Script.Combat
     public class WeaponRuntime
     {
         public WeaponData data;
-        public int currentAmmo;
-
+        public int currentAmmo;             // 현재 Ammo
+        public bool UnLocked ;              // 현재 Lock되어있는가
         public WeaponRuntime(WeaponData data) // 생성자. 새로운 WeaponRuntime이 입력되면 총알을 채움
         {
             this.data = data;

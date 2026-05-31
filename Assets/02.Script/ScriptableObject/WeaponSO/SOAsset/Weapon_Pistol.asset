@@ -14,15 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.WeaponData
   WeaponId: Pistol
   WeaponName: Pistol
+  WeaponDescription: It's a basic weapon.
   WeaponType: 0
-  Icon: {fileID: 0}
+  tier: 0
   Damage: 15
   CriticalMultiplier: 0
   RPM: 500
   ReloadTime: 2
   MagazineSize: 8
+  BulletCost: 0
   UseAmmo: 1
   AutoFire: 1
   WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
+  UnLockIcon: {fileID: 0}
