@@ -30,7 +30,4 @@ using UnityEngine;
         public AudioClip FireSound;         // 사격 사운드
         public Sprite UnLockIcon;           // 출력용 icon
         
-        /* - 현재 총기는 RayCast 형식으로 구현 되었으니 projectile은 뺐습니다.
-         * public GameObject projectilePrefab;
-         */
     }

@@ -23,6 +23,7 @@ namespace StarterAssets
 		public bool Interact;
 		public bool Attack;
 		public bool Inventory;
+		public bool WeaponSelect;
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
@@ -63,6 +64,11 @@ namespace StarterAssets
         {
 			InventoryInput(value.isPressed);
         }
+
+		public void OnWeaponSelect(InputValue value)
+		{
+			WeaponSelectInput(value.isPressed);
+		}
 #endif
 
 
@@ -101,6 +107,11 @@ namespace StarterAssets
         {
 			Inventory = newInventoryState;
         }
+
+		public void WeaponSelectInput(bool newWeaponSelectState)
+		{
+			WeaponSelect = newWeaponSelectState;
+		}
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);

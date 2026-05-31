@@ -67,6 +67,9 @@ namespace ProjectSpedex
         private PointerEventData pointer;
 
         private Canvas parentCanvas;
+        private Vector2 virtualPointerPosition;
+        private Vector2 lastRawMousePosition;
+        private bool hasVirtualPointerPosition;
     
         void Awake() {
     
@@ -138,6 +141,8 @@ namespace ProjectSpedex
             
             if (!useGamepad) {
                 Vector2 pointerPosition = GetPointerPosition();
+                if (pointer != null)
+                    pointer.position = pointerPosition;
                 hasDirectionInput = TryGetPointerLocalDirection(pointerPosition, out Vector2 pointerDirection);
                 rawAngle = hasDirectionInput ? Mathf.Atan2(pointerDirection.y, pointerDirection.x) * Mathf.Rad2Deg : 0f;
             }
@@ -241,6 +246,46 @@ namespace ProjectSpedex
 
         }
 
+        private Vector2 GetRadialMenuScreenCenter() {
+
+            if (rt == null)
+                return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+
+            Camera eventCamera = GetCanvasEventCamera();
+            Vector3 worldCenter = rt.TransformPoint(rt.rect.center);
+            return RectTransformUtility.WorldToScreenPoint(eventCamera, worldCenter);
+
+        }
+
+        private Vector2 GetLockedCursorPointerPosition(Vector2 fallbackPosition) {
+
+            if (!hasVirtualPointerPosition) {
+                virtualPointerPosition = fallbackPosition;
+
+                if (virtualPointerPosition == Vector2.zero)
+                    virtualPointerPosition = GetRadialMenuScreenCenter();
+
+                hasVirtualPointerPosition = true;
+            }
+
+    #if ENABLE_INPUT_SYSTEM
+            if (Mouse.current != null) {
+                Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+                virtualPointerPosition += mouseDelta;
+            }
+    #endif
+
+    #if ENABLE_LEGACY_INPUT_MANAGER
+            virtualPointerPosition += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+    #endif
+
+            virtualPointerPosition.x = Mathf.Clamp(virtualPointerPosition.x, 0f, Screen.width);
+            virtualPointerPosition.y = Mathf.Clamp(virtualPointerPosition.y, 0f, Screen.height);
+
+            return virtualPointerPosition;
+
+        }
+
         private void SetSelectionFollowerRotation(float zRotation) {
 
             if (selectionFollowerContainer == null)
@@ -253,15 +298,37 @@ namespace ProjectSpedex
         private Vector2 GetPointerPosition() {
     
     #if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null)
-                return Mouse.current.position.ReadValue();
+            if (Mouse.current != null) {
+                Vector2 mousePosition = Mouse.current.position.ReadValue();
+                Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+
+                bool mousePositionStopped = hasVirtualPointerPosition &&
+                    (mousePosition - lastRawMousePosition).sqrMagnitude < 0.0001f &&
+                    mouseDelta.sqrMagnitude > 0.0001f;
+
+                lastRawMousePosition = mousePosition;
+
+                if (Cursor.lockState == CursorLockMode.Locked || mousePositionStopped)
+                    return GetLockedCursorPointerPosition(mousePosition);
+
+                virtualPointerPosition = mousePosition;
+                hasVirtualPointerPosition = true;
+                return mousePosition;
+            }
     
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
                 return Touchscreen.current.primaryTouch.position.ReadValue();
     #endif
     
     #if ENABLE_LEGACY_INPUT_MANAGER
-            return Input.mousePosition;
+            Vector2 legacyMousePosition = Input.mousePosition;
+
+            if (Cursor.lockState == CursorLockMode.Locked)
+                return GetLockedCursorPointerPosition(legacyMousePosition);
+
+            virtualPointerPosition = legacyMousePosition;
+            hasVirtualPointerPosition = true;
+            return legacyMousePosition;
     #else
             return rt != null ? rt.position : Vector3.zero;
     #endif
