@@ -313,7 +313,7 @@
                     "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";KeyboardMouse",
                     "action": "WeaponSelect",
                     "isComposite": false,
                     "isPartOfComposite": false

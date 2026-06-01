@@ -8,10 +8,9 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
     {
         [Header("필요 Scripts")]
         [SerializeField] private AnimationController animationController;
-
-        // UI
-        [SerializeField] private WeaponData[] SelectWeaponData;
         [SerializeField] private InteractPrintUI interactPrintUI;
+        [Header("내부 배열 , EventChannel 설정")]
+        [SerializeField] private WeaponData[] SelectWeaponData;
         [SerializeField] private SingleStringEventChannel itemIDEventChannel;
 
         [Header("Raycast 설정")]
@@ -20,6 +19,7 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
         [SerializeField] private LayerMask interactableLayerMask = ~0;
         [SerializeField] private LayerMask blockInteractionLayerMask;
         [SerializeField] private QueryTriggerInteraction triggerInteraction = QueryTriggerInteraction.Collide;
+        [Header("Debug 설정")]
         [SerializeField] private bool drawDebugRay = true;
         [SerializeField] private Color debugRayColor = Color.cyan;
 

@@ -24,6 +24,8 @@ namespace StarterAssets
 		public bool Attack;
 		public bool Inventory;
 		public bool WeaponSelect;
+		public bool WeaponSelectPressed;
+		public bool WeaponSelectReleased;
 		public bool Roll;
 		public bool Grenade;
 
@@ -122,7 +124,15 @@ namespace StarterAssets
 
 		public void WeaponSelectInput(bool newWeaponSelectState)
 		{
+			WeaponSelectPressed = newWeaponSelectState && !WeaponSelect;
+			WeaponSelectReleased = !newWeaponSelectState && WeaponSelect;
 			WeaponSelect = newWeaponSelectState;
+		}
+
+		public void ConsumeWeaponSelectInput()
+		{
+			WeaponSelectPressed = false;
+			WeaponSelectReleased = false;
 		}
 
 		public void RollInput(bool newRollState)

@@ -57,6 +57,8 @@ namespace ProjectSpedex
     
         [HideInInspector]
         public int index = 0; //현재 가리키고 있는 요소의 인덱스입니다.
+
+        public float CurrentPointerDistance { get; private set; }
     
         private int elementCount;
     
@@ -166,13 +168,6 @@ namespace ProjectSpedex
                     //해당 요소를 선택합니다.
                     selectButton(index);
     
-                    //클릭하거나 Submit 버튼(조이스틱 버튼, Enter, Space)을 누르면 해당 버튼의 OnClick() 함수를 실행합니다.
-                    if (WasSubmitPressed()) {
-    
-                        ExecuteEvents.Execute(elements[index].button.gameObject, pointer, ExecuteEvents.submitHandler);
-    
-    
-                    }
                 }
     
             }
@@ -226,10 +221,13 @@ namespace ProjectSpedex
 
             Camera eventCamera = GetCanvasEventCamera();
 
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rt, screenPosition, eventCamera, out Vector2 localPointerPosition))
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rt, screenPosition, eventCamera, out Vector2 localPointerPosition)) {
+                CurrentPointerDistance = 0f;
                 return false;
+            }
 
             direction = localPointerPosition - rt.rect.center;
+            CurrentPointerDistance = direction.magnitude;
             return direction.sqrMagnitude > 0.0001f;
 
         }
@@ -355,33 +353,6 @@ namespace ProjectSpedex
             return direction;
     
         }
-    
-        private bool WasSubmitPressed() {
-    
-    #if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-                return true;
-    
-            if (Keyboard.current != null &&
-                (Keyboard.current.enterKey.wasPressedThisFrame ||
-                 Keyboard.current.numpadEnterKey.wasPressedThisFrame ||
-                 Keyboard.current.spaceKey.wasPressedThisFrame))
-                return true;
-    
-            if (Gamepad.current != null &&
-                (Gamepad.current.buttonSouth.wasPressedThisFrame ||
-                 Gamepad.current.startButton.wasPressedThisFrame))
-                return true;
-    #endif
-    
-    #if ENABLE_LEGACY_INPUT_MANAGER
-            return Input.GetMouseButtonDown(0) || Input.GetButtonDown("Submit");
-    #else
-            return false;
-    #endif
-    
-        }
-    
     
     }
 

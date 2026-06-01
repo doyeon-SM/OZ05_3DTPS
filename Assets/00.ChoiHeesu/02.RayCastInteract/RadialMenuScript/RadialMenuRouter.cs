@@ -1,7 +1,6 @@
 using _00.ChoiHeesu._03.WeaponChangeSystem;
 using _02.Script.Combat;
 using StarterAssets;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,6 +19,7 @@ namespace ProjectSpedex
         [Header("Open Close")]
         [SerializeField] private bool startClosed = true;
         [SerializeField] private bool closeOnButtonClicked = true;
+        [SerializeField] private float selectionDeadZone = 0f;
 
         [Header("Button Event")]
         [SerializeField] private SingleStringEventChannel selectedWeaponIDEventChannel;
@@ -32,12 +32,13 @@ namespace ProjectSpedex
         [Header("Unlocked Button Color")]
         [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color pressedColor = Color.white;
-        [SerializeField] private Color selectedColor = Color.white;
+        [Header("Selected Button Color by Bullet Condition")]
+        [SerializeField] private Color selectHasAmmoColor = Color.white;
+        [SerializeField] private Color notAmmoSelectedColor = Color.red;
 
         [Header("Unlocked Element Color")]
         [SerializeField] private Color interactableElementColor = Color.white;
 
-        private readonly Dictionary<Button, UnityAction> registeredButtonActions = new Dictionary<Button, UnityAction>();
         private bool missingStarterAssetsInputsLogged;
 
         private void Awake()
@@ -59,11 +60,6 @@ namespace ProjectSpedex
             HandleWeaponSelectInput();
         }
 
-        private void OnDisable()
-        {
-            ClearButtonListeners();
-        }
-
         private void CacheReferences()
         {
             if (radialMenu == null)
@@ -81,11 +77,17 @@ namespace ProjectSpedex
                 return;
             }
 
-            if (!starterAssetsInputs.WeaponSelect)
-                return;
+            if (starterAssetsInputs.WeaponSelectPressed)
+            {
+                OpenRadialMenu();
+            }
 
-            ToggleRadialMenu();
-            starterAssetsInputs.WeaponSelect = false;
+            if (starterAssetsInputs.WeaponSelectReleased)
+            {
+                SubmitCurrentSelection();
+            }
+
+            starterAssetsInputs.ConsumeWeaponSelectInput();
         }
 
         public void ToggleRadialMenu()
@@ -189,22 +191,23 @@ namespace ProjectSpedex
                 element.label = string.Empty;
                 element.ItemID = string.Empty;
                 SetElementIcon(element, null);
-                SetElementInteractable(element, false);
+                SetElementInteractable(element, false, false);
                 SetElementText(element, string.Empty, unLockedElementColor);
+                SetElementAmmoText(element, string.Empty, unLockedElementColor);
                 SetElementVisualColor(element, unLockedElementColor);
-                RegisterButtonListener(element);
                 return;
             }
 
             WeaponData weaponData = runtime.data;
+            bool hasAmmo = HasSelectableAmmo(runtime);
 
             element.label = weaponData.WeaponName;
             element.ItemID = weaponData.WeaponId;
             SetElementIcon(element, weaponData.UnLockIcon);
             SetElementText(element, weaponData.WeaponName, runtime.UnLocked ? interactableElementColor : unLockedElementColor);
+            SetElementAmmoText(element, GetAmmoPrint(weaponData), runtime.UnLocked ? interactableElementColor : unLockedElementColor);
             SetElementVisualColor(element, runtime.UnLocked ? interactableElementColor : unLockedElementColor);
-            SetElementInteractable(element, runtime.UnLocked);
-            RegisterButtonListener(element);
+            SetElementInteractable(element, runtime.UnLocked, hasAmmo);
         }
 
         private void SetElementIcon(RadialMenuElement element, Sprite icon)
@@ -237,13 +240,37 @@ namespace ProjectSpedex
             }
         }
 
+        private void SetElementAmmoText(RadialMenuElement element, string ammoPrint, Color color)
+        {
+            if (element.AmmoText == null)
+                return;
+
+            element.AmmoText.text = ammoPrint;
+            element.AmmoText.color = color;
+        }
+
+        private string GetAmmoPrint(WeaponData weaponData)
+        {
+            if (weaponData == null)
+                return string.Empty;
+
+            int ammo = 0;
+            if (weaponRuntimeManager != null)
+                weaponRuntimeManager.TryGetWeaponAmmo(weaponData.WeaponType, out ammo);
+
+            string ammoPrint = "Ammo";
+            ammoPrint += "\n";
+            ammoPrint += ammo.ToString();
+            return ammoPrint;
+        }
+
         private void SetElementVisualColor(RadialMenuElement element, Color color)
         {
             if (element.Icon != null)
                 element.Icon.color = color;
         }
 
-        private void SetElementInteractable(RadialMenuElement element, bool isUnlocked)
+        private void SetElementInteractable(RadialMenuElement element, bool isUnlocked, bool hasAmmo)
         {
             element.button.interactable = isUnlocked;
 
@@ -254,7 +281,7 @@ namespace ProjectSpedex
             {
                 colorBlock.normalColor = normalColor;
                 colorBlock.pressedColor = pressedColor;
-                colorBlock.selectedColor = selectedColor;
+                colorBlock.selectedColor = hasAmmo ? selectHasAmmoColor : notAmmoSelectedColor;
             }
 
             element.button.colors = colorBlock;
@@ -276,28 +303,44 @@ namespace ProjectSpedex
             return element.button.GetComponentInChildren<TMP_Text>(true);
         }
 
-        private void RegisterButtonListener(RadialMenuElement element)
+        private void SubmitCurrentSelection()
         {
-            if (element == null || element.button == null)
+            if (radialMenuRoot == null || !radialMenuRoot.activeSelf)
                 return;
 
-            if (registeredButtonActions.TryGetValue(element.button, out UnityAction previousAction))
-                element.button.onClick.RemoveListener(previousAction);
-
-            UnityAction action = () => HandleElementButtonClicked(element);
-            registeredButtonActions[element.button] = action;
-            element.button.onClick.AddListener(action);
-        }
-
-        private void ClearButtonListeners()
-        {
-            foreach (KeyValuePair<Button, UnityAction> buttonAction in registeredButtonActions)
+            if (IsPointerInDeadZone())
             {
-                if (buttonAction.Key != null)
-                    buttonAction.Key.onClick.RemoveListener(buttonAction.Value);
+                CloseRadialMenu();
+                return;
             }
 
-            registeredButtonActions.Clear();
+            if (!TryGetCurrentSelectedElement(out RadialMenuElement selectedElement))
+            {
+                CloseRadialMenu();
+                return;
+            }
+
+            HandleElementButtonClicked(selectedElement);
+        }
+
+        private bool IsPointerInDeadZone()
+        {
+            return selectionDeadZone > 0f && radialMenu != null && radialMenu.CurrentPointerDistance <= selectionDeadZone;
+        }
+
+        private bool TryGetCurrentSelectedElement(out RadialMenuElement selectedElement)
+        {
+            selectedElement = null;
+
+            if (radialMenu == null || radialMenu.elements == null)
+                return false;
+
+            int selectedIndex = radialMenu.index;
+            if (selectedIndex < 0 || selectedIndex >= radialMenu.elements.Count)
+                return false;
+
+            selectedElement = radialMenu.elements[selectedIndex];
+            return selectedElement != null;
         }
 
         private void HandleElementButtonClicked(RadialMenuElement element)
@@ -308,6 +351,15 @@ namespace ProjectSpedex
             if (string.IsNullOrWhiteSpace(element.ItemID))
             {
                 Debug.LogError($"[RadialMenuRouter] {element.gameObject.name}의 ItemID가 비어 있어 무기 선택 이벤트를 보낼 수 없습니다.", element);
+                CloseRadialMenuAfterSelection();
+                return;
+            }
+
+            if (!CanSendWeaponSelectEvent(element, out string blockMessage))
+            {
+                // TODO : 추후 삭제할것
+                Debug.LogError(blockMessage, element);
+                CloseRadialMenuAfterSelection();
                 return;
             }
 
@@ -317,8 +369,79 @@ namespace ProjectSpedex
             Debug.Log($"[RadialMenuRouter] 선택된 WeaponID: {element.ItemID}", element);
             onWeaponSelected.Invoke(element.ItemID);
 
+            CloseRadialMenuAfterSelection();
+        }
+
+        private void CloseRadialMenuAfterSelection()
+        {
             if (closeOnButtonClicked)
                 CloseRadialMenu();
+        }
+
+        private bool CanSendWeaponSelectEvent(RadialMenuElement element, out string blockMessage)
+        {
+            blockMessage = string.Empty;
+
+            if (!TryGetWeaponRuntime(element.ItemID, out WeaponRuntime runtime))
+            {
+                blockMessage = $"[RadialMenuRouter] WeaponID '{element.ItemID}'와 일치하는 WeaponRuntime을 찾을 수 없어 이벤트 발신을 막았습니다.";
+                return false;
+            }
+
+            if (!runtime.UnLocked)
+            {
+                blockMessage = $"[RadialMenuRouter] WeaponID '{element.ItemID}'는 아직 언락되지 않아 이벤트 발신을 막았습니다.";
+                return false;
+            }
+
+            if (!HasSelectableAmmo(runtime))
+            {
+                blockMessage = $"[RadialMenuRouter] WeaponID '{element.ItemID}'는 사용할 Ammo가 없어 이벤트 발신을 막았습니다.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool HasSelectableAmmo(WeaponRuntime runtime)
+        {
+            if (runtime == null || runtime.data == null)
+                return false;
+
+            if (!runtime.data.UseAmmo)
+                return true;
+
+            if (weaponRuntimeManager == null)
+                return false;
+
+            return weaponRuntimeManager.TryGetWeaponAmmo(runtime.data.WeaponType, out int ammo) && ammo > 0;
+        }
+
+        private bool TryGetWeaponRuntime(string itemId, out WeaponRuntime foundRuntime)
+        {
+            foundRuntime = null;
+
+            if (weaponRuntimeManager == null || weaponRuntimeManager.WeaponRuntimes == null || string.IsNullOrWhiteSpace(itemId))
+                return false;
+
+            string normalizedItemId = itemId.Trim();
+            WeaponRuntime[] weaponRuntimes = weaponRuntimeManager.WeaponRuntimes;
+
+            for (int i = 0; i < weaponRuntimes.Length; i++)
+            {
+                WeaponRuntime runtime = weaponRuntimes[i];
+
+                if (runtime == null || runtime.data == null || string.IsNullOrWhiteSpace(runtime.data.WeaponId))
+                    continue;
+
+                if (runtime.data.WeaponId.Trim() != normalizedItemId)
+                    continue;
+
+                foundRuntime = runtime;
+                return true;
+            }
+
+            return false;
         }
 
         private void ReportMissingStarterAssetsInputs()
@@ -326,7 +449,7 @@ namespace ProjectSpedex
             if (missingStarterAssetsInputsLogged)
                 return;
 
-            Debug.LogError("[RadialMenuRouter] starterAssetsInputs가 null입니다. Q키 WeaponSelect 입력을 받으려면 Player의 StarterAssetsInputs를 Inspector에 연결해주세요.", this);
+            Debug.LogError("[RadialMenuRouter] starterAssetsInputs가 null입니다. WeaponSelect 입력을 받으려면 Player의 StarterAssetsInputs를 Inspector에 연결해주세요.", this);
             missingStarterAssetsInputsLogged = true;
         }
     }

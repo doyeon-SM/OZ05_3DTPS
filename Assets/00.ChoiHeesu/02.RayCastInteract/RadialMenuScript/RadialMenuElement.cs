@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UnityEngine.EventSystems;
 using System.Collections;
 
@@ -21,6 +22,9 @@ namespace ProjectSpedex
 
     [Tooltip("이 옵션에 마우스를 올렸을 때 방사형 메뉴 중앙에 icon입니다.")]
     public Image Icon;
+
+    [Tooltip("이 무기 타입이 사용하는 Ammo 수량을 표시할 TextMeshPro 텍스트입니다.")]
+    public TMP_Text AmmoText;
     
     [Tooltip("S.O 데이터를 저장할 string 입니다")]
     public string ItemID;

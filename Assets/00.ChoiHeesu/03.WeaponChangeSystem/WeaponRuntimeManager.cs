@@ -1,4 +1,5 @@
 using _02.Script.Combat;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace _00.ChoiHeesu._03.WeaponChangeSystem
@@ -25,7 +26,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         public WeaponData[] WeaponDataArray => weaponDataArray;
         public WeaponRuntime[] WeaponRuntimes => weaponRuntimes;
+        public IReadOnlyDictionary<WeaponClass, int> WeaponAmmoByClass => weaponAmmoByClass;
 
+        private readonly Dictionary<WeaponClass, int> weaponAmmoByClass = new Dictionary<WeaponClass, int>();
         private bool missingItemIDEventChannelLogged;
 
         private void Awake()
@@ -33,6 +36,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             EnsureWeaponDataArray();
             EnsureWeaponRuntimeArray();
             SyncWeaponRuntimesWithWeaponDataArray();
+            SyncWeaponAmmoDictionary();
             ValidateWeaponRuntimeData();
         }
 
@@ -55,6 +59,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             EnsureWeaponDataArray();
             EnsureWeaponRuntimeArray();
             SyncWeaponRuntimesWithWeaponDataArray();
+            SyncWeaponAmmoDictionary();
         }
 
         private void EnsureWeaponDataArray()
@@ -90,6 +95,15 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
                 weaponRuntimes[i] = new WeaponRuntime(weaponData);
             }
+        }
+
+        private void SyncWeaponAmmoDictionary()
+        {
+            weaponAmmoByClass[WeaponClass.Pistol] = Mathf.Max(pistolAmmo, 0);
+            weaponAmmoByClass[WeaponClass.SMG] = Mathf.Max(smgAmmo, 0);
+            weaponAmmoByClass[WeaponClass.SG] = Mathf.Max(sgAmmo, 0);
+            weaponAmmoByClass[WeaponClass.AR] = Mathf.Max(arAmmo, 0);
+            weaponAmmoByClass[WeaponClass.MG] = Mathf.Max(mgAmmo, 0);
         }
 
         private void ValidateWeaponRuntimeData()
@@ -179,6 +193,12 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
             currentAmmo = runtime.currentAmmo;
             return true;
+        }
+
+        public bool TryGetWeaponAmmo(WeaponClass weaponClass, out int ammo)
+        {
+            SyncWeaponAmmoDictionary();
+            return weaponAmmoByClass.TryGetValue(weaponClass, out ammo);
         }
 
         private bool TryGetWeaponRuntimeByItemId(string itemId, out WeaponRuntime foundRuntime)
