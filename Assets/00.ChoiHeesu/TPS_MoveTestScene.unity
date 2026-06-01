@@ -1229,6 +1229,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3e235747e9e02d041947d70e43de319d, type: 3}
+--- !u!1 &1450747995 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6228590478468505392, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+  m_PrefabInstance: {fileID: 2051028712616902493}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1486736427
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1295,12 +1300,25 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
   m_PrefabInstance: {fileID: 2051028712616902493}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1450747995}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8dc1883b54d8d294f9b3ae3466ed6e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._03.WeaponChangeSystem.WeaponRuntimeManager
+--- !u!114 &1862030245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1450747995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2dbe2398e84890ac8f93298def22c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.MoneyPickup.PlayerRuntimeDataManager
+  money: 0
 --- !u!1 &1891197227 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6828617129574173550, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
@@ -1643,12 +1661,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6228590478468505392, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
       propertyPath: m_Name
-      value: WeaponRuntimeManager
+      value: RuntimeManager
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6228590478468505392, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1862030245}
   m_SourcePrefab: {fileID: 100100000, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
 --- !u!1001 &5066070733886553106
 PrefabInstance:
@@ -1717,6 +1738,10 @@ PrefabInstance:
     - target: {fileID: 5232117125641429927, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_Name
       value: Player_Soldier
+      objectReference: {fileID: 0}
+    - target: {fileID: 6720829549027223185, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: logWeaponSelectInput
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8308339330082520230, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: mainCamera

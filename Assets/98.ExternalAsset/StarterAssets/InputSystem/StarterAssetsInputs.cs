@@ -29,6 +29,34 @@ namespace StarterAssets
 		public bool Roll;
 		public bool Grenade;
 
+		[SerializeField]
+		private bool logWeaponSelectInput;
+
+#if ENABLE_INPUT_SYSTEM
+		private const string WeaponSelectActionName = "WeaponSelect";
+
+		private PlayerInput playerInput;
+		private InputAction weaponSelectAction;
+#endif
+
+#if ENABLE_INPUT_SYSTEM
+		private void Awake()
+		{
+			CacheWeaponSelectAction();
+		}
+
+		private void OnEnable()
+		{
+			CacheWeaponSelectAction();
+			SyncWeaponSelectActionState();
+		}
+
+		private void Update()
+		{
+			SyncWeaponSelectActionState();
+		}
+#endif
+
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
 		{
@@ -71,7 +99,12 @@ namespace StarterAssets
 
 		public void OnWeaponSelect(InputValue value)
 		{
-			WeaponSelectInput(value.isPressed);
+			bool isPressed = value.isPressed;
+
+			if (logWeaponSelectInput)
+				Debug.Log($"[StarterAssetsInputs] OnWeaponSelect 호출됨. isPressed: {isPressed}", this);
+
+			WeaponSelectInput(isPressed);
 		}
 
 		public void OnRoll(InputValue value)
@@ -128,6 +161,43 @@ namespace StarterAssets
 			WeaponSelectReleased = !newWeaponSelectState && WeaponSelect;
 			WeaponSelect = newWeaponSelectState;
 		}
+
+#if ENABLE_INPUT_SYSTEM
+		private void CacheWeaponSelectAction()
+		{
+			if (playerInput == null)
+				TryGetComponent(out playerInput);
+
+			if (playerInput == null || playerInput.actions == null)
+			{
+				weaponSelectAction = null;
+				return;
+			}
+
+			weaponSelectAction = playerInput.actions.FindAction(WeaponSelectActionName, false);
+		}
+
+		private void SyncWeaponSelectActionState()
+		{
+			if (weaponSelectAction == null)
+			{
+				CacheWeaponSelectAction();
+
+				if (weaponSelectAction == null)
+					return;
+			}
+
+			bool isPressed = weaponSelectAction.ReadValue<float>() > 0.5f;
+
+			if (isPressed == WeaponSelect)
+				return;
+
+			if (logWeaponSelectInput)
+				Debug.Log($"[StarterAssetsInputs] WeaponSelect Action 상태 보정. isPressed: {isPressed}", this);
+
+			WeaponSelectInput(isPressed);
+		}
+#endif
 
 		public void ConsumeWeaponSelectInput()
 		{

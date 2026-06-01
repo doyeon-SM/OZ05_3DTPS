@@ -6,6 +6,32 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 {
     public class WeaponRuntimeManager : MonoBehaviour
     {
+        #region singleton
+
+        public static WeaponRuntimeManager Instance { get; private set; }
+
+        private bool InitializeSingleton()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Debug.LogWarning("[WeaponRuntimeManager] 중복 인스턴스가 생성되어 제거합니다.", this);
+                Destroy(gameObject);
+                return false;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            return true;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                Instance = null;
+        }
+
+        #endregion
+
         private const int MaxWeaponCount = 5;
 
         [Header("S.O Data")]
@@ -33,6 +59,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         private void Awake()
         {
+            if (!InitializeSingleton())
+                return;
+
             EnsureWeaponDataArray();
             EnsureWeaponRuntimeArray();
             SyncWeaponRuntimesWithWeaponDataArray();
@@ -42,6 +71,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         private void OnEnable()
         {
+            if (Instance != this)
+                return;
+
             if (itemIDEventChannel != null)
                 itemIDEventChannel.Register(HandleItemIDReceived);
             else
@@ -50,6 +82,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         private void OnDisable()
         {
+            if (Instance != this)
+                return;
+
             if (itemIDEventChannel != null)
                 itemIDEventChannel.Unregister(HandleItemIDReceived);
         }

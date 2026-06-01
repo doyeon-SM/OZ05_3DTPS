@@ -40,10 +40,12 @@ namespace ProjectSpedex
         [SerializeField] private Color interactableElementColor = Color.white;
 
         private bool missingStarterAssetsInputsLogged;
+        private bool wasWeaponSelectHeld;
 
         private void Awake()
         {
             CacheReferences();
+            SyncWeaponSelectState();
 
             if (startClosed)
                 SetRadialMenuActive(false);
@@ -52,6 +54,7 @@ namespace ProjectSpedex
         private void OnEnable()
         {
             CacheReferences();
+            SyncWeaponSelectState();
             RefreshRadialMenu();
         }
 
@@ -77,17 +80,27 @@ namespace ProjectSpedex
                 return;
             }
 
-            if (starterAssetsInputs.WeaponSelectPressed)
+            bool isWeaponSelectHeld = starterAssetsInputs.WeaponSelect;
+            bool weaponSelectPressed = starterAssetsInputs.WeaponSelectPressed || (isWeaponSelectHeld && !wasWeaponSelectHeld);
+            bool weaponSelectReleased = starterAssetsInputs.WeaponSelectReleased || (!isWeaponSelectHeld && wasWeaponSelectHeld);
+
+            if (weaponSelectPressed)
             {
                 OpenRadialMenu();
             }
 
-            if (starterAssetsInputs.WeaponSelectReleased)
+            if (weaponSelectReleased)
             {
                 SubmitCurrentSelection();
             }
 
+            wasWeaponSelectHeld = isWeaponSelectHeld;
             starterAssetsInputs.ConsumeWeaponSelectInput();
+        }
+
+        private void SyncWeaponSelectState()
+        {
+            wasWeaponSelectHeld = starterAssetsInputs != null && starterAssetsInputs.WeaponSelect;
         }
 
         public void ToggleRadialMenu()
