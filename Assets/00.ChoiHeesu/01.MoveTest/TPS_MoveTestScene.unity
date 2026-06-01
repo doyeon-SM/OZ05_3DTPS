@@ -5468,25 +5468,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dc1883b54d8d294f9b3ae3466ed6e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._03.WeaponChangeSystem.WeaponRuntimeManager
+  weaponDataArray:
+  - {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
+  - {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
+  - {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
+  - {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
+  - {fileID: 11400000, guid: 2ee15943a7770064899591c572170292, type: 2}
   weaponRuntimes:
   - data: {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
-    currentAmmo: 0
-    UnLocked: 0
-  - data: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
-    currentAmmo: 0
-    UnLocked: 0
-  - data: {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
-    currentAmmo: 0
+    currentAmmo: 30
     UnLocked: 0
   - data: {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
-    currentAmmo: 0
+    currentAmmo: 40
+    UnLocked: 0
+  - data: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
+    currentAmmo: 95
+    UnLocked: 0
+  - data: {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
+    currentAmmo: 5
+    UnLocked: 0
+  - data: {fileID: 11400000, guid: 2ee15943a7770064899591c572170292, type: 2}
+    currentAmmo: 8
     UnLocked: 0
   itemIDEventChannel: {fileID: 11400000, guid: d4b432002e6c452469ccb2c3d8c7a809, type: 2}
-  normalAmmo: 0
-  rareAmmo: 0
-  epicAmmo: 0
-  uniqueAmmo: 0
-  legendAmmo: 0
+  pistolAmmo: 0
+  smgAmmo: 0
+  sgAmmo: 0
+  arAmmo: 0
+  mgAmmo: 0
 --- !u!1 &1887741706
 GameObject:
   m_ObjectHideFlags: 0

@@ -24,7 +24,7 @@ MonoBehaviour:
   ReloadTime: 5
   MagazineSize: 95
   BulletCost: 1
-  UseAmmo: 0
+  UseAmmo: 1
   AutoFire: 0
   WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}

@@ -5,7 +5,10 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 {
     public class WeaponRuntimeManager : MonoBehaviour
     {
-        private const int MaxWeaponCount = 4;
+        private const int MaxWeaponCount = 5;
+
+        [Header("S.O Data")]
+        [SerializeField] private WeaponData[] weaponDataArray = new WeaponData[MaxWeaponCount];
 
         [Header("Weapon Runtime")]
         [SerializeField] private WeaponRuntime[] weaponRuntimes = new WeaponRuntime[MaxWeaponCount];
@@ -13,20 +16,23 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         [Header("Event Channel")]
         [SerializeField] private SingleStringEventChannel itemIDEventChannel;
 
-        [Header("Tier Ammo")]
-        [SerializeField] private int normalAmmo;
-        [SerializeField] private int rareAmmo;
-        [SerializeField] private int epicAmmo;
-        [SerializeField] private int uniqueAmmo;
-        [SerializeField] private int legendAmmo;
+        [Header("Weapon Ammo")]
+        [SerializeField] private int pistolAmmo;
+        [SerializeField] private int smgAmmo;
+        [SerializeField] private int sgAmmo;
+        [SerializeField] private int arAmmo;
+        [SerializeField] private int mgAmmo;
 
+        public WeaponData[] WeaponDataArray => weaponDataArray;
         public WeaponRuntime[] WeaponRuntimes => weaponRuntimes;
 
         private bool missingItemIDEventChannelLogged;
 
         private void Awake()
         {
+            EnsureWeaponDataArray();
             EnsureWeaponRuntimeArray();
+            SyncWeaponRuntimesWithWeaponDataArray();
             ValidateWeaponRuntimeData();
         }
 
@@ -46,7 +52,17 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         private void OnValidate()
         {
+            EnsureWeaponDataArray();
             EnsureWeaponRuntimeArray();
+            SyncWeaponRuntimesWithWeaponDataArray();
+        }
+
+        private void EnsureWeaponDataArray()
+        {
+            if (weaponDataArray == null || weaponDataArray.Length != MaxWeaponCount)
+            {
+                System.Array.Resize(ref weaponDataArray, MaxWeaponCount);
+            }
         }
 
         private void EnsureWeaponRuntimeArray()
@@ -60,6 +76,19 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             {
                 if (weaponRuntimes[i] == null)
                     weaponRuntimes[i] = new WeaponRuntime(null);
+            }
+        }
+
+        private void SyncWeaponRuntimesWithWeaponDataArray()
+        {
+            for (int i = 0; i < MaxWeaponCount; i++)
+            {
+                WeaponData weaponData = weaponDataArray[i];
+
+                if (weaponRuntimes[i] != null && weaponRuntimes[i].data == weaponData)
+                    continue;
+
+                weaponRuntimes[i] = new WeaponRuntime(weaponData);
             }
         }
 

@@ -24,6 +24,8 @@ namespace StarterAssets
 		public bool Attack;
 		public bool Inventory;
 		public bool WeaponSelect;
+		public bool Roll;
+		public bool Grenade;
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
@@ -69,6 +71,16 @@ namespace StarterAssets
 		{
 			WeaponSelectInput(value.isPressed);
 		}
+
+		public void OnRoll(InputValue value)
+		{
+			RollInput(value.isPressed);
+		}
+
+		public void OnGrenade(InputValue value)
+		{
+			GrenadeInput(value.isPressed);
+		}
 #endif
 
 
@@ -111,6 +123,19 @@ namespace StarterAssets
 		public void WeaponSelectInput(bool newWeaponSelectState)
 		{
 			WeaponSelect = newWeaponSelectState;
+		}
+
+		public void RollInput(bool newRollState)
+		{
+			Roll = newRollState;
+			//Debug용 임시 ( 기능 추가시 지울것 )
+			Debug.Log("Roll 키 입력 들어옴.");
+		}
+
+		public void GrenadeInput(bool newGrenadeState)
+		{
+			Grenade = newGrenadeState;
+			Debug.Log("Grenade 키 입력 들어옴.");
 		}
 		private void OnApplicationFocus(bool hasFocus)
 		{
