@@ -13,6 +13,24 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField] private TextMeshProUGUI timerText;
         [SerializeField] private Slider timerSlider;
 
+        private void Awake()
+        {
+            // 시작 시 비활성화
+            gameObject.SetActive(false);
+        }
+
+        /// <summary>점령 시작 시 UI 표시</summary>
+        public void Show()
+        {
+            gameObject.SetActive(true);
+        }
+
+        /// <summary>점령 종료 시 UI 숨김</summary>
+        public void Hide()
+        {
+            gameObject.SetActive(false);
+        }
+
         public void UpdateTimer(float remaining, float total)
         {
             if (timerText != null)
