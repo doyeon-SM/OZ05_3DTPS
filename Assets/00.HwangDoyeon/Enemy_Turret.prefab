@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 5100165712530858700}
   - component: {fileID: 624920987570915483}
   - component: {fileID: -5662021419786752306}
+  - component: {fileID: 5345350256897173958}
   m_Layer: 8
   m_Name: Enemy_Turret
   m_TagString: Untagged
@@ -236,6 +237,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.EnemyStatus
   enemyData: {fileID: 11400000, guid: 24e741cc2de626b4f91a5dc09c6e312d, type: 2}
+--- !u!65 &5345350256897173958
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2396910611539952586}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4.5076733, y: 6.8678675, z: 4.9568205}
+  m_Center: {x: -0.07802479, y: 2.9339318, z: -0.040771067}
 --- !u!1 &3293147973037444230
 GameObject:
   m_ObjectHideFlags: 0
