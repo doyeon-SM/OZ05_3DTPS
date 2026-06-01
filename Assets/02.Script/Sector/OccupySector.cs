@@ -1,12 +1,18 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
 {
     /// <summary>
-    /// 점령 섹터: 정해진 시간 동안 점령 구역에서 버티면 클리어.
-    /// 처치된 적은 일정 시간 후 섹터 내 랜덤 위치에 재소환된다.
+    /// 점령 섹터: 정해진 시간 동안 점령 구역에서 버티면 소환이 중단되고,
+    /// 이후 남은 적을 모두 처치하면 클리어.
+    ///
+    /// [풀 사용 흐름]
+    ///   PrewarmPool  → 비활성 상태로 풀에 대기
+    ///   SpawnEnemy   → 풀에서 꺼내 활성화 (Spawn)
+    ///   OnEnemyDied  → 풀에 반환 (ReturnToPool) 후 재소환 또는 전멸 확인
+    ///   ClearSector  → SectorBase가 activeEnemies 잔여분 일괄 반환
     /// </summary>
     public class OccupySector : SectorBase
     {
@@ -27,10 +33,12 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField] private OccupyTimerUI timerUI;
 
         private float remainingTime;
+
+        /// <summary>타이머가 진행 중인 동안 true. false가 되면 재소환을 중단한다.</summary>
         private bool isOccupying = false;
 
-        // 재소환 대기 중인 코루틴을 적별로 관리
-        private Dictionary<EnemyStatus, Coroutine> respawnCoroutines = new();
+        /// <summary>타이머가 만료된 뒤 적 전멸 대기 단계에 진입했는지 여부.</summary>
+        private bool isWaitingForClear = false;
 
         protected override void OnSectorStart()
         {
@@ -40,7 +48,7 @@ namespace _01.Scenes.PhaseValidation
                 return;
             }
 
-            // 씬 시작 시 필요한 적 풀 미리 생성
+            // 씬 시작 시 필요한 적 풀 미리 생성 (비활성 상태로 대기)
             foreach (var entry in sectorData.enemyEntries)
             {
                 if (entry.enemyData != null)
@@ -54,8 +62,9 @@ namespace _01.Scenes.PhaseValidation
 
             remainingTime = sectorData.occupyDuration;
             isOccupying = true;
+            isWaitingForClear = false;
 
-            // 초기 소환
+            // 초기 소환: 풀에서 꺼내 활성화
             foreach (var entry in sectorData.enemyEntries)
             {
                 for (int i = 0; i < entry.count; i++)
@@ -67,6 +76,7 @@ namespace _01.Scenes.PhaseValidation
             Debug.Log($"[{sectorData.sectorName}] 점령 시작 — {sectorData.occupyDuration}초 버티기");
         }
 
+        /// <summary>풀에서 꺼내 활성화하고 activeEnemies에 등록한다.</summary>
         private void SpawnEnemy(EnemyData data)
         {
             Vector3 spawnPos = GetRandomSpawnPosition();
@@ -80,20 +90,27 @@ namespace _01.Scenes.PhaseValidation
 
         private void OnEnemyDied(EnemyStatus enemy)
         {
+            // 이벤트 구독 해제 & activeEnemies 제거
             enemy.OnDied -= OnEnemyDied;
             activeEnemies.Remove(enemy);
 
-            if (!isOccupying) return;
-
-            // 점령 섹터: 처치 후 개별 딜레이를 가지고 재소환
+            // [풀 반환] 사망한 적을 즉시 풀에 반환 (비활성화)
             EnemyData data = enemy.Data;
             EnemyPoolManager.Instance.ReturnToPool(enemy);
 
-            if (data != null)
+            if (isOccupying)
             {
-                Coroutine co = StartCoroutine(RespawnAfterDelay(data, data.respawnDelay));
-                // 같은 enemy 인스턴스가 재사용될 수 있으므로 data 기준으로 추적 불가,
-                // 코루틴은 섹터 클리어 시 StopAllCoroutines로 정리
+                // ── 타이머 진행 중: 딜레이 후 재소환 ──
+                if (data != null)
+                    StartCoroutine(RespawnAfterDelay(data, data.respawnDelay));
+            }
+            else if (isWaitingForClear)
+            {
+                // ── 타이머 만료 후: 재소환 없이 전멸 확인 ──
+                Debug.Log($"[{sectorData.sectorName}] 잔여 적 {activeEnemies.Count}마리");
+
+                if (activeEnemies.Count == 0)
+                    ClearSector();
             }
         }
 
@@ -101,6 +118,8 @@ namespace _01.Scenes.PhaseValidation
         {
             yield return new WaitForSeconds(delay);
 
+            // 대기 중 타이머가 만료됐으면 소환하지 않고 종료
+            // (이미 ReturnToPool 완료 상태이므로 추가 처리 불필요)
             if (!isOccupying) yield break;
 
             SpawnEnemy(data);
@@ -117,22 +136,29 @@ namespace _01.Scenes.PhaseValidation
                     timerUI.UpdateTimer(remainingTime, sectorData.occupyDuration);
             }
 
-            // 시간 만료 = 점령 성공
+            // ── 타이머 만료: 소환 중단, 전멸 대기 단계로 전환 ──
             isOccupying = false;
-            StopAllCoroutines();
-            ClearSector();
+            isWaitingForClear = true;
+
+            if (timerUI != null) timerUI.OnOccupySuccess();
+            Debug.Log($"[{sectorData.sectorName}] 점령 시간 종료! 남은 적 {activeEnemies.Count}마리를 처치하면 클리어.");
+
+            // 타이머 만료 시점에 이미 적이 없는 경우 즉시 클리어
+            if (activeEnemies.Count == 0)
+                ClearSector();
         }
 
         protected override void OnSectorCleared()
         {
             isOccupying = false;
-            if (timerUI != null) { timerUI.OnOccupySuccess(); timerUI.Hide(); }
-            Debug.Log($"[{sectorData.sectorName}] 점령 성공!");
+            isWaitingForClear = false;
+            StopAllCoroutines();
+            // 잔여 적 풀 반환은 SectorBase.ClearSector()가 처리
+            if (timerUI != null) timerUI.Hide();
+            Debug.Log($"[{sectorData.sectorName}] 클리어!");
         }
 
-        /// <summary>
-        /// 점령 구역 내 랜덤 위치를 반환한다. (excludeRadius 범위 제외)
-        /// </summary>
+        /// <summary>점령 구역 내 랜덤 위치를 반환한다. (excludeRadius 범위 제외)</summary>
         private Vector3 GetRandomSpawnPosition()
         {
             Vector3 center = occupyZoneCenter != null
