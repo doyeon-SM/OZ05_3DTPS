@@ -214,7 +214,8 @@ namespace StarterAssets
             if (_input == null)
                 return;
 
-            bool hasAimInput = _input.ADSClick || _input.AimHold;
+            bool hasADSInput = _input.ADSClick;
+            bool hasAimHoldInput = _input.AimHold;
             bool hasAttackInput = _input.Attack;
 
             if (hasAttackInput)
@@ -226,11 +227,22 @@ namespace StarterAssets
                 _attackAimingRemainTime = Mathf.Max(_attackAimingRemainTime - Time.deltaTime, 0f);
             }
 
-            bool isAiming = hasAimInput || hasAttackInput || _attackAimingRemainTime > 0f;
-            currentActionState = isAiming ? PlayerActionState.Aiming : PlayerActionState.Normal;
+            bool hasAttackAimHold = hasAttackInput || _attackAimingRemainTime > 0f;
+            currentActionState = GetNextActionState(hasADSInput, hasAimHoldInput, hasAttackAimHold);
 
             if (_animationController != null)
-                _animationController.SetAiming(isAiming);
+                _animationController.SetAiming(currentActionState != PlayerActionState.Normal);
+        }
+
+        private PlayerActionState GetNextActionState(bool hasADSInput, bool hasAimHoldInput, bool hasAttackAimHold)
+        {
+            if (hasADSInput)
+                return PlayerActionState.Aiming;
+
+            if (hasAimHoldInput || hasAttackAimHold)
+                return PlayerActionState.AimHold;
+
+            return PlayerActionState.Normal;
         }
         private void HandleInteract()
         {
@@ -333,7 +345,7 @@ namespace StarterAssets
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            bool canSprint = currentActionState != PlayerActionState.Aiming;
+            bool canSprint = currentActionState == PlayerActionState.Normal;
             float targetSpeed = _input.sprint && canSprint ? SprintSpeed : MoveSpeed;
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon

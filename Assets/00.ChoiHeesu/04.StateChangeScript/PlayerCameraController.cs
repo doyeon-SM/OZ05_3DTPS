@@ -18,8 +18,8 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 
         [Header("Blend")]
         [SerializeField] private CinemachineBlendDefinition.Styles blendStyle = CinemachineBlendDefinition.Styles.EaseInOut;
-        [SerializeField] private float normalToAimingBlendTime = 0.18f;
-        [SerializeField] private float aimingToNormalBlendTime = 0.32f;
+        [SerializeField] private float thirdPersonToADSBlendTime = 0.18f;
+        [SerializeField] private float adsToThirdPersonBlendTime = 0.32f;
 
         private PlayerActionState lastActionState;
         private bool hasLastActionState;
@@ -107,19 +107,25 @@ namespace _00.ChoiHeesu._04.StateChangeScript
             if (!hasLastActionState)
                 return 0f;
 
-            if (currentActionState == PlayerActionState.Aiming)
-                return normalToAimingBlendTime;
+            bool wasADSCamera = lastActionState == PlayerActionState.Aiming;
+            bool isADSCamera = currentActionState == PlayerActionState.Aiming;
 
-            return aimingToNormalBlendTime;
+            if (!wasADSCamera && isADSCamera)
+                return thirdPersonToADSBlendTime;
+
+            if (wasADSCamera && !isADSCamera)
+                return adsToThirdPersonBlendTime;
+
+            return 0f;
         }
 
         private void ApplyCameraState(PlayerActionState actionState, float blendTime)
         {
             SetBrainBlend(blendTime);
 
-            bool isAiming = actionState == PlayerActionState.Aiming;
-            SetCameraPriority(thirdPersonCamera, isAiming ? inactivePriority : activePriority);
-            SetCameraPriority(adsCamera, isAiming ? activePriority : inactivePriority);
+            bool useADSCamera = actionState == PlayerActionState.Aiming;
+            SetCameraPriority(thirdPersonCamera, useADSCamera ? inactivePriority : activePriority);
+            SetCameraPriority(adsCamera, useADSCamera ? activePriority : inactivePriority);
 
             lastActionState = actionState;
             hasLastActionState = true;
@@ -153,8 +159,8 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         private void OnValidate()
         {
             activePriority = Mathf.Max(activePriority, inactivePriority + 1);
-            normalToAimingBlendTime = Mathf.Max(normalToAimingBlendTime, 0f);
-            aimingToNormalBlendTime = Mathf.Max(aimingToNormalBlendTime, 0f);
+            thirdPersonToADSBlendTime = Mathf.Max(thirdPersonToADSBlendTime, 0f);
+            adsToThirdPersonBlendTime = Mathf.Max(adsToThirdPersonBlendTime, 0f);
         }
     }
 }

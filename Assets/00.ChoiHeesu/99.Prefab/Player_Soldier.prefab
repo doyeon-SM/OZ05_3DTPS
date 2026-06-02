@@ -2262,6 +2262,59 @@ Transform:
   - {fileID: 1012381797014931846}
   m_Father: {fileID: 3067230786296549314}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7550931550260564573
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3653939080914243951}
+  - component: {fileID: 3341279977177244419}
+  m_Layer: 7
+  m_Name: Camera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3653939080914243951
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7550931550260564573}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2542007875471310758}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3341279977177244419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7550931550260564573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f2ad3e0bd275e844ac75f2a923b04ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.StateChangeScript.PlayerCameraController
+  thirdPersonController: {fileID: 1860447976410328513}
+  cinemachineBrain: {fileID: 0}
+  thirdPersonCamera: {fileID: 0}
+  adsCamera: {fileID: 2305811999031554447}
+  activePriority: 20
+  inactivePriority: 10
+  blendStyle: 1
+  normalToAimingBlendTime: 0.18
+  aimingToNormalBlendTime: 0.32
 --- !u!1 &7552646324689651710
 GameObject:
   m_ObjectHideFlags: 0
@@ -2737,6 +2790,7 @@ Transform:
   - {fileID: 3333512430401229509}
   - {fileID: 342046576843335701}
   - {fileID: 2109106593606943004}
+  - {fileID: 3653939080914243951}
   m_Father: {fileID: 4396053498136997635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8778197509962915010
