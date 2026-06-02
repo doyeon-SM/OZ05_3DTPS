@@ -29,6 +29,7 @@ namespace StarterAssets
 		public bool WeaponSelectReleased;
 		public bool Roll;
 		public bool Grenade;
+		public bool Reload;
 		public bool UIClose;
 		public bool AimHold;
 		public bool AimHoldPressed;
@@ -137,6 +138,11 @@ namespace StarterAssets
 		public void OnGrenade(InputValue value)
 		{
 			GrenadeInput(value.isPressed);
+		}
+
+		public void OnReload(InputValue value)
+		{
+			ReloadInput(value.isPressed);
 		}
 
 		public void OnUIClose(InputValue value)
@@ -376,6 +382,12 @@ namespace StarterAssets
 			Grenade = newGrenadeState;
 			Debug.Log("Grenade 키 입력 들어옴.");
 		}
+
+		public void ReloadInput(bool newReloadState)
+		{
+			Reload = newReloadState;
+		}
+
 		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);

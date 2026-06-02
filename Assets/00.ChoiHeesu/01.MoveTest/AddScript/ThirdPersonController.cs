@@ -14,6 +14,11 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
+        [Header("Player State")]
+        [SerializeField] private PlayerActionState currentActionState = PlayerActionState.Normal;
+        [SerializeField] private float aimingChangeDelayTime = 0.3f;
+        public PlayerActionState CurrentActionState => currentActionState;
+
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
@@ -83,6 +88,7 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
+        private float _attackAimingRemainTime;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -185,13 +191,14 @@ namespace StarterAssets
 
             JumpAndGravity();
             GroundedCheck();
+            HandleAiming();
             Move();
 
+            HandleReload();
             HandleAttack();
             HandleInteract();
         }
-
-   
+        
         private void LateUpdate()
         {
             if (!HasRequiredReferences())
@@ -200,6 +207,31 @@ namespace StarterAssets
             CameraRotation();
         }
 
+        
+        
+        private void HandleAiming()
+        {
+            if (_input == null)
+                return;
+
+            bool hasAimInput = _input.ADSClick || _input.AimHold;
+            bool hasAttackInput = _input.Attack;
+
+            if (hasAttackInput)
+            {
+                _attackAimingRemainTime = Mathf.Max(aimingChangeDelayTime, 0f);
+            }
+            else if (_attackAimingRemainTime > 0f)
+            {
+                _attackAimingRemainTime = Mathf.Max(_attackAimingRemainTime - Time.deltaTime, 0f);
+            }
+
+            bool isAiming = hasAimInput || hasAttackInput || _attackAimingRemainTime > 0f;
+            currentActionState = isAiming ? PlayerActionState.Aiming : PlayerActionState.Normal;
+
+            if (_animationController != null)
+                _animationController.SetAiming(isAiming);
+        }
         private void HandleInteract()
         {
             if (_input == null || !_input.Interact)
@@ -237,6 +269,22 @@ namespace StarterAssets
             {
                 targetToRotation(_weaponController.LastAimDirection);
             }
+        }
+
+        private void HandleReload()
+        {
+            if (_input == null || !_input.Reload)
+                return;
+
+            if (_weaponController == null)
+            {
+                LogMissingReference(nameof(_weaponController), "재장전 기능을 사용하려면 WeaponController를 연결해야 합니다.");
+                _input.Reload = false;
+                return;
+            }
+
+            _weaponController.TryReload();
+            _input.Reload = false;
         }
 
         private void targetToRotation(Vector3 direction)
@@ -285,7 +333,8 @@ namespace StarterAssets
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            bool canSprint = currentActionState != PlayerActionState.Aiming;
+            float targetSpeed = _input.sprint && canSprint ? SprintSpeed : MoveSpeed;
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 
@@ -346,6 +395,7 @@ namespace StarterAssets
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
             _animationController.SetMove(_animationBlend);
+            _animationController.SetMoveDirection(_input.move.x, _input.move.y);
         }
 
         private bool HasRequiredReferences()

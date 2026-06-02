@@ -1145,10 +1145,11 @@ Transform:
   m_GameObject: {fileID: 4058607688818137515}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.599, z: 0}
+  m_LocalPosition: {x: 0, y: 1.759, z: 0.111}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7554876900937515560}
   m_Father: {fileID: 4396053498136997635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4169883823378711023
@@ -1576,6 +1577,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentActionState: 0
+  aimingChangeDelayTime: 2
   MoveSpeed: 2
   SprintSpeed: 5.335
   RotationSmoothTime: 0.12
@@ -1595,7 +1598,7 @@ MonoBehaviour:
   BottomClamp: -30
   CameraAngleOverride: 0
   LockCameraPosition: 0
-  _tpsTwoStepHitscanSystem: {fileID: 4212851093045489019}
+  _weaponController: {fileID: 9036437321398294158}
   _raycastInteractor: {fileID: 8308339330082520230}
 --- !u!114 &608903216306100104
 MonoBehaviour:
@@ -1648,6 +1651,7 @@ MonoBehaviour:
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
+  lookInputBlocked: 0
   Interact: 0
   Attack: 0
   Inventory: 0
@@ -1656,6 +1660,15 @@ MonoBehaviour:
   WeaponSelectReleased: 0
   Roll: 0
   Grenade: 0
+  Reload: 0
+  UIClose: 0
+  AimHold: 0
+  AimHoldPressed: 0
+  AimHoldReleased: 0
+  ADSClick: 0
+  ADSClickPressed: 0
+  ADSClickReleased: 0
+  logWeaponSelectInput: 0
 --- !u!114 &2445690198899895915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2154,6 +2167,22 @@ MonoBehaviour:
   autoReloadOnEmpty: 1
   shotDelayTime: 0
   saveTime: -999
+  hitscanSystem: {fileID: 4212851093045489019}
+  muzzle: {fileID: 4413434058500946732}
+  aimRange: 100
+  shotRange: 100
+  muzzleBlockRadius: 0.5
+  aimMask:
+    serializedVersion: 2
+    m_Bits: 1792
+  shotMask:
+    serializedVersion: 2
+    m_Bits: 1792
+  muzzleBlockMask:
+    serializedVersion: 2
+    m_Bits: 1536
+  hitEffectPrefab: {fileID: 6265009714437678868, guid: dc9c49512c5c3374baa05f8c35309ee8, type: 3}
+  hitEffectLifeTime: 0.2
   AmmoChangeChannel: {fileID: 11400000, guid: 2026284826e790c46914b524eb862bbd, type: 2}
   VariableChange: 0
   _animationController: {fileID: 608903216306100104}
@@ -2169,23 +2198,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a61948932d1140e0aa48516659738807, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.TPS_TwoStepHitscanWeapon
-  aimCamera: {fileID: 0}
-  muzzle: {fileID: 4413434058500946732}
-  aimRange: 100
-  shotRange: 100
-  muzzleBlockRadius: 0.5
-  weaponController: {fileID: 9036437321398294158}
-  aimMask:
-    serializedVersion: 2
-    m_Bits: 1792
-  shotMask:
-    serializedVersion: 2
-    m_Bits: 1792
-  muzzleBlockMask:
-    serializedVersion: 2
-    m_Bits: 1536
-  hitEffectPrefab: {fileID: 6265009714437678868, guid: dc9c49512c5c3374baa05f8c35309ee8, type: 3}
-  shotRadius: 0
 --- !u!1 &7311193448234864086
 GameObject:
   m_ObjectHideFlags: 0
@@ -2457,6 +2469,81 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.38563368, y: -0.028381877, z: -0.000001475215}
     m_Extent: {x: 0.6504842, y: 0.24398786, z: 0.39344573}
   m_DirtyAABB: 0
+--- !u!1 &8083871483673676720
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7554876900937515560}
+  - component: {fileID: 2305811999031554447}
+  m_Layer: 0
+  m_Name: ADS Camera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7554876900937515560
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8083871483673676720}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.048, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5233979370370125538}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2305811999031554447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8083871483673676720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 1
+    m_Value: 5
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 0}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 69.3
+    OrthographicSize: 10
+    NearClipPlane: 0.18
+    FarClipPlane: 500
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
 --- !u!1 &8435488588426831366
 GameObject:
   m_ObjectHideFlags: 0
