@@ -386,21 +386,32 @@ namespace StarterAssets
             // normalise input direction
             Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
 
+            Vector3 targetDirection;
+
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
             if (_input.move != Vector2.zero)
             {
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  (_mainCamera != null ? _mainCamera.transform.eulerAngles.y : 0f);
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                    RotationSmoothTime);
+                if (currentActionState == PlayerActionState.Normal)
+                {
+                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                      (_mainCamera != null ? _mainCamera.transform.eulerAngles.y : 0f);
+                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+                        RotationSmoothTime);
 
-                // rotate to face input direction relative to camera position
-                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    // rotate to face input direction relative to camera position
+                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+                }
+                else
+                {
+                    targetDirection = GetCameraRelativeMoveDirection(inputDirection);
+                }
             }
-
-
-            Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            else
+            {
+                targetDirection = transform.forward;
+            }
 
             // move the player
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
@@ -408,6 +419,24 @@ namespace StarterAssets
 
             _animationController.SetMove(_animationBlend);
             _animationController.SetMoveDirection(_input.move.x, _input.move.y);
+        }
+
+        private Vector3 GetCameraRelativeMoveDirection(Vector3 inputDirection)
+        {
+            if (_mainCamera == null)
+                return inputDirection.normalized;
+
+            Vector3 cameraForward = _mainCamera.transform.forward;
+            Vector3 cameraRight = _mainCamera.transform.right;
+
+            cameraForward.y = 0f;
+            cameraRight.y = 0f;
+
+            cameraForward.Normalize();
+            cameraRight.Normalize();
+
+            Vector3 moveDirection = cameraRight * inputDirection.x + cameraForward * inputDirection.z;
+            return moveDirection.sqrMagnitude > 0f ? moveDirection.normalized : Vector3.zero;
         }
 
         private bool HasRequiredReferences()
