@@ -102,12 +102,12 @@ namespace StarterAssets
         private bool _missingCinemachineTargetLogged;
         private bool _missingPlayerInputLogged;
         private bool _missingRaycastInteractorLogged;
-        private bool _missingHitscanLogged;
+        private bool _missingWeaponControllerLogged;
 
         private const float _threshold = 0.01f;
 
         // 공격을 위한 컴포넌트
-        [SerializeField]private TPS_TwoStepHitscanSystem _tpsTwoStepHitscanSystem;
+        [SerializeField]private WeaponController _weaponController;
         [SerializeField] private RaycastInteractor _raycastInteractor;
 
         private bool IsCurrentDeviceMouse
@@ -136,9 +136,9 @@ namespace StarterAssets
                 _animationController = gameObject.AddComponent<AnimationController>();
             }
 
-            if (_tpsTwoStepHitscanSystem == null)
+            if (_weaponController == null)
             {
-                _tpsTwoStepHitscanSystem = gameObject.GetComponent<TPS_TwoStepHitscanSystem>();
+                _weaponController = gameObject.GetComponent<WeaponController>();
             }
 
             if (_raycastInteractor == null)
@@ -220,26 +220,22 @@ namespace StarterAssets
 
         private void HandleAttack()
         {
-            if (_input == null || _animationController == null)
+            if (_input == null)
                 return;
 
-            _animationController.SetAttack(false);
-
-            if (_input.Attack)
+            if (_weaponController == null)
             {
-                if (_tpsTwoStepHitscanSystem == null)
-                {
-                    LogMissingReference(nameof(_tpsTwoStepHitscanSystem), "공격 기능을 사용하려면 TPS_TwoStepHitscanSystem을 연결해야 합니다.");
-                    return;
-                }
+                if (_input.Attack)
+                    LogMissingReference(nameof(_weaponController), "공격 기능을 사용하려면 WeaponController를 연결해야 합니다.");
 
-                bool fired = _tpsTwoStepHitscanSystem.Fire();
-                _animationController.SetAttack(fired);
+                return;
+            }
 
-                if (fired)
-                {
-                    targetToRotation(_tpsTwoStepHitscanSystem.AimDirection);
-                }
+            bool fired = _weaponController.HandleAttackInput(_input.Attack);
+
+            if (fired)
+            {
+                targetToRotation(_weaponController.LastAimDirection);
             }
         }
 
@@ -443,12 +439,12 @@ namespace StarterAssets
 
                 _missingRaycastInteractorLogged = true;
             }
-            else if (fieldName == nameof(_tpsTwoStepHitscanSystem))
+            else if (fieldName == nameof(_weaponController))
             {
-                if (_missingHitscanLogged)
+                if (_missingWeaponControllerLogged)
                     return;
 
-                _missingHitscanLogged = true;
+                _missingWeaponControllerLogged = true;
             }
 #if ENABLE_INPUT_SYSTEM
             else if (fieldName == nameof(_playerInput))
