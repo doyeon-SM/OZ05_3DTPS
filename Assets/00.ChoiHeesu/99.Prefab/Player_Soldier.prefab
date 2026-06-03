@@ -835,6 +835,37 @@ Transform:
   - {fileID: 3235173226679134582}
   m_Father: {fileID: 8676236996388432232}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2349364366032993294
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 802299511371723711}
+  m_Layer: 7
+  m_Name: ADSFollowTarget
+  m_TagString: CinemachineTarget
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &802299511371723711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2349364366032993294}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5233979370370125538}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2388288485485529513
 GameObject:
   m_ObjectHideFlags: 0
@@ -1130,7 +1161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5233979370370125538}
   m_Layer: 7
-  m_Name: PlayerCameraRoot
+  m_Name: CameraRootSet
   m_TagString: CinemachineTarget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1149,7 +1180,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7554876900937515560}
+  - {fileID: 545283886075105669}
+  - {fileID: 802299511371723711}
   m_Father: {fileID: 4396053498136997635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4169883823378711023
@@ -1376,6 +1408,37 @@ Transform:
   - {fileID: 9219674232145515292}
   m_Father: {fileID: 8185263980463112406}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5064758509014868606
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 545283886075105669}
+  m_Layer: 7
+  m_Name: CameraFollowTarget
+  m_TagString: CinemachineTarget
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &545283886075105669
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5064758509014868606}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5233979370370125538}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5232117125641429927
 GameObject:
   m_ObjectHideFlags: 0
@@ -1394,6 +1457,7 @@ GameObject:
   - component: {fileID: 6720829549027223185}
   - component: {fileID: 2445690198899895915}
   - component: {fileID: 1129587840661099956}
+  - component: {fileID: 6982709996349172965}
   m_Layer: 7
   m_Name: Player_Soldier
   m_TagString: Player
@@ -1698,6 +1762,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickupCollector
   playerInventory: {fileID: 1303925898255753789}
   itemCatalogManager: {fileID: 0}
+--- !u!114 &6982709996349172965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5232117125641429927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4c4b03c94a32704e9718a9c9222766c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.StateChangeScript.PlayerAimController
+  thirdPersonController: {fileID: 1860447976410328513}
+  aimCamera: {fileID: 0}
+  bodyRoot: {fileID: 4396053498136997635}
+  aimTarget: {fileID: 0}
+  aimRange: 100
+  aimMask:
+    serializedVersion: 2
+    m_Bits: 3959
+  triggerInteraction: 1
+  rotateBody: 1
+  bodyRotationSpeed: 720
+  minAimDirectionDistance: 0.1
+  drawDebugRay: 1
 --- !u!1 &5540925495897879600
 GameObject:
   m_ObjectHideFlags: 0
@@ -2271,7 +2360,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3653939080914243951}
-  - component: {fileID: 3341279977177244419}
+  - component: {fileID: 6545985917478855220}
   m_Layer: 7
   m_Name: Camera
   m_TagString: Untagged
@@ -2294,7 +2383,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2542007875471310758}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3341279977177244419
+--- !u!114 &6545985917478855220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2303,18 +2392,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 7550931550260564573}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f2ad3e0bd275e844ac75f2a923b04ee, type: 3}
+  m_Script: {fileID: 11500000, guid: de3c6edf6bb212f4ebdfb1293929e579, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.StateChangeScript.PlayerCameraController
   thirdPersonController: {fileID: 1860447976410328513}
-  cinemachineBrain: {fileID: 0}
-  thirdPersonCamera: {fileID: 0}
-  adsCamera: {fileID: 2305811999031554447}
-  activePriority: 20
-  inactivePriority: 10
-  blendStyle: 1
-  normalToAimingBlendTime: 0.18
-  aimingToNormalBlendTime: 0.32
+  cameraSet: {fileID: 0}
+  cameraFollowTarget: {fileID: 545283886075105669}
+  adsFollowTarget: {fileID: 802299511371723711}
+  cameraFollowTargetName: CameraFollowTarget
+  adsFollowTargetName: ADSFollowTarget
 --- !u!1 &7552646324689651710
 GameObject:
   m_ObjectHideFlags: 0
@@ -2522,81 +2608,6 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.38563368, y: -0.028381877, z: -0.000001475215}
     m_Extent: {x: 0.6504842, y: 0.24398786, z: 0.39344573}
   m_DirtyAABB: 0
---- !u!1 &8083871483673676720
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7554876900937515560}
-  - component: {fileID: 2305811999031554447}
-  m_Layer: 0
-  m_Name: ADS Camera
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7554876900937515560
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8083871483673676720}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.048, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5233979370370125538}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2305811999031554447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8083871483673676720}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
-  Priority:
-    Enabled: 1
-    m_Value: 5
-  OutputChannel: 1
-  StandbyUpdate: 2
-  m_StreamingVersion: 20241001
-  m_LegacyPriority: 0
-  Target:
-    TrackingTarget: {fileID: 0}
-    LookAtTarget: {fileID: 0}
-    CustomLookAtTarget: 0
-  Lens:
-    FieldOfView: 69.3
-    OrthographicSize: 10
-    NearClipPlane: 0.18
-    FarClipPlane: 500
-    Dutch: 0
-    ModeOverride: 0
-    PhysicalProperties:
-      GateFit: 2
-      SensorSize: {x: 21.946, y: 16.002}
-      LensShift: {x: 0, y: 0}
-      FocusDistance: 10
-      Iso: 200
-      ShutterSpeed: 0.005
-      Aperture: 16
-      BladeCount: 5
-      Curvature: {x: 2, y: 11}
-      BarrelClipping: 0.25
-      Anamorphism: 0
-  BlendHint: 0
 --- !u!1 &8435488588426831366
 GameObject:
   m_ObjectHideFlags: 0
