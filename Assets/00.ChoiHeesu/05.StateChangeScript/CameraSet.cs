@@ -1,0 +1,250 @@
+using Unity.Cinemachine;
+using UnityEngine;
+
+namespace _00.ChoiHeesu._04.StateChangeScript
+{
+    public class CameraSet : MonoBehaviour
+    {
+        public static CameraSet ActiveInstance { get; private set; }
+
+        [Header("References")]
+        [SerializeField] private Camera mainCamera;
+        [SerializeField] private CinemachineBrain cinemachineBrain;
+        [SerializeField] private CinemachineCamera thirdPersonCamera;
+        [SerializeField] private CinemachineCamera adsCamera;
+
+        [Header("Priority")]
+        [SerializeField] private int activePriority = 20;
+        [SerializeField] private int inactivePriority = 10;
+
+        [Header("Blend")]
+        [SerializeField] private CinemachineBlendDefinition.Styles blendStyle = CinemachineBlendDefinition.Styles.EaseInOut;
+        [SerializeField] private float thirdPersonToADSBlendTime = 0.18f;
+        [SerializeField] private float adsToThirdPersonBlendTime = 0.32f;
+
+        [Header("Options")]
+        [SerializeField] private bool dontDestroyOnLoad;
+        [SerializeField] private bool autoCacheChildReferences = true;
+        [SerializeField] private bool configureADSAsFirstPerson = true;
+        [SerializeField] private bool useFollowTargetAsLookAt;
+
+        private bool hasCameraState;
+        private bool isUsingADSCamera;
+        private bool isDuplicateInstance;
+
+        private bool missingBrainLogged;
+        private bool missingThirdPersonCameraLogged;
+        private bool missingADSCameraLogged;
+
+        private void Awake()
+        {
+            if (dontDestroyOnLoad && ActiveInstance != null && ActiveInstance != this)
+            {
+                isDuplicateInstance = true;
+                Destroy(gameObject);
+                return;
+            }
+
+            ActiveInstance = this;
+            CacheReferences();
+
+            if (dontDestroyOnLoad)
+                DontDestroyOnLoad(gameObject);
+        }
+
+        private void OnEnable()
+        {
+            if (isDuplicateInstance)
+                return;
+
+            ActiveInstance = this;
+            CacheReferences();
+        }
+
+        private void OnDisable()
+        {
+            if (isDuplicateInstance)
+                return;
+
+            if (ActiveInstance == this)
+                ActiveInstance = null;
+        }
+
+        public void BindTargets(Transform cameraFollowTarget, Transform adsFollowTarget)
+        {
+            CacheReferences();
+
+            if (thirdPersonCamera != null && cameraFollowTarget != null)
+            {
+                thirdPersonCamera.Follow = cameraFollowTarget;
+
+                if (useFollowTargetAsLookAt)
+                    thirdPersonCamera.LookAt = cameraFollowTarget;
+            }
+
+            if (adsCamera != null && adsFollowTarget != null)
+            {
+                EnsureADSFirstPersonPipeline();
+                adsCamera.Follow = adsFollowTarget;
+
+                if (useFollowTargetAsLookAt)
+                    adsCamera.LookAt = adsFollowTarget;
+            }
+        }
+
+        public void SetAiming(bool useADSCamera, bool instant = false)
+        {
+            if (!HasRequiredReferences())
+                return;
+
+            float blendTime = GetBlendTime(useADSCamera, instant);
+            SetBrainBlend(blendTime);
+
+            SetCameraPriority(thirdPersonCamera, useADSCamera ? inactivePriority : activePriority);
+            SetCameraPriority(adsCamera, useADSCamera ? activePriority : inactivePriority);
+
+            isUsingADSCamera = useADSCamera;
+            hasCameraState = true;
+        }
+
+        private void CacheReferences()
+        {
+            if (!autoCacheChildReferences)
+                return;
+
+            if (mainCamera == null)
+                mainCamera = GetComponentInChildren<Camera>(true);
+
+            if (cinemachineBrain == null)
+            {
+                if (mainCamera != null)
+                    mainCamera.TryGetComponent(out cinemachineBrain);
+
+                if (cinemachineBrain == null)
+                    cinemachineBrain = GetComponentInChildren<CinemachineBrain>(true);
+            }
+
+            if (thirdPersonCamera != null && adsCamera != null)
+            {
+                EnsureADSFirstPersonPipeline();
+                return;
+            }
+
+            CinemachineCamera[] cameras = GetComponentsInChildren<CinemachineCamera>(true);
+            foreach (CinemachineCamera targetCamera in cameras)
+            {
+                if (targetCamera == null)
+                    continue;
+
+                string cameraName = targetCamera.name.ToLowerInvariant();
+                if (adsCamera == null && cameraName.Contains("ads"))
+                {
+                    adsCamera = targetCamera;
+                    continue;
+                }
+
+                if (thirdPersonCamera == null)
+                    thirdPersonCamera = targetCamera;
+            }
+
+            EnsureADSFirstPersonPipeline();
+        }
+
+        private void EnsureADSFirstPersonPipeline()
+        {
+            if (!configureADSAsFirstPerson || adsCamera == null)
+                return;
+
+            if (!HasPipelineStage(adsCamera, CinemachineCore.Stage.Body))
+                adsCamera.gameObject.AddComponent<CinemachineHardLockToTarget>();
+
+            if (!HasPipelineStage(adsCamera, CinemachineCore.Stage.Aim))
+                adsCamera.gameObject.AddComponent<CinemachineRotateWithFollowTarget>();
+        }
+
+        private static bool HasPipelineStage(CinemachineCamera targetCamera, CinemachineCore.Stage stage)
+        {
+            CinemachineComponentBase[] components = targetCamera.GetComponents<CinemachineComponentBase>();
+            foreach (CinemachineComponentBase component in components)
+            {
+                if (component != null && component.Stage == stage)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool HasRequiredReferences()
+        {
+            CacheReferences();
+
+            bool hasReferences = true;
+
+            if (cinemachineBrain == null)
+            {
+                LogMissingReference(nameof(cinemachineBrain), ref missingBrainLogged,
+                    "CameraSet 자식의 Main Camera에 CinemachineBrain을 연결해주세요.");
+                hasReferences = false;
+            }
+
+            if (thirdPersonCamera == null)
+            {
+                LogMissingReference(nameof(thirdPersonCamera), ref missingThirdPersonCameraLogged,
+                    "CameraSet 자식의 일반 3인칭 CinemachineCamera를 연결해주세요.");
+                hasReferences = false;
+            }
+
+            if (adsCamera == null)
+            {
+                LogMissingReference(nameof(adsCamera), ref missingADSCameraLogged,
+                    "CameraSet 자식의 ADS CinemachineCamera를 연결해주세요.");
+                hasReferences = false;
+            }
+
+            return hasReferences;
+        }
+
+        private float GetBlendTime(bool nextUseADSCamera, bool instant)
+        {
+            if (instant || !hasCameraState)
+                return 0f;
+
+            if (isUsingADSCamera == nextUseADSCamera)
+                return 0f;
+
+            return nextUseADSCamera ? thirdPersonToADSBlendTime : adsToThirdPersonBlendTime;
+        }
+
+        private void SetBrainBlend(float blendTime)
+        {
+            if (cinemachineBrain == null)
+                return;
+
+            cinemachineBrain.DefaultBlend = new CinemachineBlendDefinition(blendStyle, Mathf.Max(blendTime, 0f));
+        }
+
+        private static void SetCameraPriority(CinemachineCamera targetCamera, int priority)
+        {
+            if (targetCamera == null)
+                return;
+
+            targetCamera.Priority.Value = priority;
+        }
+
+        private void LogMissingReference(string fieldName, ref bool alreadyLogged, string message)
+        {
+            if (alreadyLogged)
+                return;
+
+            Debug.LogError($"[CameraSet] {fieldName}이 null입니다. {message}", this);
+            alreadyLogged = true;
+        }
+
+        private void OnValidate()
+        {
+            activePriority = Mathf.Max(activePriority, inactivePriority + 1);
+            thirdPersonToADSBlendTime = Mathf.Max(thirdPersonToADSBlendTime, 0f);
+            adsToThirdPersonBlendTime = Mathf.Max(adsToThirdPersonBlendTime, 0f);
+        }
+    }
+}
