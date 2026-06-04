@@ -15,6 +15,12 @@ namespace _02.Script.Combat
         private const int LogReloadNotUseAmmo = 6;
         private const int LogReloadStart = 7;
         private const int LogReloadComplete = 8;
+        private const int LogNoHitscanSystem = 9;
+        private const int LogNoAimCamera = 10;
+        private const int LogNoMuzzle = 11;
+        private const int LogNoAimMask = 12;
+        private const int LogNoShotMask = 13;
+        private const int LogNoMuzzleBlockMask = 14;
 
         [Header("Weapon")]
         [SerializeField] private WeaponRuntime[] weaponRuntime;
@@ -27,6 +33,18 @@ namespace _02.Script.Combat
         [SerializeField] private bool autoReloadOnEmpty = true;
         [SerializeField] private float shotDelayTime;
         [SerializeField] private float saveTime = -999f;
+
+        [Header("Attack System")]
+        [SerializeField] private TPS_TwoStepHitscanSystem hitscanSystem;
+        [SerializeField] private Transform muzzle;
+        [SerializeField] private float aimRange;
+        [SerializeField] private float shotRange;
+        [SerializeField] private float muzzleBlockRadius;
+        [SerializeField] private LayerMask aimMask;
+        [SerializeField] private LayerMask shotMask;
+        [SerializeField] private LayerMask muzzleBlockMask;
+        [SerializeField] private GameObject hitEffectPrefab;
+        [SerializeField] private float hitEffectLifeTime = 0.2f;
         
         [Header("Event Channels")]
         [SerializeField] private DoubleIntEventChannel AmmoChangeChannel;
@@ -36,11 +54,13 @@ namespace _02.Script.Combat
         public int Damage => CurrentWeapon != null && CurrentWeapon.data != null ? CurrentWeapon.data.Damage : 0;
         public bool IsFiring => isfire;
         public bool IsReloading => isReloading;
+        public Vector3 LastAimDirection { get; private set; }
 
         public bool VariableChange;
 
         private Coroutine _reloadCoroutine;
         [SerializeField]private AnimationController _animationController;
+        private bool wasAttackInputPressed;
 
         private WeaponRuntime CurrentWeapon
         {
@@ -77,7 +97,9 @@ namespace _02.Script.Combat
             ClampCurrentWeaponIndex();
             InitializeWeaponRuntimes();
             if(_animationController == null)_animationController =  GetComponentInParent<AnimationController>();
+            CacheCombatReferences();
             SetReloadingAnimation(false);
+            SetAttackAnimation(false);
             RPMCalculate(); // RPM으로 딜레이 시간 계산
         }
 
@@ -102,6 +124,120 @@ namespace _02.Script.Combat
 
                 weaponRuntime[i].InitializeAmmo();
             }
+        }
+
+        private void CacheCombatReferences()
+        {
+            if (hitscanSystem == null)
+                hitscanSystem = GetComponent<TPS_TwoStepHitscanSystem>();
+
+            if (aimRange <= 0f)
+                aimRange = 100f;
+
+            if (shotRange <= 0f)
+                shotRange = 100f;
+
+            if (muzzleBlockRadius <= 0f)
+                muzzleBlockRadius = 0.5f;
+        }
+
+        private bool TryBuildHitscanRequest(out HitscanFireRequest request)
+        {
+            request = default;
+
+            WeaponRuntime currentWeapon = CurrentWeapon;
+            if (!ValidateCurrentWeapon(currentWeapon))
+                return false;
+
+            CacheCombatReferences();
+
+            if (hitscanSystem == null)
+            {
+                LogWeaponState(LogNoHitscanSystem);
+                return false;
+            }
+
+            Camera fireCamera = Camera.main;
+            if (fireCamera == null)
+            {
+                LogWeaponState(LogNoAimCamera);
+                return false;
+            }
+
+            if (muzzle == null)
+            {
+                LogWeaponState(LogNoMuzzle);
+                return false;
+            }
+
+            if (aimMask.value == 0)
+            {
+                LogWeaponState(LogNoAimMask);
+                return false;
+            }
+
+            if (shotMask.value == 0)
+            {
+                LogWeaponState(LogNoShotMask);
+                return false;
+            }
+
+            if (muzzleBlockMask.value == 0)
+            {
+                LogWeaponState(LogNoMuzzleBlockMask);
+                return false;
+            }
+
+            request = new HitscanFireRequest
+            {
+                AimCamera = fireCamera,
+                Muzzle = muzzle,
+                AimRange = aimRange,
+                ShotRange = shotRange,
+                MuzzleBlockRadius = muzzleBlockRadius,
+                AimMask = aimMask,
+                ShotMask = shotMask,
+                MuzzleBlockMask = muzzleBlockMask,
+                HitEffectPrefab = hitEffectPrefab,
+                HitEffectLifeTime = Mathf.Max(hitEffectLifeTime, 0.01f),
+                Damage = Damage
+            };
+
+            return true;
+        }
+
+        public bool HandleAttackInput(bool isAttackPressed)
+        {
+            SetAttackAnimation(false);
+
+            bool shouldFire = isAttackPressed && (AutoFire || !wasAttackInputPressed);
+            bool fired = shouldFire && TryAttack();
+
+            wasAttackInputPressed = isAttackPressed;
+
+            if (fired)
+                SetAttackAnimation(true);
+
+            return fired;
+        }
+
+        public bool TryAttack()
+        {
+            if (!TryBuildHitscanRequest(out HitscanFireRequest request))
+                return false;
+
+            if (!hitscanSystem.CanFire(request))
+                return false;
+
+            if (!TryFire())
+                return false;
+
+            bool fired = hitscanSystem.Fire(request);
+
+            if (fired)
+                LastAimDirection = hitscanSystem.AimDirection;
+
+            return fired;
         }
 
         public bool TryFire()
@@ -218,6 +354,13 @@ namespace _02.Script.Combat
 
             _animationController.SetReloading(reloading);
         }
+
+        private void SetAttackAnimation(bool attacking)
+        {
+            if (_animationController == null) return;
+
+            _animationController.SetAttack(attacking);
+        }
         
         private void RPMCalculate() // RPM을 받아서 초당 딜레이 타임으로 변환 계산합니다. (60sec / RPM)
         {
@@ -284,6 +427,24 @@ namespace _02.Script.Combat
                     break;
                 case LogReloadComplete:
                     Debug.Log("재장전이 완료되었습니다.");
+                    break;
+                case LogNoHitscanSystem:
+                    Debug.LogWarning("발사 불가: TPS_TwoStepHitscanSystem이 없습니다.");
+                    break;
+                case LogNoAimCamera:
+                    Debug.LogWarning("발사 불가: AimCamera가 없습니다. MainCamera 태그가 붙은 카메라가 있는지 확인해주세요.");
+                    break;
+                case LogNoMuzzle:
+                    Debug.LogWarning("발사 불가: WeaponController의 muzzle이 null입니다. Inspector에서 실제 장착 무기의 Muzzle Transform을 연결해주세요.");
+                    break;
+                case LogNoAimMask:
+                    Debug.LogWarning("발사 불가: aimMask가 비어 있습니다. WeaponController의 Attack System 설정을 확인해주세요.");
+                    break;
+                case LogNoShotMask:
+                    Debug.LogWarning("발사 불가: shotMask가 비어 있습니다. WeaponController의 Attack System 설정을 확인해주세요.");
+                    break;
+                case LogNoMuzzleBlockMask:
+                    Debug.LogWarning("발사 불가: muzzleBlockMask가 비어 있습니다. WeaponController의 Attack System 설정을 확인해주세요.");
                     break;
                 default:
                     Debug.LogWarning("알 수 없는 무기 로그 타입입니다.");

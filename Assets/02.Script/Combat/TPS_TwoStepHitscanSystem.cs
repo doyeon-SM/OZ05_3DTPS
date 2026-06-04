@@ -3,64 +3,36 @@ using UnityEngine;
 
 namespace _02.Script.Combat
 {
+    public struct HitscanFireRequest
+    {
+        public Camera AimCamera;
+        public Transform Muzzle;
+        public float AimRange;
+        public float ShotRange;
+        public float MuzzleBlockRadius;
+        public LayerMask AimMask;
+        public LayerMask ShotMask;
+        public LayerMask MuzzleBlockMask;
+        public GameObject HitEffectPrefab;
+        public float HitEffectLifeTime;
+        public int Damage;
+    }
+
     public class TPS_TwoStepHitscanSystem : MonoBehaviour
     {
-        [Header("RayCast를 적용할 객체")]
-        [SerializeField] private Camera aimCamera;
-        [SerializeField] private Transform muzzle;
-
-        [Header("Ray 관련 변수")]
-        [SerializeField] private float aimRange = 100f;
-        [SerializeField] private float shotRange = 100f;
-        [SerializeField] private float muzzleBlockRadius = 0.5f;
-
-        [Header("무기 관리")]
-        [SerializeField] private WeaponController weaponController;
-
         public Vector3 AimDirection { get; private set; } // 타겟 방향 저장용 변수
 
-        [Header("Ray 입력 가능한 LayerMask 지정")]
-        [SerializeField] private LayerMask aimMask;
-        [SerializeField] private LayerMask shotMask;
-        [SerializeField] private LayerMask muzzleBlockMask;
-
-        [Header("피격 이펙트")]
-        [SerializeField] private GameObject hitEffectPrefab;
-        [SerializeField] private float shotRadius;
-
-        #region Unity Functions
-
-        private void Awake()
+        private AimResult ResolveAimPoint(HitscanFireRequest request)
         {
-            if (aimCamera == null)
-            {
-                aimCamera = Camera.main;
-            }
-
-            if (muzzle == null)
-            {
-                Debug.LogError("Muzzle이 설정되어 있지 않습니다.", this);
-            }
-
-            if (weaponController == null)
-            {
-                weaponController = GetComponent<WeaponController>();
-            }
-        }
-
-        #endregion
-
-        private AimResult ResolveAimPoint()
-        {
-            Ray aimRay = aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            Ray aimRay = request.AimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             AimResult result = new AimResult
             {
                 ray = aimRay,
                 didHit = false,
-                point = aimRay.GetPoint(aimRange)
+                point = aimRay.GetPoint(request.AimRange)
             };
 
-            if (Physics.Raycast(aimRay, out RaycastHit hit, aimRange, aimMask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(aimRay, out RaycastHit hit, request.AimRange, request.AimMask, QueryTriggerInteraction.Ignore))
             {
                 result.didHit = true;
                 result.hit = hit;
@@ -70,31 +42,31 @@ namespace _02.Script.Combat
             return result;
         }
 
-        private ShotResult FireFromMuzzle(AimResult aimResult)
+        private ShotResult FireFromMuzzle(AimResult aimResult, HitscanFireRequest request)
         {
-            Vector3 toAimPoint = aimResult.point - muzzle.position;
+            Vector3 toAimPoint = aimResult.point - request.Muzzle.position;
 
             if (toAimPoint.sqrMagnitude < 0.0001f)
             {
-                toAimPoint = aimCamera.transform.forward;
+                toAimPoint = request.AimCamera.transform.forward;
             }
 
             Vector3 shotDirection = toAimPoint.normalized;
             float distanceToAimPoint = toAimPoint.magnitude;
 
             float castDistance = aimResult.didHit
-                ? Mathf.Min(shotRange, distanceToAimPoint + 0.05f)
-                : shotRange;
+                ? Mathf.Min(request.ShotRange, distanceToAimPoint + 0.05f)
+                : request.ShotRange;
 
             ShotResult result = new ShotResult
             {
-                origin = muzzle.position,
+                origin = request.Muzzle.position,
                 direction = shotDirection,
                 distance = castDistance,
                 didHit = false
             };
 
-            if (Physics.Raycast(muzzle.position, shotDirection, out RaycastHit shotHit, castDistance, shotMask,
+            if (Physics.Raycast(request.Muzzle.position, shotDirection, out RaycastHit shotHit, castDistance, request.ShotMask,
                     QueryTriggerInteraction.Ignore))
             {
                 result.didHit = true;
@@ -104,88 +76,89 @@ namespace _02.Script.Combat
             return result;
         }
 
-        private void HandleHit(RaycastHit hit, AimResult aimResult)
+        private void HandleHit(RaycastHit hit, AimResult aimResult, HitscanFireRequest request)
         {
             string aimName = aimResult.didHit ? aimResult.hit.collider.name : "없음";
             string shotName = hit.collider.name;
-            Debug.Log($"카메라 조준: {aimName} / 실제 피격: {shotName}");
+            Debug.Log($"카메라 조준: {aimName} / 실제 사격: {shotName}");
 
             IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
-                damageable.TakeDamage(weaponController.Damage);
+                damageable.TakeDamage(request.Damage);
             }
 
-            if (hitEffectPrefab != null)
+            if (request.HitEffectPrefab != null)
             {
-                GameObject hitEffect = Instantiate(hitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                Destroy(hitEffect, 0.2f);
+                GameObject hitEffect = Instantiate(request.HitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                Destroy(hitEffect, request.HitEffectLifeTime);
             }
         }
 
-        private void DrawDebugRays(AimResult aim, ShotResult shot)
+        private void DrawDebugRays(AimResult aim, ShotResult shot, HitscanFireRequest request)
         {
-            float aimDistance = aim.didHit ? aim.hit.distance : aimRange;
+            float aimDistance = aim.didHit ? aim.hit.distance : request.AimRange;
             Debug.DrawRay(aim.ray.origin, aim.ray.direction * aimDistance, Color.cyan, 0.5f);
 
             float shotDistance = shot.didHit ? shot.hit.distance : shot.distance;
             Debug.DrawRay(shot.origin, shot.direction * shotDistance, shot.didHit ? Color.red : Color.yellow, 0.5f);
         }
 
-        private void OnDrawGizmosSelected()
-        {
-            if (muzzle == null) return;
-
-            Gizmos.color = Color.chartreuse;
-            Gizmos.DrawWireSphere(muzzle.position, muzzleBlockRadius);
-        }
-
-        private bool IsMuzzleBlocked()
+        private bool IsMuzzleBlocked(HitscanFireRequest request)
         {
             return Physics.CheckSphere(
-                muzzle.position,
-                muzzleBlockRadius,
-                muzzleBlockMask,
+                request.Muzzle.position,
+                request.MuzzleBlockRadius,
+                request.MuzzleBlockMask,
                 QueryTriggerInteraction.Ignore);
         }
 
-        public bool Fire()
+        public bool CanFire(HitscanFireRequest request)
         {
-            if (aimCamera == null || muzzle == null)
+            if (request.AimCamera == null)
             {
-                Debug.LogWarning("Aim Camera 또는 Muzzle이 없습니다.");
+                Debug.LogWarning("[TPS_TwoStepHitscanSystem] AimCamera가 null입니다.", this);
                 return false;
             }
 
-            if (IsMuzzleBlocked())
+            if (request.Muzzle == null)
+            {
+                Debug.LogWarning("[TPS_TwoStepHitscanSystem] Muzzle이 null입니다.", this);
+                return false;
+            }
+
+            if (IsMuzzleBlocked(request))
             {
                 Debug.Log("발사 불가: 총구가 장애물에 너무 가깝습니다.");
                 return false;
             }
 
-            if (weaponController == null)
-            {
-                Debug.LogWarning("WeaponController가 없습니다.");
-                return false;
-            }
+            return true;
+        }
 
-            if (!weaponController.TryFire())
-            {
+        public bool Fire(HitscanFireRequest request)
+        {
+            if (!CanFire(request))
                 return false;
-            }
 
-            AimResult aimResult = ResolveAimPoint();
-            ShotResult shotResult = FireFromMuzzle(aimResult);
+            AimResult aimResult = ResolveAimPoint(request);
+            ShotResult shotResult = FireFromMuzzle(aimResult, request);
 
             AimDirection = shotResult.direction;
-            DrawDebugRays(aimResult, shotResult);
+            DrawDebugRays(aimResult, shotResult, request);
 
             if (shotResult.didHit)
             {
-                HandleHit(shotResult.hit, aimResult);
+                HandleHit(shotResult.hit, aimResult, request);
             }
 
             return true;
+        }
+
+        public bool Fire()
+        {
+            Debug.LogWarning("[TPS_TwoStepHitscanSystem] Fire() 직접 호출은 더 이상 권장하지 않습니다. WeaponController를 통해 HitscanFireRequest를 전달해주세요.", this);
+            return false;
         }
     }
 }

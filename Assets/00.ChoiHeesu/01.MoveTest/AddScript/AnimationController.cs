@@ -17,13 +17,20 @@ namespace StarterAssets
 
         private int _animIDSpeed;
         private int _animIDGrounded;
+        private int _animIDOnGround;
         private int _animIDJump;
         private int _animIDFreeFall;
+        private int _animIDX;
+        private int _animIDY;
         // MotionSpeed는 현재 애니메이션 블렌딩에 사용하지 않음
         // private int _animIDMotionSpeed;
         private int _animIDAttack;
         private int _animIDReloading;
+        private int _animIDAiming;
+        private int _animIDDead;
         private int _animIDInteractive;
+        private int _animIDStopInteract;
+        private int _animIDRoll;
         private int _animIDPickup;
 
         private void Awake()
@@ -40,6 +47,13 @@ namespace StarterAssets
             if (!CanUseAnimator(nameof(SetGrounded))) return;
 
             _animator.SetBool(_animIDGrounded, isGrounded);
+        }
+
+        public void SetOnGround(bool isOnGround)
+        {
+            if (!CanUseAnimator(nameof(SetOnGround))) return;
+
+            _animator.SetBool(_animIDOnGround, isOnGround);
         }
 
         public void SetJump(bool isJumping)
@@ -65,6 +79,14 @@ namespace StarterAssets
             // _animator.SetFloat(_animIDMotionSpeed, motionSpeed);
         }
 
+        public void SetMoveDirection(float x, float y)
+        {
+            if (!CanUseAnimator(nameof(SetMoveDirection))) return;
+
+            _animator.SetFloat(_animIDX, x);
+            _animator.SetFloat(_animIDY, y);
+        }
+
         public void SetAttack(bool isAttacking)
         {
             if (!CanUseAnimator(nameof(SetAttack))) return;
@@ -79,11 +101,39 @@ namespace StarterAssets
             _animator.SetBool(_animIDReloading, isReloading);
         }
 
+        public void SetAiming(bool isAiming)
+        {
+            if (!CanUseAnimator(nameof(SetAiming))) return;
+
+            _animator.SetBool(_animIDAiming, isAiming);
+        }
+
+        public void SetDead(bool isDead)
+        {
+            if (!CanUseAnimator(nameof(SetDead))) return;
+
+            _animator.SetBool(_animIDDead, isDead);
+        }
+
         public void SetInteractive()
         {
             if (!CanUseAnimator(nameof(SetInteractive))) return;
 
             _animator.SetTrigger(_animIDInteractive);
+        }
+
+        public void SetStopInteract()
+        {
+            if (!CanUseAnimator(nameof(SetStopInteract))) return;
+
+            _animator.SetTrigger(_animIDStopInteract);
+        }
+
+        public void SetRoll()
+        {
+            if (!CanUseAnimator(nameof(SetRoll))) return;
+
+            _animator.SetTrigger(_animIDRoll);
         }
 
         public void SetPickup()
@@ -132,13 +182,20 @@ namespace StarterAssets
 
             _animIDSpeed = Animator.StringToHash("Speed");
             _animIDGrounded = Animator.StringToHash("Grounded");
+            _animIDOnGround = Animator.StringToHash("OnGround");
             _animIDJump = Animator.StringToHash("Jump");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             // MotionSpeed는 현재 애니메이션 블렌딩에 사용하지 않음
             // _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _animIDX = Animator.StringToHash("X");
+            _animIDY = Animator.StringToHash("Y");
             _animIDAttack = Animator.StringToHash("Attack");
             _animIDReloading = Animator.StringToHash("Reloading");
+            _animIDAiming = Animator.StringToHash("Aiming");
+            _animIDDead = Animator.StringToHash("Dead");
             _animIDInteractive = Animator.StringToHash("Interact");
+            _animIDStopInteract = Animator.StringToHash("StopInteract");
+            _animIDRoll = Animator.StringToHash("Roll");
             _animIDPickup = Animator.StringToHash("Pickup");
             _animationIDsAssigned = true;
         }

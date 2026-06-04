@@ -835,6 +835,37 @@ Transform:
   - {fileID: 3235173226679134582}
   m_Father: {fileID: 8676236996388432232}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2349364366032993294
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 802299511371723711}
+  m_Layer: 7
+  m_Name: ADSFollowTarget
+  m_TagString: CinemachineTarget
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &802299511371723711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2349364366032993294}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5233979370370125538}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2388288485485529513
 GameObject:
   m_ObjectHideFlags: 0
@@ -1130,7 +1161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5233979370370125538}
   m_Layer: 7
-  m_Name: PlayerCameraRoot
+  m_Name: CameraRootSet
   m_TagString: CinemachineTarget
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1145,10 +1176,12 @@ Transform:
   m_GameObject: {fileID: 4058607688818137515}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.599, z: 0}
+  m_LocalPosition: {x: 0, y: 1.759, z: 0.111}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 545283886075105669}
+  - {fileID: 802299511371723711}
   m_Father: {fileID: 4396053498136997635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4169883823378711023
@@ -1375,6 +1408,37 @@ Transform:
   - {fileID: 9219674232145515292}
   m_Father: {fileID: 8185263980463112406}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5064758509014868606
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 545283886075105669}
+  m_Layer: 7
+  m_Name: CameraFollowTarget
+  m_TagString: CinemachineTarget
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &545283886075105669
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5064758509014868606}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5233979370370125538}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5232117125641429927
 GameObject:
   m_ObjectHideFlags: 0
@@ -1393,6 +1457,7 @@ GameObject:
   - component: {fileID: 6720829549027223185}
   - component: {fileID: 2445690198899895915}
   - component: {fileID: 1129587840661099956}
+  - component: {fileID: 6982709996349172965}
   m_Layer: 7
   m_Name: Player_Soldier
   m_TagString: Player
@@ -1576,6 +1641,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e54e5a728a9234ab24fcf1460ed8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentActionState: 0
+  aimingChangeDelayTime: 2
   MoveSpeed: 2
   SprintSpeed: 5.335
   RotationSmoothTime: 0.12
@@ -1595,7 +1662,7 @@ MonoBehaviour:
   BottomClamp: -30
   CameraAngleOverride: 0
   LockCameraPosition: 0
-  _tpsTwoStepHitscanSystem: {fileID: 4212851093045489019}
+  _weaponController: {fileID: 9036437321398294158}
   _raycastInteractor: {fileID: 8308339330082520230}
 --- !u!114 &608903216306100104
 MonoBehaviour:
@@ -1648,6 +1715,7 @@ MonoBehaviour:
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
+  lookInputBlocked: 0
   Interact: 0
   Attack: 0
   Inventory: 0
@@ -1656,6 +1724,15 @@ MonoBehaviour:
   WeaponSelectReleased: 0
   Roll: 0
   Grenade: 0
+  Reload: 0
+  UIClose: 0
+  AimHold: 0
+  AimHoldPressed: 0
+  AimHoldReleased: 0
+  ADSClick: 0
+  ADSClickPressed: 0
+  ADSClickReleased: 0
+  logWeaponSelectInput: 0
 --- !u!114 &2445690198899895915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1685,6 +1762,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickupCollector
   playerInventory: {fileID: 1303925898255753789}
   itemCatalogManager: {fileID: 0}
+--- !u!114 &6982709996349172965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5232117125641429927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4c4b03c94a32704e9718a9c9222766c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.StateChangeScript.PlayerAimController
+  thirdPersonController: {fileID: 1860447976410328513}
+  aimCamera: {fileID: 0}
+  bodyRoot: {fileID: 4396053498136997635}
+  aimTarget: {fileID: 0}
+  aimRange: 100
+  aimMask:
+    serializedVersion: 2
+    m_Bits: 3959
+  triggerInteraction: 1
+  rotateBody: 1
+  bodyRotationSpeed: 720
+  minAimDirectionDistance: 0.1
+  drawDebugRay: 1
 --- !u!1 &5540925495897879600
 GameObject:
   m_ObjectHideFlags: 0
@@ -2154,6 +2256,22 @@ MonoBehaviour:
   autoReloadOnEmpty: 1
   shotDelayTime: 0
   saveTime: -999
+  hitscanSystem: {fileID: 4212851093045489019}
+  muzzle: {fileID: 4413434058500946732}
+  aimRange: 100
+  shotRange: 100
+  muzzleBlockRadius: 0.5
+  aimMask:
+    serializedVersion: 2
+    m_Bits: 1792
+  shotMask:
+    serializedVersion: 2
+    m_Bits: 1792
+  muzzleBlockMask:
+    serializedVersion: 2
+    m_Bits: 1536
+  hitEffectPrefab: {fileID: 6265009714437678868, guid: dc9c49512c5c3374baa05f8c35309ee8, type: 3}
+  hitEffectLifeTime: 0.2
   AmmoChangeChannel: {fileID: 11400000, guid: 2026284826e790c46914b524eb862bbd, type: 2}
   VariableChange: 0
   _animationController: {fileID: 608903216306100104}
@@ -2169,23 +2287,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a61948932d1140e0aa48516659738807, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.TPS_TwoStepHitscanWeapon
-  aimCamera: {fileID: 0}
-  muzzle: {fileID: 4413434058500946732}
-  aimRange: 100
-  shotRange: 100
-  muzzleBlockRadius: 0.5
-  weaponController: {fileID: 9036437321398294158}
-  aimMask:
-    serializedVersion: 2
-    m_Bits: 1792
-  shotMask:
-    serializedVersion: 2
-    m_Bits: 1792
-  muzzleBlockMask:
-    serializedVersion: 2
-    m_Bits: 1536
-  hitEffectPrefab: {fileID: 6265009714437678868, guid: dc9c49512c5c3374baa05f8c35309ee8, type: 3}
-  shotRadius: 0
 --- !u!1 &7311193448234864086
 GameObject:
   m_ObjectHideFlags: 0
@@ -2250,6 +2351,56 @@ Transform:
   - {fileID: 1012381797014931846}
   m_Father: {fileID: 3067230786296549314}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7550931550260564573
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3653939080914243951}
+  - component: {fileID: 6545985917478855220}
+  m_Layer: 7
+  m_Name: Camera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3653939080914243951
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7550931550260564573}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2542007875471310758}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6545985917478855220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7550931550260564573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de3c6edf6bb212f4ebdfb1293929e579, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.StateChangeScript.PlayerCameraController
+  thirdPersonController: {fileID: 1860447976410328513}
+  cameraSet: {fileID: 0}
+  cameraFollowTarget: {fileID: 545283886075105669}
+  adsFollowTarget: {fileID: 802299511371723711}
+  cameraFollowTargetName: CameraFollowTarget
+  adsFollowTargetName: ADSFollowTarget
 --- !u!1 &7552646324689651710
 GameObject:
   m_ObjectHideFlags: 0
@@ -2650,6 +2801,7 @@ Transform:
   - {fileID: 3333512430401229509}
   - {fileID: 342046576843335701}
   - {fileID: 2109106593606943004}
+  - {fileID: 3653939080914243951}
   m_Father: {fileID: 4396053498136997635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8778197509962915010

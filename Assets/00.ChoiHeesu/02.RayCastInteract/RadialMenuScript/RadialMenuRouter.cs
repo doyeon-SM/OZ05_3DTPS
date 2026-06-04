@@ -40,10 +40,12 @@ namespace ProjectSpedex
         [SerializeField] private Color interactableElementColor = Color.white;
 
         private bool missingStarterAssetsInputsLogged;
+        private bool wasWeaponSelectHeld;
 
         private void Awake()
         {
             CacheReferences();
+            SyncWeaponSelectState();
 
             if (startClosed)
                 SetRadialMenuActive(false);
@@ -52,12 +54,19 @@ namespace ProjectSpedex
         private void OnEnable()
         {
             CacheReferences();
+            SyncWeaponSelectState();
             RefreshRadialMenu();
+            SetLookInputBlocked(radialMenuRoot != null && radialMenuRoot.activeSelf);
         }
 
         private void Update()
         {
             HandleWeaponSelectInput();
+        }
+
+        private void OnDisable()
+        {
+            SetLookInputBlocked(false);
         }
 
         private void CacheReferences()
@@ -77,17 +86,27 @@ namespace ProjectSpedex
                 return;
             }
 
-            if (starterAssetsInputs.WeaponSelectPressed)
+            bool isWeaponSelectHeld = starterAssetsInputs.WeaponSelect;
+            bool weaponSelectPressed = starterAssetsInputs.WeaponSelectPressed || (isWeaponSelectHeld && !wasWeaponSelectHeld);
+            bool weaponSelectReleased = starterAssetsInputs.WeaponSelectReleased || (!isWeaponSelectHeld && wasWeaponSelectHeld);
+
+            if (weaponSelectPressed)
             {
                 OpenRadialMenu();
             }
 
-            if (starterAssetsInputs.WeaponSelectReleased)
+            if (weaponSelectReleased)
             {
                 SubmitCurrentSelection();
             }
 
+            wasWeaponSelectHeld = isWeaponSelectHeld;
             starterAssetsInputs.ConsumeWeaponSelectInput();
+        }
+
+        private void SyncWeaponSelectState()
+        {
+            wasWeaponSelectHeld = starterAssetsInputs != null && starterAssetsInputs.WeaponSelect;
         }
 
         public void ToggleRadialMenu()
@@ -114,18 +133,33 @@ namespace ProjectSpedex
         private void SetRadialMenuActive(bool isActive)
         {
             if (radialMenuRoot == null)
+            {
+                if (!isActive)
+                    SetLookInputBlocked(false);
+
                 return;
+            }
 
             if (!isActive && radialMenuRoot == gameObject)
             {
+                SetLookInputBlocked(false);
                 Debug.LogError("[RadialMenuRouter] radialMenuRoot가 RadialMenuRouter와 같은 GameObject입니다. 이 오브젝트를 끄면 Q 입력으로 다시 열 수 없습니다. Router는 항상 켜진 부모/관리 오브젝트에 두고, radialMenuRoot에는 실제 메뉴 UI 자식을 연결해주세요.", this);
                 return;
             }
 
             radialMenuRoot.SetActive(isActive);
+            SetLookInputBlocked(isActive);
 
             if (isActive)
                 RefreshRadialMenu();
+        }
+
+        private void SetLookInputBlocked(bool isBlocked)
+        {
+            if (starterAssetsInputs == null)
+                return;
+
+            starterAssetsInputs.SetLookInputBlocked(isBlocked);
         }
 
         public void RefreshRadialMenu()

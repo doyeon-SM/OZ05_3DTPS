@@ -14,6 +14,11 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
+        [Header("Player State")]
+        [SerializeField] private PlayerActionState currentActionState = PlayerActionState.Normal;
+        [SerializeField] private float aimingChangeDelayTime = 0.3f;
+        public PlayerActionState CurrentActionState => currentActionState;
+
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
@@ -83,6 +88,7 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
+        private float _attackAimingRemainTime;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -102,12 +108,12 @@ namespace StarterAssets
         private bool _missingCinemachineTargetLogged;
         private bool _missingPlayerInputLogged;
         private bool _missingRaycastInteractorLogged;
-        private bool _missingHitscanLogged;
+        private bool _missingWeaponControllerLogged;
 
         private const float _threshold = 0.01f;
 
         // 공격을 위한 컴포넌트
-        [SerializeField]private TPS_TwoStepHitscanSystem _tpsTwoStepHitscanSystem;
+        [SerializeField]private WeaponController _weaponController;
         [SerializeField] private RaycastInteractor _raycastInteractor;
 
         private bool IsCurrentDeviceMouse
@@ -136,9 +142,9 @@ namespace StarterAssets
                 _animationController = gameObject.AddComponent<AnimationController>();
             }
 
-            if (_tpsTwoStepHitscanSystem == null)
+            if (_weaponController == null)
             {
-                _tpsTwoStepHitscanSystem = gameObject.GetComponent<TPS_TwoStepHitscanSystem>();
+                _weaponController = gameObject.GetComponent<WeaponController>();
             }
 
             if (_raycastInteractor == null)
@@ -185,13 +191,14 @@ namespace StarterAssets
 
             JumpAndGravity();
             GroundedCheck();
+            HandleAiming();
             Move();
 
+            HandleReload();
             HandleAttack();
             HandleInteract();
         }
-
-   
+        
         private void LateUpdate()
         {
             if (!HasRequiredReferences())
@@ -200,6 +207,43 @@ namespace StarterAssets
             CameraRotation();
         }
 
+        
+        
+        private void HandleAiming()
+        {
+            if (_input == null)
+                return;
+
+            bool hasADSInput = _input.ADSClick;
+            bool hasAimHoldInput = _input.AimHold;
+            bool hasAttackInput = _input.Attack;
+
+            if (hasAttackInput)
+            {
+                _attackAimingRemainTime = Mathf.Max(aimingChangeDelayTime, 0f);
+            }
+            else if (_attackAimingRemainTime > 0f)
+            {
+                _attackAimingRemainTime = Mathf.Max(_attackAimingRemainTime - Time.deltaTime, 0f);
+            }
+
+            bool hasAttackAimHold = hasAttackInput || _attackAimingRemainTime > 0f;
+            currentActionState = GetNextActionState(hasADSInput, hasAimHoldInput, hasAttackAimHold);
+
+            if (_animationController != null)
+                _animationController.SetAiming(currentActionState != PlayerActionState.Normal);
+        }
+
+        private PlayerActionState GetNextActionState(bool hasADSInput, bool hasAimHoldInput, bool hasAttackAimHold)
+        {
+            if (hasADSInput)
+                return PlayerActionState.Aiming;
+
+            if (hasAimHoldInput || hasAttackAimHold)
+                return PlayerActionState.AimHold;
+
+            return PlayerActionState.Normal;
+        }
         private void HandleInteract()
         {
             if (_input == null || !_input.Interact)
@@ -220,27 +264,39 @@ namespace StarterAssets
 
         private void HandleAttack()
         {
-            if (_input == null || _animationController == null)
+            if (_input == null)
                 return;
 
-            _animationController.SetAttack(false);
-
-            if (_input.Attack)
+            if (_weaponController == null)
             {
-                if (_tpsTwoStepHitscanSystem == null)
-                {
-                    LogMissingReference(nameof(_tpsTwoStepHitscanSystem), "공격 기능을 사용하려면 TPS_TwoStepHitscanSystem을 연결해야 합니다.");
-                    return;
-                }
+                if (_input.Attack)
+                    LogMissingReference(nameof(_weaponController), "공격 기능을 사용하려면 WeaponController를 연결해야 합니다.");
 
-                bool fired = _tpsTwoStepHitscanSystem.Fire();
-                _animationController.SetAttack(fired);
-
-                if (fired)
-                {
-                    targetToRotation(_tpsTwoStepHitscanSystem.AimDirection);
-                }
+                return;
             }
+
+            bool fired = _weaponController.HandleAttackInput(_input.Attack);
+
+            if (fired)
+            {
+                targetToRotation(_weaponController.LastAimDirection);
+            }
+        }
+
+        private void HandleReload()
+        {
+            if (_input == null || !_input.Reload)
+                return;
+
+            if (_weaponController == null)
+            {
+                LogMissingReference(nameof(_weaponController), "재장전 기능을 사용하려면 WeaponController를 연결해야 합니다.");
+                _input.Reload = false;
+                return;
+            }
+
+            _weaponController.TryReload();
+            _input.Reload = false;
         }
 
         private void targetToRotation(Vector3 direction)
@@ -289,7 +345,8 @@ namespace StarterAssets
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            bool canSprint = currentActionState == PlayerActionState.Normal;
+            float targetSpeed = _input.sprint && canSprint ? SprintSpeed : MoveSpeed;
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 
@@ -329,27 +386,57 @@ namespace StarterAssets
             // normalise input direction
             Vector3 inputDirection = new Vector3(_input.move.x, 0.0f, _input.move.y).normalized;
 
+            Vector3 targetDirection;
+
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
             if (_input.move != Vector2.zero)
             {
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  (_mainCamera != null ? _mainCamera.transform.eulerAngles.y : 0f);
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                    RotationSmoothTime);
+                if (currentActionState == PlayerActionState.Normal)
+                {
+                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+                                      (_mainCamera != null ? _mainCamera.transform.eulerAngles.y : 0f);
+                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+                        RotationSmoothTime);
 
-                // rotate to face input direction relative to camera position
-                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    // rotate to face input direction relative to camera position
+                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+                }
+                else
+                {
+                    targetDirection = GetCameraRelativeMoveDirection(inputDirection);
+                }
             }
-
-
-            Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            else
+            {
+                targetDirection = transform.forward;
+            }
 
             // move the player
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
             _animationController.SetMove(_animationBlend);
+            _animationController.SetMoveDirection(_input.move.x, _input.move.y);
+        }
+
+        private Vector3 GetCameraRelativeMoveDirection(Vector3 inputDirection)
+        {
+            if (_mainCamera == null)
+                return inputDirection.normalized;
+
+            Vector3 cameraForward = _mainCamera.transform.forward;
+            Vector3 cameraRight = _mainCamera.transform.right;
+
+            cameraForward.y = 0f;
+            cameraRight.y = 0f;
+
+            cameraForward.Normalize();
+            cameraRight.Normalize();
+
+            Vector3 moveDirection = cameraRight * inputDirection.x + cameraForward * inputDirection.z;
+            return moveDirection.sqrMagnitude > 0f ? moveDirection.normalized : Vector3.zero;
         }
 
         private bool HasRequiredReferences()
@@ -443,12 +530,12 @@ namespace StarterAssets
 
                 _missingRaycastInteractorLogged = true;
             }
-            else if (fieldName == nameof(_tpsTwoStepHitscanSystem))
+            else if (fieldName == nameof(_weaponController))
             {
-                if (_missingHitscanLogged)
+                if (_missingWeaponControllerLogged)
                     return;
 
-                _missingHitscanLogged = true;
+                _missingWeaponControllerLogged = true;
             }
 #if ENABLE_INPUT_SYSTEM
             else if (fieldName == nameof(_playerInput))

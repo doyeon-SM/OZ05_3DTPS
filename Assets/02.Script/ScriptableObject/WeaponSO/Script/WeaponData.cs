@@ -23,7 +23,6 @@ using UnityEngine;
         public bool AutoFire;               // 자동 사격 여부 ( true 라면 꾹 누르면 계속 나가는 )
         
         
-        [Header("RayCast관련")]
         [Header("프리팹 및 이펙트")]
         public GameObject WeaponPrefab;     // 무기 프리팹
         public ParticleSystem FireEffect;   // 사격 이펙트
