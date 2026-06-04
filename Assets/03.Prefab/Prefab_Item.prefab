@@ -125,6 +125,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a7b5a08dbf19664a8d484516473bab9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
-  itemID: gold
-  itemDisplayName: Gold
-  amount: 10
+  itemID: 
+  itemDisplayName: 
+  amount: 0

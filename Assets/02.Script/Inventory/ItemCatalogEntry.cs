@@ -12,10 +12,10 @@ public struct ItemCatalogEntry
     public int maxStack;
     //public ItemType category;
 
-    public bool isUse;
+    //public bool isUse;
 
-    [Tooltip("Inventory Slot UI Icon")]
-    public Sprite icon;
+    //[Tooltip("Inventory Slot UI Icon")]
+    //public Sprite icon;
     [Tooltip("Icon Image color")]
     public Color iconTint;
 }

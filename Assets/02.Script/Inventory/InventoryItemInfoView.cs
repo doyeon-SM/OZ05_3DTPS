@@ -43,9 +43,9 @@ public class InventoryItemInfoView : MonoBehaviour
 
         if(iconImage != null)
         {
-            Sprite iconSprite = hasCatalogEntry ? entry.icon : null;
-            iconImage.enabled = iconSprite != null;
-            iconImage.sprite = iconSprite;
+            //Sprite iconSprite = hasCatalogEntry ? entry.icon : null;
+            //iconImage.enabled = iconSprite != null;
+            //iconImage.sprite = iconSprite;
             if(hasCatalogEntry)
             {
                 Color tint = entry.iconTint.a < 0.01f ? Color.white : entry.iconTint;
@@ -69,10 +69,10 @@ public class InventoryItemInfoView : MonoBehaviour
             amountText.text += " / ";
             amountText.text += hasCatalogEntry ? entry.maxStack.ToString() : string.Empty;
         }
-        if(useButton != null)
-        {
-            useButton.gameObject.SetActive(hasCatalogEntry && entry.isUse && inventory != null);
-        }
+        //if(useButton != null)
+        //{
+        //    useButton.gameObject.SetActive(hasCatalogEntry && entry.isUse && inventory != null);
+        //}
     }
 
     private void UseItem()
