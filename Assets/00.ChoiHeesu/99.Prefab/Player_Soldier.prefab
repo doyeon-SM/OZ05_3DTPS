@@ -1458,6 +1458,7 @@ GameObject:
   - component: {fileID: 2445690198899895915}
   - component: {fileID: 1129587840661099956}
   - component: {fileID: 6982709996349172965}
+  - component: {fileID: -6043035618307843273}
   m_Layer: 7
   m_Name: Player_Soldier
   m_TagString: Player
@@ -1787,6 +1788,24 @@ MonoBehaviour:
   bodyRotationSpeed: 720
   minAimDirectionDistance: 0.1
   drawDebugRay: 1
+--- !u!114 &-6043035618307843273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5232117125641429927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84e0121279600334db754d3aec86152c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionController
+  _input: {fileID: 6720829549027223185}
+  _mainCamera: {fileID: 0}
+  _interactDistance: 5
+  _interactableLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &5540925495897879600
 GameObject:
   m_ObjectHideFlags: 0
