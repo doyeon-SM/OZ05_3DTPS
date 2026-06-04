@@ -3,7 +3,7 @@ using _01.Scenes.PhaseValidation;
 
 /// <summary>
 /// 애니메이션 이벤트를 수신해 근접 히트박스의 활성/비활성을 제어한다.
-/// Hit()   — 공격 판정 구간 시작 (히트박스 ON)
+/// Hit()   — 공격 판정 구간 시작 (히트박스 ON + 공격 SFX/VFX 재생)
 /// HitEnd() — 공격 판정 구간 종료 (히트박스 OFF)
 /// 히트박스 오브젝트는 Enemy 자식에 미리 배치되어 있어야 한다.
 /// </summary>
@@ -13,10 +13,12 @@ public class EnemyAnimationEventReceiver : MonoBehaviour
     [SerializeField] private EnemyMeleeHitbox meleeHitbox;
 
     private EnemyStatus enemyStatus;
+    private EnemyEffectController effectController;
 
     private void Awake()
     {
-        enemyStatus = GetComponent<EnemyStatus>();
+        enemyStatus      = GetComponent<EnemyStatus>();
+        effectController = GetComponent<EnemyEffectController>();
 
         if (meleeHitbox == null)
             Debug.LogWarning($"[EnemyAnimationEventReceiver] {gameObject.name}: meleeHitbox가 연결되지 않았습니다.");
@@ -37,6 +39,9 @@ public class EnemyAnimationEventReceiver : MonoBehaviour
     {
         if (meleeHitbox == null || enemyStatus == null) return;
         meleeHitbox.Activate(enemyStatus.AttackPower);
+
+        // 공격 SFX / VFX 재생
+        effectController?.PlayAttackEffects();
     }
 
     /// <summary>

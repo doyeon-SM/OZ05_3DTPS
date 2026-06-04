@@ -52,15 +52,15 @@ public class ItemCatalogManager : MonoBehaviour, IItemCatalogReader
             return;
         }
 
-        itemCatalogEntries = new[]
+        /*itemCatalogEntries = new[]
         {
             new ItemCatalogEntry { id = "potion", displayName = "포션", maxStack = 99, isUse = false, icon = null, iconTint = Color.white },
             new ItemCatalogEntry { id = "key_red", displayName = "빨간 열쇠", maxStack = 99, isUse = false, icon = null, iconTint = Color.white },
             new ItemCatalogEntry { id = "key_blue", displayName = "파란 열쇠", maxStack = 99, isUse = false, icon = null, iconTint = Color.white },
             new ItemCatalogEntry { id = "key_green", displayName = "초록 열쇠", maxStack = 99, isUse = false, icon = null, iconTint = Color.white },
             new ItemCatalogEntry { id = "gold", displayName = "골드", maxStack = 9999, isUse = false, icon = null, iconTint = Color.white },
-        };
-        Debug.LogWarning("[PlayerInventory] itemCatalogEntries가 비어 있어 기본 샘플 카탈로그를 런타임에만 주입했습니다. Inspector에서 등록하는 편이 좋습니다.");
+        };*/
+        Debug.LogWarning("[PlayerInventory] itemCatalogEntries가 비어 있습니다. ");
     }
     private void BuildCatalogDictionary()
     {

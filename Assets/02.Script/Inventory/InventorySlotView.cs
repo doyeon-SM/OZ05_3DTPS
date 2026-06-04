@@ -57,9 +57,9 @@ public class InventorySlotView : MonoBehaviour
 
         if (iconImage != null)
         {
-            Sprite iconSprite = hasCatalogEntry ? entry.icon : null;
-            iconImage.enabled = iconSprite != null;
-            iconImage.sprite = iconSprite;
+            //Sprite iconSprite = hasCatalogEntry ? entry.icon : null;
+            //iconImage.enabled = iconSprite != null;
+            //iconImage.sprite = iconSprite;
 
             if (hasCatalogEntry)
             {

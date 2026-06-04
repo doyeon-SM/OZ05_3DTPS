@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyConfigSO
   patrolSpeed: 1.8
   chaseSpeed: 2.5
-  rotationSpeed: 600
+  rotationSpeed: 1200
   detectRadius: 20
   viewAngle: 360
   targetLayer:
