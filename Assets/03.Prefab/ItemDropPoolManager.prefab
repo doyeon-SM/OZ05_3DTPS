@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e6df7503ccdfd842b1a272f9e61379c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.ItemDropPoolManager
-  worldItemPrefab: {fileID: 1949583316462332805, guid: 3e235747e9e02d041947d70e43de319d, type: 3}
-  prewarmCount: 20
+  defaultPrefab: {fileID: -8568389386092205415, guid: e43b9a471c8274a8fac6ae35c666fd0b, type: 3}
+  prewarmCountPerType: 10
   poolRoot: {fileID: 0}
+  itemCatalogManager: {fileID: 7101652177403218221, guid: a23b39dca895b1f49b2e1080774258b5, type: 3}

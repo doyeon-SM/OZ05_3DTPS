@@ -48,16 +48,20 @@ MonoBehaviour:
   - id: smgammo
     displayName: SMG_Ammo
     maxStack: 99
-    iconTint: {r: 1, g: 0.60447556, b: 0, a: 1}
+    iconTint: {r: 0, g: 0, b: 0, a: 0}
+    worldItemPrefab: {fileID: -8568389386092205415, guid: e43b9a471c8274a8fac6ae35c666fd0b, type: 3}
   - id: arammo
     displayName: AR_Ammo
     maxStack: 99
-    iconTint: {r: 0, g: 0.5849056, b: 0.10362984, a: 1}
+    iconTint: {r: 0, g: 0, b: 0, a: 0}
+    worldItemPrefab: {fileID: -2862963537833526884, guid: 55bebc983faddc146a158312f355fb59, type: 3}
   - id: mgammo
     displayName: MG_Ammo
     maxStack: 99
-    iconTint: {r: 0, g: 0, b: 0, a: 1}
+    iconTint: {r: 0, g: 0, b: 0, a: 0}
+    worldItemPrefab: {fileID: -3145201268360770483, guid: a519f03aee53c45bebfe44df6939bd67, type: 3}
   - id: sgammo
     displayName: SG_Ammo
     maxStack: 99
-    iconTint: {r: 0.745283, g: 0, b: 0, a: 1}
+    iconTint: {r: 0, g: 0, b: 0, a: 0}
+    worldItemPrefab: {fileID: -5302911651148581373, guid: ee95ecdc143c946fdac8b8c458b70983, type: 3}

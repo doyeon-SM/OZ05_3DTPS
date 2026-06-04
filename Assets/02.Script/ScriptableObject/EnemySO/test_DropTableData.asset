@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: test_DropTableData
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.DropTableData
   entries:
-  - itemId: gold
+  - itemId: smgammo
     dropChance: 100
     minAmount: 1
     maxAmount: 3
