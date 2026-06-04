@@ -16,11 +16,16 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         [SerializeField] private float aimRange = 100f;
         [SerializeField] private LayerMask aimMask = ~0;
         [SerializeField] private QueryTriggerInteraction triggerInteraction = QueryTriggerInteraction.Ignore;
+        [SerializeField] private bool ignoreBodyRootColliders = true;
+        [SerializeField] private int aimHitBufferSize = 16;
 
         [Header("Body Rotation")]
         [SerializeField] private bool rotateBody = true;
+        [SerializeField] private bool rotateBodyByCameraForward = true;
+        [SerializeField] private bool keepCameraTargetRotationStable = true;
         [SerializeField] private float bodyRotationSpeed = 720f;
         [SerializeField] private float minAimDirectionDistance = 0.1f;
+        [SerializeField] private float bodyRotationDeadZone = 0.5f;
 
         [Header("Debug")]
         [SerializeField] private bool drawDebugRay;
@@ -31,6 +36,7 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         private bool missingThirdPersonControllerLogged;
         private bool missingAimCameraLogged;
         private bool missingBodyRootLogged;
+        private RaycastHit[] aimHits = new RaycastHit[16];
 
         private void Awake()
         {
@@ -94,7 +100,7 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         {
             Ray aimRay = aimCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-            if (Physics.Raycast(aimRay, out RaycastHit hit, aimRange, aimMask, triggerInteraction))
+            if (TryGetAimHit(aimRay, out RaycastHit hit))
                 CurrentAimPoint = hit.point;
             else
                 CurrentAimPoint = aimRay.origin + aimRay.direction * aimRange;
@@ -108,22 +114,114 @@ namespace _00.ChoiHeesu._04.StateChangeScript
                 Debug.DrawLine(aimRay.origin, CurrentAimPoint, Color.cyan);
         }
 
+        private bool TryGetAimHit(Ray aimRay, out RaycastHit hit)
+        {
+            if (!ignoreBodyRootColliders || bodyRoot == null)
+                return Physics.Raycast(aimRay, out hit, aimRange, aimMask, triggerInteraction);
+
+            EnsureAimHitBuffer();
+
+            int hitCount = Physics.RaycastNonAlloc(aimRay, aimHits, aimRange, aimMask, triggerInteraction);
+            hit = new RaycastHit();
+
+            bool hasHit = false;
+            float closestDistance = float.PositiveInfinity;
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit currentHit = aimHits[i];
+                if (currentHit.collider == null || currentHit.collider.transform.IsChildOf(bodyRoot))
+                    continue;
+
+                if (currentHit.distance >= closestDistance)
+                    continue;
+
+                closestDistance = currentHit.distance;
+                hit = currentHit;
+                hasHit = true;
+            }
+
+            return hasHit;
+        }
+
+        private void EnsureAimHitBuffer()
+        {
+            int safeBufferSize = Mathf.Max(aimHitBufferSize, 1);
+            if (aimHits == null || aimHits.Length != safeBufferSize)
+                aimHits = new RaycastHit[safeBufferSize];
+        }
+
         private void RotateBodyToAimPoint()
         {
             if (!rotateBody)
                 return;
 
-            Vector3 lookDirection = CurrentAimPoint - bodyRoot.position;
-            lookDirection.y = 0f;
-
-            if (lookDirection.sqrMagnitude < minAimDirectionDistance * minAimDirectionDistance)
+            if (!TryGetBodyLookDirection(out Vector3 lookDirection))
                 return;
+
+            if (IsWithinBodyRotationDeadZone(lookDirection))
+                return;
+
+            Transform cameraRotationTarget = GetCameraRotationTarget();
+            Quaternion cameraTargetRotation = cameraRotationTarget != null
+                ? cameraRotationTarget.rotation
+                : Quaternion.identity;
 
             Quaternion targetRotation = Quaternion.LookRotation(lookDirection.normalized);
             bodyRoot.rotation = Quaternion.RotateTowards(
                 bodyRoot.rotation,
                 targetRotation,
                 bodyRotationSpeed * Time.deltaTime);
+
+            if (cameraRotationTarget != null)
+                cameraRotationTarget.rotation = cameraTargetRotation;
+        }
+
+        private bool TryGetBodyLookDirection(out Vector3 lookDirection)
+        {
+            if (rotateBodyByCameraForward && aimCamera != null)
+            {
+                lookDirection = aimCamera.transform.forward;
+                lookDirection.y = 0f;
+
+                if (lookDirection.sqrMagnitude >= minAimDirectionDistance * minAimDirectionDistance)
+                    return true;
+            }
+
+            lookDirection = CurrentAimPoint - bodyRoot.position;
+            lookDirection.y = 0f;
+            return lookDirection.sqrMagnitude >= minAimDirectionDistance * minAimDirectionDistance;
+        }
+
+        private bool IsWithinBodyRotationDeadZone(Vector3 lookDirection)
+        {
+            if (bodyRotationDeadZone <= 0f)
+                return false;
+
+            Vector3 currentForward = bodyRoot.forward;
+            currentForward.y = 0f;
+
+            if (currentForward.sqrMagnitude <= 0.0001f || lookDirection.sqrMagnitude <= 0.0001f)
+                return false;
+
+            float angle = Vector3.Angle(currentForward.normalized, lookDirection.normalized);
+            return angle <= bodyRotationDeadZone;
+        }
+
+        private Transform GetCameraRotationTarget()
+        {
+            if (!keepCameraTargetRotationStable ||
+                thirdPersonController == null ||
+                thirdPersonController.CinemachineCameraTarget == null)
+            {
+                return null;
+            }
+
+            Transform cameraTarget = thirdPersonController.CinemachineCameraTarget.transform;
+            if (cameraTarget == bodyRoot || !cameraTarget.IsChildOf(bodyRoot))
+                return null;
+
+            return cameraTarget;
         }
 
         private static bool IsAimState(PlayerActionState actionState)
@@ -143,8 +241,10 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         private void OnValidate()
         {
             aimRange = Mathf.Max(aimRange, 0.01f);
+            aimHitBufferSize = Mathf.Max(aimHitBufferSize, 1);
             bodyRotationSpeed = Mathf.Max(bodyRotationSpeed, 0f);
             minAimDirectionDistance = Mathf.Max(minAimDirectionDistance, 0f);
+            bodyRotationDeadZone = Mathf.Max(bodyRotationDeadZone, 0f);
         }
     }
 }

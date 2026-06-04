@@ -1659,7 +1659,6 @@ GameObject:
   - component: {fileID: 1129587840661099956}
   - component: {fileID: -6043035618307843273}
   - component: {fileID: 6982709996349172965}
-  - component: {fileID: -6043035618307843273}
   m_Layer: 7
   m_Name: Player_Soldier
   m_TagString: Player
@@ -2028,24 +2027,6 @@ MonoBehaviour:
   bodyRotationSpeed: 720
   minAimDirectionDistance: 0.1
   drawDebugRay: 1
---- !u!114 &-6043035618307843273
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5232117125641429927}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84e0121279600334db754d3aec86152c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractionController
-  _input: {fileID: 6720829549027223185}
-  _mainCamera: {fileID: 0}
-  _interactDistance: 5
-  _interactableLayer:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!1 &5540925495897879600
 GameObject:
   m_ObjectHideFlags: 0
@@ -2753,6 +2734,7 @@ GameObject:
   - component: {fileID: 3653939080914243951}
   - component: {fileID: 6545985917478855220}
   - component: {fileID: 7039515063166518364}
+  - component: {fileID: 356050276106513432}
   m_Layer: 7
   m_Name: Aim_Camera
   m_TagString: Untagged
@@ -2815,6 +2797,31 @@ MonoBehaviour:
   chestTargetDistance: 20
   chestHeightOffset: 0
   targetMoveSpeed: 0
+--- !u!114 &356050276106513432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7550931550260564573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e6430af382d3804a9ea7fb749782222, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.StateChangeScript.PlayerAimSnapTurnController
+  thirdPersonController: {fileID: 1860447976410328513}
+  playerAimController: {fileID: 6982709996349172965}
+  bodyRoot: {fileID: 4396053498136997635}
+  input: {fileID: 6720829549027223185}
+  animationController: {fileID: 608903216306100104}
+  onlyNormalState: 1
+  requireNoMoveInput: 1
+  moveInputThreshold: 0.01
+  thresholdAngle: 60
+  turnAngle: 120
+  turnSmoothingDuration: 0.1
+  cooldown: 0.15
+  drawDebugRay: 0
 --- !u!1 &7552646324689651710
 GameObject:
   m_ObjectHideFlags: 0
