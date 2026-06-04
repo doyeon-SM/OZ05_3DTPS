@@ -898,6 +898,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d22c5212bb9d85f4aa49366c3e5c0de4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._02.RayCastInteract.InteractPrintUI
+--- !u!224 &997135440 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6574207439137474028, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+  m_PrefabInstance: {fileID: 6250243418693043189}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1098561731
 GameObject:
   m_ObjectHideFlags: 0
@@ -1487,12 +1492,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2016698776}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -29.10313, y: 0, z: 29.34529}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -24136.69, y: -1217.9895, z: 27087.113}
+  m_LocalScale: {x: 814.627, y: 814.627, z: 814.627}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 997135440}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2078511417
 GameObject:
@@ -2086,7 +2091,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6574207439137474028, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2016698777}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
 --- !u!1001 &6492614236375599964
@@ -2223,7 +2231,6 @@ SceneRoots:
   - {fileID: 1198158212}
   - {fileID: 1098561732}
   - {fileID: 6250243418693043189}
-  - {fileID: 2016698777}
   - {fileID: 7423519878257532802}
   - {fileID: 5821410884310640626}
   - {fileID: 1566339082010422966}

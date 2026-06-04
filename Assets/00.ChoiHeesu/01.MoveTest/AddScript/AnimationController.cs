@@ -32,6 +32,8 @@ namespace StarterAssets
         private int _animIDStopInteract;
         private int _animIDRoll;
         private int _animIDPickup;
+        private int _animIDSnapTurn;
+        private int _animIDTurnDirection;
 
         private void Awake()
         {
@@ -143,6 +145,14 @@ namespace StarterAssets
             _animator.SetTrigger(_animIDPickup);
         }
 
+        public void PlaySnapTurn(float turnDirection)
+        {
+            if (!CanUseAnimator(nameof(PlaySnapTurn))) return;
+
+            _animator.SetFloat(_animIDTurnDirection, Mathf.Sign(turnDirection));
+            _animator.SetTrigger(_animIDSnapTurn);
+        }
+
         private bool CanUseAnimator(string callerName)
         {
             AssignAnimationIDs();
@@ -197,6 +207,8 @@ namespace StarterAssets
             _animIDStopInteract = Animator.StringToHash("StopInteract");
             _animIDRoll = Animator.StringToHash("Roll");
             _animIDPickup = Animator.StringToHash("Pickup");
+            _animIDSnapTurn = Animator.StringToHash("SnapTurn");
+            _animIDTurnDirection = Animator.StringToHash("TurnDirection");
             _animationIDsAssigned = true;
         }
 
