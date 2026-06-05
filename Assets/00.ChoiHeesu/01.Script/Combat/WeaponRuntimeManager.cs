@@ -204,6 +204,31 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             return TryGetWeaponRuntimeByItemId(itemId, out WeaponRuntime runtime) && runtime.UnLocked;
         }
 
+        public bool CanSelectWeaponByLock(string itemId, out string blockMessage)
+        {
+            blockMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(itemId))
+            {
+                blockMessage = "[WeaponRuntimeManager] 무기 선택 요청 itemId가 비어 있습니다.";
+                return false;
+            }
+
+            if (!TryGetWeaponRuntimeByItemId(itemId, out WeaponRuntime runtime))
+            {
+                blockMessage = $"[WeaponRuntimeManager] WeaponId '{itemId}'와 일치하는 WeaponRuntime을 찾을 수 없습니다.";
+                return false;
+            }
+
+            if (!runtime.UnLocked)
+            {
+                blockMessage = $"[WeaponRuntimeManager] WeaponId '{itemId}'는 아직 언락되지 않았습니다.";
+                return false;
+            }
+
+            return true;
+        }
+
         public bool TrySetCurrentAmmo(string itemId, int currentAmmo)
         {
             if (!TryGetWeaponRuntimeByItemId(itemId, out WeaponRuntime runtime))

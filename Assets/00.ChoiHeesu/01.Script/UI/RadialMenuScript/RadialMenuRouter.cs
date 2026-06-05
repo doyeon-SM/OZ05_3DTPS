@@ -422,9 +422,9 @@ namespace ProjectSpedex
                 return false;
             }
 
-            if (!runtime.UnLocked)
+            if (!weaponRuntimeManager.CanSelectWeaponByLock(element.ItemID, out blockMessage))
             {
-                blockMessage = $"[RadialMenuRouter] WeaponID '{element.ItemID}'는 아직 언락되지 않아 이벤트 발신을 막았습니다.";
+                blockMessage = $"{blockMessage} 이벤트 발신을 막았습니다.";
                 return false;
             }
 

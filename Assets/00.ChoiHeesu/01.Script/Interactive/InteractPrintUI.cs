@@ -9,8 +9,6 @@ namespace _00.ChoiHeesu._02.RayCastInteract
         [Header("UI Text")]
         [SerializeField] private TMP_Text itemName;
         [SerializeField] private TMP_Text itemDescript;
-        //Tier는 나중에 이미지로 대체할 것 
-        [SerializeField] private TMP_Text tier;
 
         [Header("UI Image")]
         [SerializeField] private Image itemIcon;
@@ -18,12 +16,10 @@ namespace _00.ChoiHeesu._02.RayCastInteract
         [Header("자식 오브젝트 이름 , 만약 null이라면 해당 string으로 찾아서 부착합니다.")]
         public string itemNameObjectName = "ItemName";
         public string itemDescriptObjectName = "ItemDescript";
-        public string tierObjectName = "Tier";
         public string itemIconObjectName = "ItemIcon";
 
         private bool missingItemNameLogged;
         private bool missingItemDescriptLogged;
-        private bool missingTierLogged;
         private bool missingItemIconLogged;
 
         private void Awake()
@@ -51,9 +47,6 @@ namespace _00.ChoiHeesu._02.RayCastInteract
             if (itemDescript != null)
                 itemDescript.text = weaponData.WeaponDescription;
 
-            if (tier != null)
-                tier.text = weaponData.tier.ToString();
-
             if (itemIcon != null)
             {
                 itemIcon.sprite = weaponData.UnLockIcon;
@@ -76,9 +69,6 @@ namespace _00.ChoiHeesu._02.RayCastInteract
             if (itemDescript == null)
                 itemDescript = FindChildComponentByName<TMP_Text>(itemDescriptObjectName);
 
-            if (tier == null)
-                tier = FindChildComponentByName<TMP_Text>(tierObjectName);
-
             if (itemIcon == null)
                 itemIcon = FindChildComponentByName<Image>(itemIconObjectName);
         }
@@ -90,9 +80,6 @@ namespace _00.ChoiHeesu._02.RayCastInteract
 
             if (itemDescript == null)
                 ReportMissingReference(nameof(itemDescript), itemDescriptObjectName, "TMP_Text");
-
-            if (tier == null)
-                ReportMissingReference(nameof(tier), tierObjectName, "TMP_Text");
 
             if (itemIcon == null)
                 ReportMissingReference(nameof(itemIcon), itemIconObjectName, "Image");
@@ -137,13 +124,6 @@ namespace _00.ChoiHeesu._02.RayCastInteract
                     return;
 
                 missingItemDescriptLogged = true;
-            }
-            else if (fieldName == nameof(tier))
-            {
-                if (missingTierLogged)
-                    return;
-
-                missingTierLogged = true;
             }
             else if (fieldName == nameof(itemIcon))
             {

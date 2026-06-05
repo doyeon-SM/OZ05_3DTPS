@@ -16,15 +16,18 @@ MonoBehaviour:
   WeaponName: Pistol
   WeaponDescription: It's a basic weapon.
   WeaponType: 0
-  tier: 0
+  fireMode: 2
   Damage: 15
   CriticalMultiplier: 0
-  RPM: 500
+  RPM: 200
   ReloadTime: 2
   MagazineSize: 8
   BulletCost: 0
   UseAmmo: 1
-  AutoFire: 1
+  basicSpreadAngle: 0
+  pelletCount: 1
+  burstCount: 3
+  shotDelayTime: 0
   WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}

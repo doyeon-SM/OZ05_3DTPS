@@ -6,9 +6,11 @@ namespace _02.Script.Combat
     public class WeaponRuntime
     {
         public WeaponData data;
-        public int currentAmmo;             // 현재 Ammo
-        public bool UnLocked ;              // 현재 Lock되어있는가
-        public WeaponRuntime(WeaponData data) // 생성자. 새로운 WeaponRuntime이 입력되면 총알을 채움
+        public int currentAmmo;
+        public bool UnLocked;
+        public float ShotDelayTime;
+
+        public WeaponRuntime(WeaponData data)
         {
             this.data = data;
             InitializeAmmo();
@@ -16,12 +18,22 @@ namespace _02.Script.Combat
 
         public void InitializeAmmo()
         {
-            if (data == null) return;
+            if (data == null)
+            {
+                ShotDelayTime = 0f;
+                return;
+            }
 
             currentAmmo = data.UseAmmo ? data.MagazineSize : 0;
+            CalculateShotDelayTime();
         }
 
-        public bool HasAmmo() // 총알을 가지고 있나
+        private void CalculateShotDelayTime()
+        {
+            ShotDelayTime = data.RPM > 0f ? 60.0f / data.RPM : 0f;
+        }
+
+        public bool HasAmmo()
         {
             if (data == null) return false;
             if (!data.UseAmmo) return true;
@@ -29,7 +41,7 @@ namespace _02.Script.Combat
             return currentAmmo > 0;
         }
 
-        public bool hasEnoughAmmo() // 발사에 충분한 탄약을 가지고 있는가?
+        public bool hasEnoughAmmo()
         {
             if (data == null) return false;
             if (!data.UseAmmo) return true;
@@ -37,7 +49,7 @@ namespace _02.Script.Combat
             return currentAmmo > 0;
         }
 
-        public void ConsumeAmmo() // 발사 1회당 현재 탄창에서 1발 소모
+        public void ConsumeAmmo()
         {
             if (data == null || !data.UseAmmo) return;
 

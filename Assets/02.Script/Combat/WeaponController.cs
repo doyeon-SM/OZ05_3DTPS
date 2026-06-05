@@ -31,7 +31,6 @@ namespace _02.Script.Combat
         [SerializeField] private bool isfire;
         [SerializeField] private bool isReloading;
         [SerializeField] private bool autoReloadOnEmpty = true;
-        [SerializeField] private float shotDelayTime;
         [SerializeField] private float saveTime = -999f;
 
         [Header("Attack System")]
@@ -50,7 +49,6 @@ namespace _02.Script.Combat
         [SerializeField] private DoubleIntEventChannel AmmoChangeChannel;
 
         public float RPM => CurrentWeapon != null && CurrentWeapon.data != null ? CurrentWeapon.data.RPM : 0f;
-        public bool AutoFire => CurrentWeapon != null && CurrentWeapon.data != null && CurrentWeapon.data.AutoFire;
         public int Damage => CurrentWeapon != null && CurrentWeapon.data != null ? CurrentWeapon.data.Damage : 0;
         public bool IsFiring => isfire;
         public bool IsReloading => isReloading;
@@ -59,6 +57,7 @@ namespace _02.Script.Combat
         public bool VariableChange;
 
         private Coroutine _reloadCoroutine;
+        private Coroutine _burstCoroutine;
         [SerializeField]private AnimationController _animationController;
         private bool wasAttackInputPressed;
 
@@ -100,7 +99,6 @@ namespace _02.Script.Combat
             CacheCombatReferences();
             SetReloadingAnimation(false);
             SetAttackAnimation(false);
-            RPMCalculate(); // RPM으로 딜레이 시간 계산
         }
 
         private void ClampCurrentWeaponIndex()
@@ -210,8 +208,34 @@ namespace _02.Script.Combat
         {
             SetAttackAnimation(false);
 
-            bool shouldFire = isAttackPressed && (AutoFire || !wasAttackInputPressed);
-            bool fired = shouldFire && TryAttack();
+            bool isAttackStarted = isAttackPressed && !wasAttackInputPressed;
+            bool fired = false;
+
+            WeaponRuntime currentWeapon = CurrentWeapon;
+            if (isAttackPressed && !ValidateCurrentWeapon(currentWeapon))
+            {
+                wasAttackInputPressed = isAttackPressed;
+                return false;
+            }
+
+            if (currentWeapon != null && currentWeapon.data != null)
+            {
+                switch (currentWeapon.data.fireMode)
+                {
+                    case FireMode.Single:
+                        fired = isAttackStarted && TryAttack();
+                        break;
+                    case FireMode.Burst:
+                        fired = isAttackStarted && TryStartBurstAttack(currentWeapon);
+                        break;
+                    case FireMode.Auto:
+                        fired = isAttackPressed && TryAttack();
+                        break;
+                    default:
+                        Debug.LogWarning($"지원하지 않는 FireMode입니다: {currentWeapon.data.fireMode}", this);
+                        break;
+                }
+            }
 
             wasAttackInputPressed = isAttackPressed;
 
@@ -219,6 +243,52 @@ namespace _02.Script.Combat
                 SetAttackAnimation(true);
 
             return fired;
+        }
+
+        private bool TryStartBurstAttack(WeaponRuntime burstWeapon)
+        {
+            if (_burstCoroutine != null)
+                return false;
+
+            if (!ValidateCurrentWeapon(burstWeapon))
+                return false;
+
+            if (!CanFireByDelay())
+            {
+                LogWeaponState(LogFireDelay);
+                return false;
+            }
+
+            int burstCount = Mathf.Max(burstWeapon.data.burstCount, 1);
+            bool fired = TryAttack();
+
+            if (!fired)
+                return false;
+
+            if (burstCount > 1)
+                _burstCoroutine = StartCoroutine(BurstRoutine(burstWeapon, burstCount - 1));
+
+            return true;
+        }
+
+        private IEnumerator BurstRoutine(WeaponRuntime burstWeapon, int remainingShotCount)
+        {
+            for (int i = 0; i < remainingShotCount; i++)
+            {
+                yield return new WaitForSeconds(burstWeapon.ShotDelayTime);
+
+                if (CurrentWeapon != burstWeapon)
+                    break;
+
+                bool fired = TryAttack();
+
+                if (!fired)
+                    break;
+
+                SetAttackAnimation(true);
+            }
+
+            _burstCoroutine = null;
         }
 
         public bool TryAttack()
@@ -362,20 +432,12 @@ namespace _02.Script.Combat
             _animationController.SetAttack(attacking);
         }
         
-        private void RPMCalculate() // RPM을 받아서 초당 딜레이 타임으로 변환 계산합니다. (60sec / RPM)
-        {
-            WeaponRuntime currentWeapon = CurrentWeapon;
-            if (currentWeapon == null || currentWeapon.data == null || currentWeapon.data.RPM <= 0f)
-            {
-                shotDelayTime = 0f;
-                return;
-            }
-
-            shotDelayTime = 60.0f / currentWeapon.data.RPM;
-        }
         private bool CanFireByDelay()
         {
-            return Time.time > saveTime + shotDelayTime;
+            WeaponRuntime currentWeapon = CurrentWeapon;
+            float currentShotDelayTime = currentWeapon != null ? currentWeapon.ShotDelayTime : 0f;
+
+            return Time.time > saveTime + currentShotDelayTime;
         }
 
         private bool ValidateCurrentWeapon(WeaponRuntime currentWeapon)
