@@ -1916,14 +1916,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1109354832253979401, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 2.4310699
-      objectReference: {fileID: 0}
-    - target: {fileID: 1109354832253979401, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -6.0772104
-      objectReference: {fileID: 0}
     - target: {fileID: 1627764899167657953, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.90507
@@ -1968,26 +1960,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: CameraSet
       objectReference: {fileID: 0}
-    - target: {fileID: 7324533606547337336, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 2.4310699
-      objectReference: {fileID: 0}
-    - target: {fileID: 7324533606547337336, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -6.0772104
-      objectReference: {fileID: 0}
+    - target: {fileID: 5564794286798549618, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
+      propertyPath: Target.TrackingTarget
+      value: 
+      objectReference: {fileID: 368050902}
     - target: {fileID: 8120165306321237010, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
       propertyPath: Target.TrackingTarget
       value: 
       objectReference: {fileID: 368050902}
-    - target: {fileID: 9131972737160020175, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
-      propertyPath: CameraSide
-      value: 0.763
-      objectReference: {fileID: 0}
-    - target: {fileID: 9131972737160020175, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
-      propertyPath: CameraDistance
-      value: 5
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

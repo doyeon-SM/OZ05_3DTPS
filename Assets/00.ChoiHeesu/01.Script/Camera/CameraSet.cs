@@ -5,12 +5,20 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 {
     public class CameraSet : MonoBehaviour
     {
+        public enum PlayerCameraMode
+        {
+            ThirdPerson,
+            FollowAiming,
+            ADS
+        }
+
         public static CameraSet ActiveInstance { get; private set; }
 
         [Header("References")]
         [SerializeField] private Camera mainCamera;
         [SerializeField] private CinemachineBrain cinemachineBrain;
         [SerializeField] private CinemachineCamera thirdPersonCamera;
+        [SerializeField] private CinemachineCamera followAimingCamera;
         [SerializeField] private CinemachineCamera adsCamera;
 
         [Header("Priority")]
@@ -19,8 +27,11 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 
         [Header("Blend")]
         [SerializeField] private CinemachineBlendDefinition.Styles blendStyle = CinemachineBlendDefinition.Styles.EaseInOut;
+        [SerializeField] private float thirdPersonToFollowAimingBlendTime = 0.18f;
+        [SerializeField] private float followAimingToThirdPersonBlendTime = 0.32f;
         [SerializeField] private float thirdPersonToADSBlendTime = 0.18f;
         [SerializeField] private float adsToThirdPersonBlendTime = 0.32f;
+        [SerializeField] private float aimModeSwitchBlendTime = 0.12f;
 
         [Header("Options")]
         [SerializeField] private bool dontDestroyOnLoad;
@@ -29,11 +40,12 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         [SerializeField] private bool useFollowTargetAsLookAt;
 
         private bool hasCameraState;
-        private bool isUsingADSCamera;
+        private PlayerCameraMode currentCameraMode;
         private bool isDuplicateInstance;
 
         private bool missingBrainLogged;
         private bool missingThirdPersonCameraLogged;
+        private bool missingFollowAimingCameraLogged;
         private bool missingADSCameraLogged;
 
         private void Awake()
@@ -82,6 +94,14 @@ namespace _00.ChoiHeesu._04.StateChangeScript
                     thirdPersonCamera.LookAt = cameraFollowTarget;
             }
 
+            if (followAimingCamera != null && cameraFollowTarget != null)
+            {
+                followAimingCamera.Follow = cameraFollowTarget;
+
+                if (useFollowTargetAsLookAt)
+                    followAimingCamera.LookAt = cameraFollowTarget;
+            }
+
             if (adsCamera != null && adsFollowTarget != null)
             {
                 EnsureADSFirstPersonPipeline();
@@ -94,16 +114,23 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 
         public void SetAiming(bool useADSCamera, bool instant = false)
         {
+            SetCameraMode(useADSCamera ? PlayerCameraMode.ADS : PlayerCameraMode.ThirdPerson, instant);
+        }
+
+        public void SetCameraMode(PlayerCameraMode nextCameraMode, bool instant = false)
+        {
             if (!HasRequiredReferences())
                 return;
 
-            float blendTime = GetBlendTime(useADSCamera, instant);
+            PlayerCameraMode resolvedCameraMode = ResolveCameraMode(nextCameraMode);
+            float blendTime = GetBlendTime(resolvedCameraMode, instant);
             SetBrainBlend(blendTime);
 
-            SetCameraPriority(thirdPersonCamera, useADSCamera ? inactivePriority : activePriority);
-            SetCameraPriority(adsCamera, useADSCamera ? activePriority : inactivePriority);
+            SetCameraPriority(thirdPersonCamera, resolvedCameraMode == PlayerCameraMode.ThirdPerson ? activePriority : inactivePriority);
+            SetCameraPriority(followAimingCamera, resolvedCameraMode == PlayerCameraMode.FollowAiming ? activePriority : inactivePriority);
+            SetCameraPriority(adsCamera, resolvedCameraMode == PlayerCameraMode.ADS ? activePriority : inactivePriority);
 
-            isUsingADSCamera = useADSCamera;
+            currentCameraMode = resolvedCameraMode;
             hasCameraState = true;
         }
 
@@ -124,7 +151,7 @@ namespace _00.ChoiHeesu._04.StateChangeScript
                     cinemachineBrain = GetComponentInChildren<CinemachineBrain>(true);
             }
 
-            if (thirdPersonCamera != null && adsCamera != null)
+            if (thirdPersonCamera != null && followAimingCamera != null && adsCamera != null)
             {
                 EnsureADSFirstPersonPipeline();
                 return;
@@ -143,11 +170,25 @@ namespace _00.ChoiHeesu._04.StateChangeScript
                     continue;
                 }
 
-                if (thirdPersonCamera == null)
+                if (followAimingCamera == null && IsFollowAimingCameraName(cameraName))
+                {
+                    followAimingCamera = targetCamera;
+                    continue;
+                }
+
+                if (thirdPersonCamera == null && !IsFollowAimingCameraName(cameraName))
                     thirdPersonCamera = targetCamera;
             }
 
             EnsureADSFirstPersonPipeline();
+        }
+
+        private static bool IsFollowAimingCameraName(string cameraName)
+        {
+            return cameraName.Contains("followaiming") ||
+                   cameraName.Contains("follow aiming") ||
+                   cameraName.Contains("aimhold") ||
+                   cameraName.Contains("aim hold");
         }
 
         private void EnsureADSFirstPersonPipeline()
@@ -172,6 +213,18 @@ namespace _00.ChoiHeesu._04.StateChangeScript
             }
 
             return false;
+        }
+
+        private PlayerCameraMode ResolveCameraMode(PlayerCameraMode nextCameraMode)
+        {
+            if (nextCameraMode == PlayerCameraMode.FollowAiming && followAimingCamera == null)
+            {
+                LogMissingReference(nameof(followAimingCamera), ref missingFollowAimingCameraLogged,
+                    "CameraSet 자식의 FollowAimingCamera CinemachineCamera를 연결해주세요.");
+                return PlayerCameraMode.ThirdPerson;
+            }
+
+            return nextCameraMode;
         }
 
         private bool HasRequiredReferences()
@@ -204,15 +257,27 @@ namespace _00.ChoiHeesu._04.StateChangeScript
             return hasReferences;
         }
 
-        private float GetBlendTime(bool nextUseADSCamera, bool instant)
+        private float GetBlendTime(PlayerCameraMode nextCameraMode, bool instant)
         {
             if (instant || !hasCameraState)
                 return 0f;
 
-            if (isUsingADSCamera == nextUseADSCamera)
+            if (currentCameraMode == nextCameraMode)
                 return 0f;
 
-            return nextUseADSCamera ? thirdPersonToADSBlendTime : adsToThirdPersonBlendTime;
+            if (currentCameraMode == PlayerCameraMode.ThirdPerson && nextCameraMode == PlayerCameraMode.FollowAiming)
+                return thirdPersonToFollowAimingBlendTime;
+
+            if (currentCameraMode == PlayerCameraMode.FollowAiming && nextCameraMode == PlayerCameraMode.ThirdPerson)
+                return followAimingToThirdPersonBlendTime;
+
+            if (currentCameraMode == PlayerCameraMode.ThirdPerson && nextCameraMode == PlayerCameraMode.ADS)
+                return thirdPersonToADSBlendTime;
+
+            if (currentCameraMode == PlayerCameraMode.ADS && nextCameraMode == PlayerCameraMode.ThirdPerson)
+                return adsToThirdPersonBlendTime;
+
+            return aimModeSwitchBlendTime;
         }
 
         private void SetBrainBlend(float blendTime)
@@ -243,8 +308,11 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         private void OnValidate()
         {
             activePriority = Mathf.Max(activePriority, inactivePriority + 1);
+            thirdPersonToFollowAimingBlendTime = Mathf.Max(thirdPersonToFollowAimingBlendTime, 0f);
+            followAimingToThirdPersonBlendTime = Mathf.Max(followAimingToThirdPersonBlendTime, 0f);
             thirdPersonToADSBlendTime = Mathf.Max(thirdPersonToADSBlendTime, 0f);
             adsToThirdPersonBlendTime = Mathf.Max(adsToThirdPersonBlendTime, 0f);
+            aimModeSwitchBlendTime = Mathf.Max(aimModeSwitchBlendTime, 0f);
         }
     }
 }

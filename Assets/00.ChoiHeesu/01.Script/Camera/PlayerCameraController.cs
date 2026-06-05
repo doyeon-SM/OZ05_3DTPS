@@ -197,11 +197,22 @@ namespace _00.ChoiHeesu._04.StateChangeScript
             if (cameraSet == null)
                 return;
 
-            bool useADSCamera = actionState == PlayerActionState.Aiming;
-            cameraSet.SetAiming(useADSCamera, instant || !hasLastActionState);
+            CameraSet.PlayerCameraMode cameraMode = GetCameraMode(actionState);
+            cameraSet.SetCameraMode(cameraMode, instant || !hasLastActionState);
 
             lastActionState = actionState;
             hasLastActionState = true;
+        }
+
+        private static CameraSet.PlayerCameraMode GetCameraMode(PlayerActionState actionState)
+        {
+            if (actionState == PlayerActionState.Aiming)
+                return CameraSet.PlayerCameraMode.ADS;
+
+            if (actionState == PlayerActionState.AimHold)
+                return CameraSet.PlayerCameraMode.FollowAiming;
+
+            return CameraSet.PlayerCameraMode.ThirdPerson;
         }
 
         private static CameraSet FindCameraSet()
