@@ -24,7 +24,18 @@ namespace _02.Script.Combat
                 return;
             }
 
-            currentAmmo = data.UseAmmo ? data.MagazineSize : 0;
+            currentAmmo = 0;
+            CalculateShotDelayTime();
+        }
+
+        public void RefreshCachedData()
+        {
+            if (data == null)
+            {
+                ShotDelayTime = 0f;
+                return;
+            }
+
             CalculateShotDelayTime();
         }
 
@@ -56,11 +67,11 @@ namespace _02.Script.Combat
             currentAmmo = Math.Max(currentAmmo - 1, 0);
         }
 
-        public void Reload()
+        public void Reload(int reloadAmount)
         {
             if (data == null || !data.UseAmmo) return;
 
-            currentAmmo = data.MagazineSize;
+            currentAmmo = Math.Min(currentAmmo + Math.Max(reloadAmount, 0), data.MagazineSize);
         }
     }
 }

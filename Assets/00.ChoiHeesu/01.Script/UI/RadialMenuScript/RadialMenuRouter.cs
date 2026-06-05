@@ -3,7 +3,6 @@ using _02.Script.Combat;
 using StarterAssets;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace ProjectSpedex
@@ -20,10 +19,6 @@ namespace ProjectSpedex
         [SerializeField] private bool startClosed = true;
         [SerializeField] private bool closeOnButtonClicked = true;
         [SerializeField] private float selectionDeadZone = 0f;
-
-        [Header("Button Event")]
-        [SerializeField] private SingleStringEventChannel selectedWeaponIDEventChannel;
-        [SerializeField] private UnityEvent<string> onWeaponSelected = new UnityEvent<string>();
 
         [Header("Locked Color")]
         [SerializeField] private Color unLockedDisabledColor = Color.gray;
@@ -384,25 +379,26 @@ namespace ProjectSpedex
 
             if (string.IsNullOrWhiteSpace(element.ItemID))
             {
-                Debug.LogError($"[RadialMenuRouter] {element.gameObject.name}의 ItemID가 비어 있어 무기 선택 이벤트를 보낼 수 없습니다.", element);
+                Debug.LogError($"[RadialMenuRouter] {element.gameObject.name}의 ItemID가 비어 있어 무기 선택 요청을 보낼 수 없습니다.", element);
                 CloseRadialMenuAfterSelection();
                 return;
             }
 
-            if (!CanSendWeaponSelectEvent(element, out string blockMessage))
+            if (weaponRuntimeManager == null)
             {
-                // TODO : 추후 삭제할것
+                Debug.LogError("[RadialMenuRouter] weaponRuntimeManager가 null입니다. 무기 변경 요청을 보낼 수 없습니다.", this);
+                CloseRadialMenuAfterSelection();
+                return;
+            }
+
+            if (!weaponRuntimeManager.TryRequestWeaponChange(element.ItemID, out string blockMessage))
+            {
                 Debug.LogError(blockMessage, element);
                 CloseRadialMenuAfterSelection();
                 return;
             }
 
-            if (selectedWeaponIDEventChannel != null)
-                selectedWeaponIDEventChannel.Raise(element.ItemID);
-
             Debug.Log($"[RadialMenuRouter] 선택된 WeaponID: {element.ItemID}", element);
-            onWeaponSelected.Invoke(element.ItemID);
-
             CloseRadialMenuAfterSelection();
         }
 
@@ -410,31 +406,6 @@ namespace ProjectSpedex
         {
             if (closeOnButtonClicked)
                 CloseRadialMenu();
-        }
-
-        private bool CanSendWeaponSelectEvent(RadialMenuElement element, out string blockMessage)
-        {
-            blockMessage = string.Empty;
-
-            if (!TryGetWeaponRuntime(element.ItemID, out WeaponRuntime runtime))
-            {
-                blockMessage = $"[RadialMenuRouter] WeaponID '{element.ItemID}'와 일치하는 WeaponRuntime을 찾을 수 없어 이벤트 발신을 막았습니다.";
-                return false;
-            }
-
-            if (!weaponRuntimeManager.CanSelectWeaponByLock(element.ItemID, out blockMessage))
-            {
-                blockMessage = $"{blockMessage} 이벤트 발신을 막았습니다.";
-                return false;
-            }
-
-            if (!HasSelectableAmmo(runtime))
-            {
-                blockMessage = $"[RadialMenuRouter] WeaponID '{element.ItemID}'는 사용할 Ammo가 없어 이벤트 발신을 막았습니다.";
-                return false;
-            }
-
-            return true;
         }
 
         private bool HasSelectableAmmo(WeaponRuntime runtime)
@@ -449,33 +420,6 @@ namespace ProjectSpedex
                 return false;
 
             return weaponRuntimeManager.TryGetWeaponAmmo(runtime.data.WeaponType, out int ammo) && ammo > 0;
-        }
-
-        private bool TryGetWeaponRuntime(string itemId, out WeaponRuntime foundRuntime)
-        {
-            foundRuntime = null;
-
-            if (weaponRuntimeManager == null || weaponRuntimeManager.WeaponRuntimes == null || string.IsNullOrWhiteSpace(itemId))
-                return false;
-
-            string normalizedItemId = itemId.Trim();
-            WeaponRuntime[] weaponRuntimes = weaponRuntimeManager.WeaponRuntimes;
-
-            for (int i = 0; i < weaponRuntimes.Length; i++)
-            {
-                WeaponRuntime runtime = weaponRuntimes[i];
-
-                if (runtime == null || runtime.data == null || string.IsNullOrWhiteSpace(runtime.data.WeaponId))
-                    continue;
-
-                if (runtime.data.WeaponId.Trim() != normalizedItemId)
-                    continue;
-
-                foundRuntime = runtime;
-                return true;
-            }
-
-            return false;
         }
 
         private void ReportMissingStarterAssetsInputs()

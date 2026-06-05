@@ -17,15 +17,17 @@ MonoBehaviour:
   WeaponDescription: It is a near and medium-range continuous weapon with fast continuous
     power and ample magazines.
   WeaponType: 1
-  tier: 2
+  fireMode: 2
   Damage: 5
   CriticalMultiplier: 2
   RPM: 800
-  ReloadTime: 2.2
+  ReloadTime: 1
   MagazineSize: 40
   BulletCost: 1
   UseAmmo: 1
-  AutoFire: 0
+  basicSpreadAngle: 0
+  pelletCount: 1
+  burstCount: 1
   WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}

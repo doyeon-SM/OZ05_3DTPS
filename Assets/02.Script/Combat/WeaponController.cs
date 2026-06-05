@@ -1,3 +1,4 @@
+using _00.ChoiHeesu._03.WeaponChangeSystem;
 using System.Collections;
 using StarterAssets;
 using UnityEngine;
@@ -23,8 +24,7 @@ namespace _02.Script.Combat
         private const int LogNoMuzzleBlockMask = 14;
 
         [Header("Weapon")]
-        [SerializeField] private WeaponRuntime[] weaponRuntime;
-        [SerializeField] private int currentWeaponIndex;
+        [SerializeField] private WeaponRuntime currentWeapon;
         [SerializeField] private GameObject gunSocket;
 
         [Header("Current Weapon State")]
@@ -52,6 +52,7 @@ namespace _02.Script.Combat
         public int Damage => CurrentWeapon != null && CurrentWeapon.data != null ? CurrentWeapon.data.Damage : 0;
         public bool IsFiring => isfire;
         public bool IsReloading => isReloading;
+        public WeaponRuntime CurrentWeaponRuntime => CurrentWeapon;
         public Vector3 LastAimDirection { get; private set; }
 
         public bool VariableChange;
@@ -65,10 +66,7 @@ namespace _02.Script.Combat
         {
             get
             {
-                if (weaponRuntime == null || weaponRuntime.Length == 0) return null;
-                if (currentWeaponIndex < 0 || currentWeaponIndex >= weaponRuntime.Length) return null;
-
-                return weaponRuntime[currentWeaponIndex];
+                return currentWeapon;
             }
         }
 
@@ -93,35 +91,13 @@ namespace _02.Script.Combat
 
         private void AwakeSetting()
         {
-            ClampCurrentWeaponIndex();
-            InitializeWeaponRuntimes();
+            if (currentWeapon != null)
+                currentWeapon.RefreshCachedData();
+
             if(_animationController == null)_animationController =  GetComponentInParent<AnimationController>();
             CacheCombatReferences();
             SetReloadingAnimation(false);
             SetAttackAnimation(false);
-        }
-
-        private void ClampCurrentWeaponIndex()
-        {
-            if (weaponRuntime == null || weaponRuntime.Length == 0)
-            {
-                currentWeaponIndex = 0;
-                return;
-            }
-
-            currentWeaponIndex = Mathf.Clamp(currentWeaponIndex, 0, weaponRuntime.Length - 1);
-        }
-
-        private void InitializeWeaponRuntimes()
-        {
-            if (weaponRuntime == null) return;
-
-            for (int i = 0; i < weaponRuntime.Length; i++)
-            {
-                if (weaponRuntime[i] == null || weaponRuntime[i].data == null) continue;
-
-                weaponRuntime[i].InitializeAmmo();
-            }
         }
 
         private void CacheCombatReferences()
@@ -137,6 +113,49 @@ namespace _02.Script.Combat
 
             if (muzzleBlockRadius <= 0f)
                 muzzleBlockRadius = 0.5f;
+        }
+
+        public bool SetCurrentWeaponRuntime(WeaponRuntime nextWeaponRuntime)
+        {
+            if (!ValidateCurrentWeapon(nextWeaponRuntime))
+                return false;
+
+            bool weaponChanged = currentWeapon != nextWeaponRuntime;
+            if (currentWeapon != nextWeaponRuntime)
+            {
+                StopCurrentWeaponActions();
+                currentWeapon = nextWeaponRuntime;
+                saveTime = -999f;
+                wasAttackInputPressed = false;
+            }
+
+            currentWeapon.RefreshCachedData();
+            SendAmmoUI(currentWeapon.currentAmmo, currentWeapon.data.MagazineSize);
+
+            if (weaponChanged && currentWeapon.data.UseAmmo && currentWeapon.currentAmmo <= 0)
+                TryReload();
+
+            return true;
+        }
+
+        private void StopCurrentWeaponActions()
+        {
+            if (_burstCoroutine != null)
+            {
+                StopCoroutine(_burstCoroutine);
+                _burstCoroutine = null;
+            }
+
+            if (_reloadCoroutine != null)
+            {
+                StopCoroutine(_reloadCoroutine);
+                _reloadCoroutine = null;
+            }
+
+            isfire = false;
+            isReloading = false;
+            SetReloadingAnimation(false);
+            SetAttackAnimation(false);
         }
 
         private bool TryBuildHitscanRequest(out HitscanFireRequest request)
@@ -387,6 +406,19 @@ namespace _02.Script.Combat
                 return;
             }
 
+            if (WeaponRuntimeManager.Instance == null)
+            {
+                Debug.LogWarning("[WeaponController] WeaponRuntimeManager가 없어 보유 탄약을 확인할 수 없습니다.", this);
+                return;
+            }
+
+            if (!WeaponRuntimeManager.Instance.TryGetReloadPreview(currentWeapon, out int reloadAmount, out int consumedAmmo, out string blockMessage))
+            {
+                Debug.Log(blockMessage, this);
+                return;
+            }
+
+            Debug.Log($"[WeaponController] 재장전 예정: 탄창 +{reloadAmount}, 보유 탄약 -{consumedAmmo}");
             _reloadCoroutine = StartCoroutine(ReloadRoutine(currentWeapon));
         }
 
@@ -409,11 +441,38 @@ namespace _02.Script.Combat
             float reloadTime = Mathf.Max(reloadWeapon.data.ReloadTime, 0f);
             yield return new WaitForSeconds(reloadTime);
 
-            reloadWeapon.Reload();
+            if (CurrentWeapon != reloadWeapon)
+            {
+                isReloading = false;
+                SetReloadingAnimation(isReloading);
+                _reloadCoroutine = null;
+                yield break;
+            }
+
+            WeaponRuntimeManager weaponRuntimeManager = WeaponRuntimeManager.Instance;
+            if (weaponRuntimeManager == null)
+            {
+                Debug.Log("[WeaponController] WeaponRuntimeManager가 없어 재장전을 적용할 수 없습니다.", this);
+                isReloading = false;
+                SetReloadingAnimation(isReloading);
+                _reloadCoroutine = null;
+                yield break;
+            }
+
+            if (!weaponRuntimeManager.TryReloadWeapon(reloadWeapon, out int reloadAmount, out int consumedAmmo, out string blockMessage))
+            {
+                Debug.Log(blockMessage, this);
+                isReloading = false;
+                SetReloadingAnimation(isReloading);
+                _reloadCoroutine = null;
+                yield break;
+            }
+
             isReloading = false;
             SetReloadingAnimation(isReloading);
             _reloadCoroutine = null;
             SendAmmoUI(reloadWeapon.currentAmmo, reloadWeapon.data.MagazineSize);
+            Debug.Log($"[WeaponController] 재장전 적용: 탄창 +{reloadAmount}, 보유 탄약 -{consumedAmmo}");
 
             LogWeaponState(LogReloadComplete);
         }

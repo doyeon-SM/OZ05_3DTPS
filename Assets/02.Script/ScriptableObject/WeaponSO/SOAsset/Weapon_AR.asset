@@ -17,7 +17,7 @@ MonoBehaviour:
   WeaponDescription: It is a balanced weapon with an even range, accuracy, damage,
     and continuous power.
   WeaponType: 3
-  tier: 3
+  fireMode: 2
   Damage: 15
   CriticalMultiplier: 0
   RPM: 600
@@ -25,7 +25,9 @@ MonoBehaviour:
   MagazineSize: 30
   BulletCost: 2
   UseAmmo: 1
-  AutoFire: 0
+  basicSpreadAngle: 0
+  pelletCount: 1
+  burstCount: 1
   WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
