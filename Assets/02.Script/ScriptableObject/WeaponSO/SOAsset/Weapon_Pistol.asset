@@ -27,7 +27,7 @@ MonoBehaviour:
   MagazineSize: 8
   BulletCost: 1
   UseAmmo: 1
-  basicSpreadAngle: 0
+  basicSpreadAngle: 1
   pelletCount: 1
   burstCount: 3
   FireEffect: {fileID: 0}

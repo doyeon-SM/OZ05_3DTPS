@@ -613,7 +613,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 0}
-  m_PlaneDistance: 1
+  m_PlaneDistance: 0.25
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -1063,9 +1063,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3516057367241610742, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: m_Name
+      value: ElementB
+      objectReference: {fileID: 0}
+    - target: {fileID: 4286813746508855520, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: m_Name
+      value: ElementD
+      objectReference: {fileID: 0}
     - target: {fileID: 4290623095736147713, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
       propertyPath: m_Name
       value: WeaponSelectUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 8692217716659640108, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: m_Name
+      value: ElementA
+      objectReference: {fileID: 0}
+    - target: {fileID: 9187484694505353060, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: m_Name
+      value: ElementC
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1187,6 +1203,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6574207439137474028}
     m_Modifications:
+    - target: {fileID: 142878227372417551, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 52.19922
+      objectReference: {fileID: 0}
     - target: {fileID: 142878228111434672, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0

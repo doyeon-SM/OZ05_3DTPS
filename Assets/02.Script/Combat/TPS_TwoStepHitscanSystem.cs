@@ -16,10 +16,13 @@ namespace _02.Script.Combat
         public GameObject HitEffectPrefab;
         public float HitEffectLifeTime;
         public int Damage;
+        public float SpreadAngle;
     }
 
     public class TPS_TwoStepHitscanSystem : MonoBehaviour
     {
+        private const float ShotHitPadding = 0.25f;
+
         public Vector3 AimDirection { get; private set; } // 타겟 방향 저장용 변수
 
         private AimResult ResolveAimPoint(HitscanFireRequest request)
@@ -44,6 +47,14 @@ namespace _02.Script.Combat
 
         private ShotResult FireFromMuzzle(AimResult aimResult, HitscanFireRequest request)
         {
+            Vector3 shotDirection = GetBaseShotDirection(aimResult, request);
+            shotDirection = ApplySpread(shotDirection, request.SpreadAngle);
+            float castDistance = GetShotCastDistance(aimResult, request, shotDirection);
+            return FireRayFromMuzzle(request, shotDirection, castDistance);
+        }
+
+        private Vector3 GetBaseShotDirection(AimResult aimResult, HitscanFireRequest request)
+        {
             Vector3 toAimPoint = aimResult.point - request.Muzzle.position;
 
             if (toAimPoint.sqrMagnitude < 0.0001f)
@@ -52,12 +63,39 @@ namespace _02.Script.Combat
             }
 
             Vector3 shotDirection = toAimPoint.normalized;
-            float distanceToAimPoint = toAimPoint.magnitude;
 
-            float castDistance = aimResult.didHit
-                ? Mathf.Min(request.ShotRange, distanceToAimPoint + 0.05f)
-                : request.ShotRange;
+            return shotDirection;
+        }
 
+        private float GetShotCastDistance(AimResult aimResult, HitscanFireRequest request, Vector3 shotDirection)
+        {
+            if (!aimResult.didHit)
+                return request.ShotRange;
+
+            float distanceToAimPoint = Vector3.Distance(request.Muzzle.position, aimResult.point);
+            float castDistance = distanceToAimPoint + ShotHitPadding;
+
+            if (TryGetAimSurfaceDistance(aimResult, request, shotDirection, out float aimSurfaceDistance))
+                castDistance = Mathf.Max(castDistance, aimSurfaceDistance + ShotHitPadding);
+
+            return Mathf.Min(request.ShotRange, castDistance);
+        }
+
+        private bool TryGetAimSurfaceDistance(AimResult aimResult, HitscanFireRequest request, Vector3 shotDirection, out float distance)
+        {
+            distance = 0f;
+
+            float denominator = Vector3.Dot(shotDirection, aimResult.hit.normal);
+            if (Mathf.Abs(denominator) < 0.0001f)
+                return false;
+
+            float numerator = Vector3.Dot(aimResult.point - request.Muzzle.position, aimResult.hit.normal);
+            distance = numerator / denominator;
+            return distance > 0f;
+        }
+
+        private ShotResult FireRayFromMuzzle(HitscanFireRequest request, Vector3 shotDirection, float castDistance)
+        {
             ShotResult result = new ShotResult
             {
                 origin = request.Muzzle.position,
@@ -74,6 +112,23 @@ namespace _02.Script.Combat
             }
 
             return result;
+        }
+
+        private Vector3 ApplySpread(Vector3 baseDirection, float spreadAngle)
+        {
+            float safeSpreadAngle = Mathf.Max(spreadAngle, 0f);
+            if (safeSpreadAngle <= 0f)
+                return baseDirection;
+
+            Vector2 randomOffset = Random.insideUnitCircle * Mathf.Tan(safeSpreadAngle * Mathf.Deg2Rad);
+            Vector3 right = Vector3.Cross(Vector3.up, baseDirection);
+
+            if (right.sqrMagnitude < 0.0001f)
+                right = Vector3.Cross(Vector3.forward, baseDirection);
+
+            right.Normalize();
+            Vector3 up = Vector3.Cross(baseDirection, right).normalized;
+            return (baseDirection + right * randomOffset.x + up * randomOffset.y).normalized;
         }
 
         private void HandleHit(RaycastHit hit, AimResult aimResult, HitscanFireRequest request)
@@ -150,6 +205,34 @@ namespace _02.Script.Combat
             if (shotResult.didHit)
             {
                 HandleHit(shotResult.hit, aimResult, request);
+            }
+
+            return true;
+        }
+
+        public bool FireShotgun(HitscanFireRequest request, int pelletCount)
+        {
+            if (!CanFire(request))
+                return false;
+
+            AimResult aimResult = ResolveAimPoint(request);
+            Vector3 baseDirection = GetBaseShotDirection(aimResult, request);
+            int safePelletCount = Mathf.Max(pelletCount, 1);
+
+            AimDirection = baseDirection;
+
+            for (int i = 0; i < safePelletCount; i++)
+            {
+                Vector3 shotDirection = ApplySpread(baseDirection, request.SpreadAngle);
+                float castDistance = GetShotCastDistance(aimResult, request, shotDirection);
+                ShotResult shotResult = FireRayFromMuzzle(request, shotDirection, castDistance);
+
+                DrawDebugRays(aimResult, shotResult, request);
+
+                if (shotResult.didHit)
+                {
+                    HandleHit(shotResult.hit, aimResult, request);
+                }
             }
 
             return true;

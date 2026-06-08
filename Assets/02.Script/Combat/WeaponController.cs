@@ -35,6 +35,7 @@ namespace _02.Script.Combat
 
         [Header("Attack System")]
         [SerializeField] private TPS_TwoStepHitscanSystem hitscanSystem;
+        [SerializeField] private PlayerSpreadProvider spreadProvider;
         [SerializeField] private Transform muzzle;
         [SerializeField] private float aimRange;
         [SerializeField] private float shotRange;
@@ -116,6 +117,9 @@ namespace _02.Script.Combat
         {
             if (hitscanSystem == null)
                 hitscanSystem = GetComponent<TPS_TwoStepHitscanSystem>();
+
+            if (spreadProvider == null)
+                spreadProvider = GetComponentInParent<PlayerSpreadProvider>();
 
             if (aimRange <= 0f)
                 aimRange = 100f;
@@ -229,7 +233,8 @@ namespace _02.Script.Combat
                 MuzzleBlockMask = muzzleBlockMask,
                 HitEffectPrefab = hitEffectPrefab,
                 HitEffectLifeTime = Mathf.Max(hitEffectLifeTime, 0.01f),
-                Damage = Damage
+                Damage = Damage,
+                SpreadAngle = GetCurrentSpreadAngle(currentWeapon.data)
             };
 
             return true;
@@ -333,12 +338,27 @@ namespace _02.Script.Combat
             if (!TryFire())
                 return false;
 
-            bool fired = hitscanSystem.Fire(request);
+            WeaponData weaponData = CurrentWeapon.data;
+            bool fired = weaponData.WeaponType == WeaponClass.SG
+                ? hitscanSystem.FireShotgun(request, weaponData.pelletCount)
+                : hitscanSystem.Fire(request);
 
             if (fired)
                 LastAimDirection = hitscanSystem.AimDirection;
 
             return fired;
+        }
+
+        private float GetCurrentSpreadAngle(WeaponData weaponData)
+        {
+            if (weaponData == null)
+                return 0f;
+
+            float weaponBaseSpreadAngle = Mathf.Max(weaponData.basicSpreadAngle, 0f);
+            if (spreadProvider == null)
+                return weaponBaseSpreadAngle;
+
+            return spreadProvider.GetTotalSpreadAngle(weaponBaseSpreadAngle);
         }
 
         public bool TryFire()

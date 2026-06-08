@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 80043138940455782}
   - component: {fileID: 6545327516180840327}
+  - component: {fileID: 4008324244077734020}
   m_Layer: 0
   m_Name: WeaponRuntimeManager
   m_TagString: Untagged
@@ -45,30 +46,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._03.WeaponChangeSystem.WeaponRuntimeManager
   weaponDataArray:
-  - {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
-  - {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
-  - {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
-  - {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
   - {fileID: 11400000, guid: 2ee15943a7770064899591c572170292, type: 2}
+  - {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
+  - {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
+  - {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
+  - {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
   weaponRuntimes:
-  - data: {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
-    currentAmmo: 30
-    UnLocked: 0
-  - data: {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
-    currentAmmo: 40
-    UnLocked: 0
-  - data: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
-    currentAmmo: 95
-    UnLocked: 0
-  - data: {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
-    currentAmmo: 5
-    UnLocked: 0
   - data: {fileID: 11400000, guid: 2ee15943a7770064899591c572170292, type: 2}
     currentAmmo: 8
+    UnLocked: 1
+    ShotDelayTime: 0.3
+  - data: {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
+    currentAmmo: 0
+    UnLocked: 1
+    ShotDelayTime: 0.2
+  - data: {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
+    currentAmmo: 0
+    UnLocked: 1
+    ShotDelayTime: 0.1
+  - data: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
+    currentAmmo: 0
+    UnLocked: 1
+    ShotDelayTime: 0.08571429
+  - data: {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
+    currentAmmo: 0
     UnLocked: 0
+    ShotDelayTime: 0.075
+  weaponController: {fileID: 0}
+  currentWeaponId: 
   itemIDEventChannel: {fileID: 11400000, guid: d4b432002e6c452469ccb2c3d8c7a809, type: 2}
-  pistolAmmo: 0
-  smgAmmo: 0
-  sgAmmo: 0
-  arAmmo: 70
-  mgAmmo: 82
+  pistolAmmo: 100
+  smgAmmo: 100
+  sgAmmo: 100
+  arAmmo: 100
+  mgAmmo: 500
+--- !u!114 &4008324244077734020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6228590478468505392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c2dbe2398e84890ac8f93298def22c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._04.MoneyPickup.PlayerRuntimeDataManager
+  money: 0

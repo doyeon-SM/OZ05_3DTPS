@@ -26,9 +26,9 @@ MonoBehaviour:
   RPM: 600
   ReloadTime: 1.5
   MagazineSize: 30
-  BulletCost: 2
+  BulletCost: 1
   UseAmmo: 1
-  basicSpreadAngle: 0
+  basicSpreadAngle: 2
   pelletCount: 1
   burstCount: 3
   FireEffect: {fileID: 0}
