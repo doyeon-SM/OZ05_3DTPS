@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0ea6a97020560b64abcfa227417da52c
+timeCreated: 1513060165
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Prefabs/Wall_OneThird_A.prefab
+  uploadId: 218249

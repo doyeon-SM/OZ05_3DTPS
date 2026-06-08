@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b907c38e69373764e8c76c207d385f4f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/Common Scripts/_Walkyrie_Example_Scripts/Walkyrie_Example_Keys_01.cs
+  uploadId: 691968

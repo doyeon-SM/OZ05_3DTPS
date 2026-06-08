@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 06adba9ea3507314fbd098344c4a8edc
+timeCreated: 1513046258
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Prefabs/Wall_Base_Door_A.prefab
+  uploadId: 218249

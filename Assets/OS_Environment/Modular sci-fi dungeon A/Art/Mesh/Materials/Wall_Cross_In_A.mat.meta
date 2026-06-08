@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 3a7f33c37d67ca140ac1ac1d80e06985
+timeCreated: 1513155574
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Art/Mesh/Materials/Wall_Cross_In_A.mat
+  uploadId: 218249

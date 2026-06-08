@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 2537c7d7d5afba7419647ad69a7b25e4
+timeCreated: 1513046865
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Prefabs/Wall_End_Coner.prefab
+  uploadId: 218249

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 7760e9e5c669303408f280b5ec663742
+timeCreated: 1512925370
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Art/Mesh/Materials/Wall_Base_A.mat
+  uploadId: 218249

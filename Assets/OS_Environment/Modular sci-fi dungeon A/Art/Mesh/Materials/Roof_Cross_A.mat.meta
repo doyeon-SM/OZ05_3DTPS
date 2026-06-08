@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 63cae13d5d0aa3942840f29d2ea57937
+timeCreated: 1513012982
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Art/Mesh/Materials/Roof_Cross_A.mat
+  uploadId: 218249

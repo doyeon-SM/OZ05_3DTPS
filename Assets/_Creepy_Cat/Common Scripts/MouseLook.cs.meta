@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: a0f9c5769037b42c7a770c09ce9dc11e
+timeCreated: 1533131094
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/Common Scripts/MouseLook.cs
+  uploadId: 691968

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 95230b848d104ff45936cf111b373903
+timeCreated: 1513046278
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Prefabs/Wall_Base_Steps_A.prefab
+  uploadId: 218249
