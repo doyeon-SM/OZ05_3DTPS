@@ -9,6 +9,8 @@ public class Door : MonoBehaviour, IInteraction
     // 해결책: MeshRenderer만 끄고 Collider는 그대로 유지합니다.
     // → 문이 열려도 Collider가 살아있어 Raycast가 감지 → 다시 [E] 눌러 닫기 가능
     [SerializeField] private GameObject doorObject;
+    [SerializeField] private GameObject leftDoorObject;
+    [SerializeField] private GameObject rightDoorObject;
 
     public bool IsDoorOpen => _isDoorOpen;
 
