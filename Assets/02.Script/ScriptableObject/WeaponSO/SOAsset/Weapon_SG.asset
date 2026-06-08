@@ -17,7 +17,10 @@ MonoBehaviour:
   WeaponDescription: It is a high-risk high risk compensation weapon that shows powerful
     moments in short-range.
   WeaponType: 2
-  tier: 1
+  WeaponPrefab: {fileID: 0}
+  HolderPosition: {x: 0.117, y: 0.089, z: 0.18}
+  HolderRotation: {x: -1.721, y: 35.482, z: 7.735}
+  fireMode: 0
   Damage: 20
   CriticalMultiplier: 0
   RPM: 300
@@ -25,8 +28,10 @@ MonoBehaviour:
   MagazineSize: 5
   BulletCost: 5
   UseAmmo: 1
-  AutoFire: 0
-  WeaponPrefab: {fileID: 0}
+  basicSpreadAngle: 0
+  pelletCount: 1
+  burstCount: 1
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
-  UnLockIcon: {fileID: 1247450681, guid: 92a4fe653152e9244b4849b9dba1c92b, type: 3}
+  UnLockIcon: {fileID: -1262163111, guid: 59ba3652eec0b124fa36521af007fb5d, type: 3}
+  LockIcon: {fileID: 330935418, guid: cecbc1e21bfd4654cace7246a1733982, type: 3}

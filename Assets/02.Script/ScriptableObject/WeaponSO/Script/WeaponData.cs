@@ -9,7 +9,12 @@ public class WeaponData : ScriptableObject
     public string WeaponName;
     [TextArea] public string WeaponDescription;
     public WeaponClass WeaponType;
-
+    
+    [Header("Instance Holder Transform")]
+    public GameObject WeaponPrefab;
+    public Vector3 HolderPosition;
+    public Vector3 HolderRotation;
+    
     [Header("Fire Mode")]
     [FormerlySerializedAs("FireMode")]
     public FireMode fireMode;
@@ -33,8 +38,8 @@ public class WeaponData : ScriptableObject
     public int burstCount = 1;
 
     [Header("Prefab And Effects")]
-    public GameObject WeaponPrefab;
     public ParticleSystem FireEffect;
     public AudioClip FireSound;
     public Sprite UnLockIcon;
+    public Sprite LockIcon;
 }

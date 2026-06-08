@@ -3,6 +3,7 @@ using _02.Script.Combat;
 using StarterAssets;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ProjectSpedex
@@ -20,9 +21,16 @@ namespace ProjectSpedex
         [SerializeField] private bool closeOnButtonClicked = true;
         [SerializeField] private float selectionDeadZone = 0f;
 
-        [Header("Locked Color")]
-        [SerializeField] private Color unLockedDisabledColor = Color.gray;
-        [SerializeField] private Color unLockedElementColor = Color.gray;
+        [Header("Locked Button Color")]
+        [FormerlySerializedAs("unLockedDisabledColor")]
+        [SerializeField] private Color lockedDisabledColor = Color.gray;
+
+        [Header("Locked Element Color")]
+        [FormerlySerializedAs("unLockedElementColor")]
+        [FormerlySerializedAs("unLockedTextColor")]
+        [SerializeField] private Color lockedTextColor = Color.gray;
+        [FormerlySerializedAs("unLockedIconColor")]
+        [SerializeField] private Color lockedIconColor = Color.gray;
 
         [Header("Unlocked Button Color")]
         [SerializeField] private Color normalColor = Color.white;
@@ -31,8 +39,10 @@ namespace ProjectSpedex
         [SerializeField] private Color selectHasAmmoColor = Color.white;
         [SerializeField] private Color notAmmoSelectedColor = Color.red;
 
-        [Header("Unlocked Element Color")]
-        [SerializeField] private Color interactableElementColor = Color.white;
+        [Header("UnLock Element Color")]
+        [FormerlySerializedAs("interactableElementColor")]
+        [SerializeField] private Color unLockTextColor = Color.white;
+        [SerializeField] private Color unLockIconColor = Color.white;
 
         private bool missingStarterAssetsInputsLogged;
         private bool wasWeaponSelectHeld;
@@ -219,24 +229,32 @@ namespace ProjectSpedex
             {
                 element.label = string.Empty;
                 element.ItemID = string.Empty;
+                element.UnLockIcon = null;
+                element.LockIcon = null;
                 SetElementIcon(element, null);
                 SetElementInteractable(element, false, false);
-                SetElementText(element, string.Empty, unLockedElementColor);
-                SetElementAmmoText(element, string.Empty, unLockedElementColor);
-                SetElementVisualColor(element, unLockedElementColor);
+                SetElementText(element, string.Empty, lockedTextColor);
+                SetElementAmmoText(element, string.Empty, lockedTextColor);
+                SetElementVisualColor(element, lockedIconColor);
                 return;
             }
 
             WeaponData weaponData = runtime.data;
             bool hasAmmo = HasSelectableAmmo(runtime);
+            bool isUnlocked = runtime.UnLocked;
+            Sprite printIcon = isUnlocked ? weaponData.UnLockIcon : weaponData.LockIcon;
+            Color textColor = isUnlocked ? unLockTextColor : lockedTextColor;
+            Color iconColor = isUnlocked ? unLockIconColor : lockedIconColor;
 
             element.label = weaponData.WeaponName;
             element.ItemID = weaponData.WeaponId;
-            SetElementIcon(element, weaponData.UnLockIcon);
-            SetElementText(element, weaponData.WeaponName, runtime.UnLocked ? interactableElementColor : unLockedElementColor);
-            SetElementAmmoText(element, GetAmmoPrint(weaponData), runtime.UnLocked ? interactableElementColor : unLockedElementColor);
-            SetElementVisualColor(element, runtime.UnLocked ? interactableElementColor : unLockedElementColor);
-            SetElementInteractable(element, runtime.UnLocked, hasAmmo);
+            element.UnLockIcon = weaponData.UnLockIcon;
+            element.LockIcon = weaponData.LockIcon;
+            SetElementIcon(element, printIcon);
+            SetElementText(element, weaponData.WeaponName, textColor);
+            SetElementAmmoText(element, GetAmmoPrint(weaponData), textColor);
+            SetElementVisualColor(element, iconColor);
+            SetElementInteractable(element, isUnlocked, hasAmmo);
         }
 
         private void SetElementIcon(RadialMenuElement element, Sprite icon)
@@ -304,7 +322,7 @@ namespace ProjectSpedex
             element.button.interactable = isUnlocked;
 
             ColorBlock colorBlock = element.button.colors;
-            colorBlock.disabledColor = unLockedDisabledColor;
+            colorBlock.disabledColor = lockedDisabledColor;
 
             if (isUnlocked)
             {

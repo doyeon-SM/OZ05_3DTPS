@@ -23,6 +23,12 @@ namespace ProjectSpedex
     [Tooltip("이 옵션에 마우스를 올렸을 때 방사형 메뉴 중앙에 icon입니다.")]
     public Image Icon;
 
+    [Tooltip("UnLock 상태일 때 표시할 아이콘입니다.")]
+    public Sprite UnLockIcon;
+
+    [Tooltip("Lock 상태일 때 표시할 아이콘입니다.")]
+    public Sprite LockIcon;
+
     [Tooltip("이 무기 타입이 사용하는 Ammo 수량을 표시할 TextMeshPro 텍스트입니다.")]
     public TMP_Text AmmoText;
     

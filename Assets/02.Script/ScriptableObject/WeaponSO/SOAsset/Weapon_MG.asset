@@ -17,7 +17,10 @@ MonoBehaviour:
   WeaponDescription: Based on high elastic capacity, it is an overwhelming weapon
     based on high elastic capacity.
   WeaponType: 4
-  tier: 4
+  WeaponPrefab: {fileID: 0}
+  HolderPosition: {x: 0.1, y: 0.256, z: 0.118}
+  HolderRotation: {x: -1.476, y: 29.218, z: 0.542}
+  fireMode: 0
   Damage: 8
   CriticalMultiplier: 0
   RPM: 700
@@ -25,8 +28,10 @@ MonoBehaviour:
   MagazineSize: 95
   BulletCost: 1
   UseAmmo: 1
-  AutoFire: 0
-  WeaponPrefab: {fileID: 0}
+  basicSpreadAngle: 0
+  pelletCount: 1
+  burstCount: 1
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
-  UnLockIcon: {fileID: 1234379130, guid: 92a4fe653152e9244b4849b9dba1c92b, type: 3}
+  UnLockIcon: {fileID: -259129436, guid: 59ba3652eec0b124fa36521af007fb5d, type: 3}
+  LockIcon: {fileID: -1115473031, guid: cecbc1e21bfd4654cace7246a1733982, type: 3}

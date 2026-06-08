@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b1d2117c386432e9a4d45e087148b53, type: 3}
   m_Name: Weapon_Pistol
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.WeaponData
-  WeaponId: Pistol
+  WeaponId: Weapon_Pistol
   WeaponName: Pistol
   WeaponDescription: It's a basic weapon.
   WeaponType: 0
+  WeaponPrefab: {fileID: 0}
+  HolderPosition: {x: 0, y: 0.095, z: 0.03}
+  HolderRotation: {x: 0, y: 0, z: 0}
   fireMode: 0
   Damage: 15
   CriticalMultiplier: 0
@@ -27,7 +30,7 @@ MonoBehaviour:
   basicSpreadAngle: 0
   pelletCount: 1
   burstCount: 3
-  WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
-  UnLockIcon: {fileID: 0}
+  UnLockIcon: {fileID: -304241782, guid: 59ba3652eec0b124fa36521af007fb5d, type: 3}
+  LockIcon: {fileID: -351321982, guid: cecbc1e21bfd4654cace7246a1733982, type: 3}

@@ -17,6 +17,9 @@ MonoBehaviour:
   WeaponDescription: It is a balanced weapon with an even range, accuracy, damage,
     and continuous power.
   WeaponType: 3
+  WeaponPrefab: {fileID: 0}
+  HolderPosition: {x: 0.017, y: 0.141, z: 0.047}
+  HolderRotation: {x: 0, y: 29.737, z: 0}
   fireMode: 1
   Damage: 15
   CriticalMultiplier: 0
@@ -28,7 +31,7 @@ MonoBehaviour:
   basicSpreadAngle: 0
   pelletCount: 1
   burstCount: 3
-  WeaponPrefab: {fileID: 0}
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
-  UnLockIcon: {fileID: 1821818961, guid: 92a4fe653152e9244b4849b9dba1c92b, type: 3}
+  UnLockIcon: {fileID: 1433945265, guid: 59ba3652eec0b124fa36521af007fb5d, type: 3}
+  LockIcon: {fileID: 1138565974, guid: cecbc1e21bfd4654cace7246a1733982, type: 3}
