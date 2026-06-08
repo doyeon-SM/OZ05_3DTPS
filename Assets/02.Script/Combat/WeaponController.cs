@@ -55,6 +55,18 @@ namespace _02.Script.Combat
         public WeaponRuntime CurrentWeaponRuntime => CurrentWeapon;
         public Vector3 LastAimDirection { get; private set; }
 
+        public bool SetMuzzle(Transform nextMuzzle)
+        {
+            if (nextMuzzle == null)
+            {
+                Debug.LogError("[WeaponController] 갱신할 Muzzle이 null입니다.", this);
+                return false;
+            }
+
+            muzzle = nextMuzzle;
+            return true;
+        }
+
         public bool VariableChange;
 
         private Coroutine _reloadCoroutine;

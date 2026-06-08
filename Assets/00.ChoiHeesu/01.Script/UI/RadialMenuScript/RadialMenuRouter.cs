@@ -12,6 +12,7 @@ namespace ProjectSpedex
     {
         [Header("Reference")]
         [SerializeField] private WeaponRuntimeManager weaponRuntimeManager;
+        [SerializeField] private WeaponSwitcher weaponSwitcher;
         [SerializeField] private RadialMenu radialMenu;
         [SerializeField] private StarterAssetsInputs starterAssetsInputs;
         [SerializeField] private GameObject radialMenuRoot;
@@ -78,6 +79,9 @@ namespace ProjectSpedex
         {
             if (radialMenu == null)
                 TryGetComponent(out radialMenu);
+
+            if (weaponSwitcher == null)
+                weaponSwitcher = FindFirstObjectByType<WeaponSwitcher>(FindObjectsInactive.Include);
 
             if (radialMenuRoot == null && radialMenu != null)
                 radialMenuRoot = radialMenu.gameObject;
@@ -397,21 +401,20 @@ namespace ProjectSpedex
 
             if (string.IsNullOrWhiteSpace(element.ItemID))
             {
-                Debug.LogError($"[RadialMenuRouter] {element.gameObject.name}의 ItemID가 비어 있어 무기 선택 요청을 보낼 수 없습니다.", element);
+                Debug.LogWarning($"[RadialMenuRouter] {element.gameObject.name}의 ItemID가 비어 있어 무기 선택 요청을 보낼 수 없습니다.", element);
                 CloseRadialMenuAfterSelection();
                 return;
             }
 
-            if (weaponRuntimeManager == null)
+            if (weaponSwitcher == null)
             {
-                Debug.LogError("[RadialMenuRouter] weaponRuntimeManager가 null입니다. 무기 변경 요청을 보낼 수 없습니다.", this);
+                Debug.LogError("[RadialMenuRouter] weaponSwitcher가 null입니다. 무기 변경 후 프리팹 활성화와 Muzzle 갱신을 처리할 WeaponSwitcher를 연결해주세요.", this);
                 CloseRadialMenuAfterSelection();
                 return;
             }
 
-            if (!weaponRuntimeManager.TryRequestWeaponChange(element.ItemID, out string blockMessage))
+            if (!weaponSwitcher.TryRequestWeaponChange(element.ItemID))
             {
-                Debug.LogError(blockMessage, element);
                 CloseRadialMenuAfterSelection();
                 return;
             }

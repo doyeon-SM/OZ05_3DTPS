@@ -17,7 +17,7 @@ MonoBehaviour:
   WeaponDescription: It is a near and medium-range continuous weapon with fast continuous
     power and ample magazines.
   WeaponType: 1
-  WeaponPrefab: {fileID: 0}
+  WeaponPrefab: {fileID: 1089378734257028286, guid: edfe0a4f997377b49ac0b798d1eba558, type: 3}
   HolderPosition: {x: 0.071, y: 0.149, z: 0.222}
   HolderRotation: {x: 3.439, y: 22.775, z: 1.443}
   fireMode: 2

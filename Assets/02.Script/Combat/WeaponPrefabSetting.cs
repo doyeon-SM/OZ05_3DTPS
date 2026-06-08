@@ -9,6 +9,8 @@ namespace _02.Script.Combat
         [SerializeField] private string WeaponID;
         //todo : 여기에 총기별 이펙트도 추가해서 껏다 켰다 하면 될듯?
 
+        public string WeaponId => WeaponID;
+
         private void Awake()
         {
             muzzlePointFind();
@@ -23,6 +25,8 @@ namespace _02.Script.Combat
         }
         public bool muzzleOut(out Transform muzzle)
         {
+            muzzlePointFind();
+
             if (muzzlePoint == null)
             {
                 muzzle = null;

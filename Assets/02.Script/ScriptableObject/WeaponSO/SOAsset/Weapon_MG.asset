@@ -17,10 +17,10 @@ MonoBehaviour:
   WeaponDescription: Based on high elastic capacity, it is an overwhelming weapon
     based on high elastic capacity.
   WeaponType: 4
-  WeaponPrefab: {fileID: 0}
+  WeaponPrefab: {fileID: 4291767186260726639, guid: e4135797c343fbc4892502e4f7ca0a30, type: 3}
   HolderPosition: {x: 0.1, y: 0.256, z: 0.118}
   HolderRotation: {x: -1.476, y: 29.218, z: 0.542}
-  fireMode: 0
+  fireMode: 2
   Damage: 8
   CriticalMultiplier: 0
   RPM: 700

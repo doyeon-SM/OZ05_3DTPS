@@ -17,7 +17,7 @@ MonoBehaviour:
   WeaponDescription: It is a high-risk high risk compensation weapon that shows powerful
     moments in short-range.
   WeaponType: 2
-  WeaponPrefab: {fileID: 0}
+  WeaponPrefab: {fileID: 2285404772875222171, guid: 1c86d06ca66946944afe3510595191b9, type: 3}
   HolderPosition: {x: 0.117, y: 0.089, z: 0.18}
   HolderRotation: {x: -1.721, y: 35.482, z: 7.735}
   fireMode: 0

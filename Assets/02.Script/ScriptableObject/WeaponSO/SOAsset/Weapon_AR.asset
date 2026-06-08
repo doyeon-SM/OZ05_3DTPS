@@ -17,7 +17,7 @@ MonoBehaviour:
   WeaponDescription: It is a balanced weapon with an even range, accuracy, damage,
     and continuous power.
   WeaponType: 3
-  WeaponPrefab: {fileID: 0}
+  WeaponPrefab: {fileID: 6734225644313519354, guid: df4dd6fc522d5ef4a87c7f05b96d292e, type: 3}
   HolderPosition: {x: 0.017, y: 0.141, z: 0.047}
   HolderRotation: {x: 0, y: 29.737, z: 0}
   fireMode: 1
