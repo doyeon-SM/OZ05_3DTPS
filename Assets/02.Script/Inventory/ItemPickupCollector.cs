@@ -1,51 +1,52 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ItemPickupCollector : MonoBehaviour
 {
-    [Tooltip("����ǰ ���¸� �ٲ� �κ�. ��� ������ ���� ������Ʈ���� PlayerInventory�� ã���ϴ�.")]
     [SerializeField] private PlayerInventory playerInventory;
 
-    [Tooltip("id��� ����/���� ��Ģ�� ����. ��� ������ ������ ItemCatalogManager�� Find�մϴ�.")]
-    [SerializeField] private ItemCatalogManager itemCatalogManager;
+    // ItemCatalogManager는 DontDestroyOnLoad 싱글톤이므로 Instance로 직접 참조
+    private ItemCatalogManager Catalog => ItemCatalogManager.Instance;
 
     private void Awake()
     {
         if (playerInventory == null)
             playerInventory = GetComponent<PlayerInventory>();
-        if (itemCatalogManager == null)
-            itemCatalogManager = GetComponent<ItemCatalogManager>();
     }
+
     private void OnTriggerEnter(Collider other)
     {
         WorldItem worldItem = other.GetComponent<WorldItem>();
-
         if (worldItem == null) return;
-        if(playerInventory == null)
+
+        if (playerInventory == null)
         {
             Debug.LogWarning("[ItemPickupCollector] PlayerInventory null");
             return;
         }
-        if (itemCatalogManager == null)
+
+        if (Catalog == null)
         {
-            Debug.LogWarning("[ItemPickupCollector] ItemCatalogManager null");
+            Debug.LogWarning("[ItemPickupCollector] ItemCatalogManager.Instance null");
             return;
         }
+
         string normalizedId = NormalizeItemId(worldItem.itemID);
         if (string.IsNullOrEmpty(normalizedId))
         {
-            Debug.LogWarning($"[ItemPickupCollector] is null or empty normalizedid:{normalizedId} object = {worldItem.gameObject.name}");
+            Debug.LogWarning($"[ItemPickupCollector] itemID가 비어있음. object={worldItem.gameObject.name}");
             return;
         }
-        if (!itemCatalogManager.IsRegistered(normalizedId))
+
+        if (!Catalog.IsRegistered(normalizedId))
         {
-            Debug.LogWarning($"[ItemPickupCollector] is registered normalizedid:{normalizedId}. id={normalizedId}, object={worldItem.gameObject.name}");
+            Debug.LogWarning($"[ItemPickupCollector] 미등록 아이템 id={normalizedId}, object={worldItem.gameObject.name}");
             return;
         }
 
         int requestedAmount = Mathf.Max(1, worldItem.amount);
         if (!playerInventory.TryAddItemsFromPickup(normalizedId, requestedAmount, out int addedAmount))
         {
-            Debug.LogWarning($"[ItemPickupCollector] try add items from pickup. id={normalizedId}, requested={requestedAmount},added={addedAmount}");
+            Debug.LogWarning($"[ItemPickupCollector] TryAddItemsFromPickup 실패. id={normalizedId}, requested={requestedAmount}, added={addedAmount}");
             return;
         }
 

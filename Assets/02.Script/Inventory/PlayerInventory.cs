@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    [Header("ItemCatalog")]
-    [SerializeField] private ItemCatalogManager itemCatalogManager;
+    // ItemCatalogManager는 DontDestroyOnLoad 싱글톤이므로 Instance로 직접 참조
+    private ItemCatalogManager Catalog => ItemCatalogManager.Instance;
 
     [Header("Runtime")]
     public List<string> itemIDs = new List<string>();
@@ -12,7 +12,8 @@ public class PlayerInventory : MonoBehaviour
 
     private void Awake()
     {
-        EnsureCatalogReference();
+        if (Catalog == null)
+            Debug.LogWarning("[PlayerInventory] ItemCatalogManager.Instance가 null입니다.");
     }
 
     // ──────────────────────────────────────────────
@@ -64,7 +65,7 @@ public class PlayerInventory : MonoBehaviour
     public bool TryGetCatalogEntry(string itemId, out ItemCatalogEntry entry)
     {
         entry = default;
-        return itemCatalogManager != null && itemCatalogManager.TryGetEntry(itemId, out entry);
+        return Catalog != null && Catalog.TryGetEntry(itemId, out entry);
     }
 
     // ──────────────────────────────────────────────
@@ -77,7 +78,14 @@ public class PlayerInventory : MonoBehaviour
         if (string.IsNullOrWhiteSpace(itemId) || amount <= 0) return false;
 
         itemId = itemId.Trim();
-        if (!IsRegisteredItemId(itemId))
+
+        if (Catalog == null)
+        {
+            Debug.LogWarning("[PlayerInventory] ItemCatalogManager.Instance가 null — 아이템 추가 불가: " + itemId);
+            return false;
+        }
+
+        if (!Catalog.IsRegistered(itemId))
         {
             Debug.LogWarning("[PlayerInventory] 미등록 아이템 id: " + itemId);
             return false;
@@ -120,22 +128,8 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    private bool IsRegisteredItemId(string itemId)
-    {
-        return itemCatalogManager != null && itemCatalogManager.IsRegistered(itemId);
-    }
-
     private string ResolveDisplayName(string itemId)
     {
-        return itemCatalogManager != null ? itemCatalogManager.ResolveDisplayName(itemId) : itemId;
-    }
-
-    private void EnsureCatalogReference()
-    {
-        if (itemCatalogManager == null)
-            itemCatalogManager = FindFirstObjectByType<ItemCatalogManager>();
-
-        if (itemCatalogManager == null)
-            Debug.LogWarning("[PlayerInventory] ItemCatalogManager를 찾을 수 없습니다.");
+        return Catalog != null ? Catalog.ResolveDisplayName(itemId) : itemId;
     }
 }

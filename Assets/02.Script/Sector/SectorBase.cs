@@ -37,6 +37,9 @@ namespace _01.Scenes.PhaseValidation
             Collider col = GetComponent<Collider>();
             col.isTrigger = true;
 
+            if (entryDoor == null) Debug.Log("EntryDoor Null");
+            if (exitDoor == null) Debug.Log("ExitDoor Null");
+
             // 시작 시: 입장문 비활성화(통과 가능), 퇴장문 활성화(막혀있음)
             if (entryDoor != null) entryDoor.SetActive(false);
             if (exitDoor != null) exitDoor.SetActive(true);
