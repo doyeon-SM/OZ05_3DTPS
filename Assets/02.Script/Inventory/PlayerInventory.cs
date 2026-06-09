@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using _00.ChoiHeesu._03.WeaponChangeSystem;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
@@ -7,13 +8,30 @@ public class PlayerInventory : MonoBehaviour
     private ItemCatalogManager Catalog => ItemCatalogManager.Instance;
 
     [Header("Runtime")]
-    public List<string> itemIDs = new List<string>();
-    public Dictionary<string, int> itemCountById = new Dictionary<string, int>();
+    [SerializeField] private WeaponRuntimeManager weaponRuntimeManager;
+
+    /*
+     * 이전 방식: PlayerInventory 내부에서 아이템 ID 리스트와 수량 Dictionary를 직접 관리했습니다.
+     * 현재는 픽업한 ItemID/Amount를 WeaponRuntimeManager의 ItemID 기반 Dictionary에 누적합니다.
+     *
+     * public List<string> itemIDs = new List<string>();
+     * public Dictionary<string, int> itemCountById = new Dictionary<string, int>();
+     */
+
+    private bool missingWeaponRuntimeManagerLogged;
 
     private void Awake()
     {
         if (Catalog == null)
             Debug.LogWarning("[PlayerInventory] ItemCatalogManager.Instance가 null입니다.");
+
+        CacheWeaponRuntimeManager(false);
+    }
+
+    private void Start()
+    {
+        if (!CacheWeaponRuntimeManager(false))
+            ReportMissingWeaponRuntimeManager();
     }
 
     // ──────────────────────────────────────────────
@@ -44,9 +62,8 @@ public class PlayerInventory : MonoBehaviour
         itemId = itemId.Trim();
         if (GetItemCount(itemId) < amount) return false;
 
-        RemoveFromItemIdList(itemId, amount);
-        DecreaseItemCount(itemId, amount);
-        return true;
+        return CacheWeaponRuntimeManager(true) &&
+               weaponRuntimeManager.TryConsumeWeaponAmmo(itemId, amount, out _);
     }
 
     public bool HasAtLeast(string itemId, int amount)
@@ -58,7 +75,9 @@ public class PlayerInventory : MonoBehaviour
     public int GetItemCount(string itemId)
     {
         if (string.IsNullOrWhiteSpace(itemId)) return 0;
-        itemCountById.TryGetValue(itemId.Trim(), out int count);
+        if (!CacheWeaponRuntimeManager(false)) return 0;
+
+        weaponRuntimeManager.TryGetWeaponAmmo(itemId.Trim(), out int count);
         return count;
     }
 
@@ -91,14 +110,23 @@ public class PlayerInventory : MonoBehaviour
             return false;
         }
 
-        for (int i = 0; i < amount; i++)
-            itemIDs.Add(itemId);
+        if (!CacheWeaponRuntimeManager(true))
+            return false;
 
-        IncreaseItemCount(itemId, amount);
+        if (!weaponRuntimeManager.TryIncreaseWeaponAmmo(itemId, amount, out _))
+        {
+            Debug.LogWarning("[PlayerInventory] WeaponRuntimeManager 아이템 수량 추가 실패: " + itemId);
+            return false;
+        }
+
         addedAmount = amount;
         return true;
     }
 
+    /*
+     * 이전 방식: PlayerInventory 내부 Dictionary/List를 직접 증가/감소했습니다.
+     * 현재는 WeaponRuntimeManager.TryIncreaseWeaponAmmo / TryConsumeWeaponAmmo를 사용합니다.
+     *
     private void IncreaseItemCount(string itemId, int amount)
     {
         if (itemCountById.TryGetValue(itemId, out int current))
@@ -127,9 +155,41 @@ public class PlayerInventory : MonoBehaviour
             }
         }
     }
+    */
 
     private string ResolveDisplayName(string itemId)
     {
         return Catalog != null ? Catalog.ResolveDisplayName(itemId) : itemId;
+    }
+
+    private bool CacheWeaponRuntimeManager(bool logIfMissing)
+    {
+        if (weaponRuntimeManager != null)
+            return true;
+
+        weaponRuntimeManager = WeaponRuntimeManager.Instance;
+
+        if (weaponRuntimeManager == null)
+            weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
+
+        if (weaponRuntimeManager != null)
+        {
+            missingWeaponRuntimeManagerLogged = false;
+            return true;
+        }
+
+        if (logIfMissing)
+            ReportMissingWeaponRuntimeManager();
+
+        return false;
+    }
+
+    private void ReportMissingWeaponRuntimeManager()
+    {
+        if (missingWeaponRuntimeManagerLogged)
+            return;
+
+        Debug.LogError("[PlayerInventory] WeaponRuntimeManager를 찾을 수 없습니다. 씬에 DontDestroyOnLoad 상태의 WeaponRuntimeManager가 있는지 확인해주세요.", this);
+        missingWeaponRuntimeManagerLogged = true;
     }
 }

@@ -1,4 +1,5 @@
 using _02.Script.Combat;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -34,6 +35,45 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         #endregion
 
         private const int MaxWeaponCount = 5;
+        private const string PistolAmmoItemId = "pistolammo";
+        private const string SmgAmmoItemId = "smgammo";
+        private const string SgAmmoItemId = "sgammo";
+        private const string ArAmmoItemId = "arammo";
+        private const string MgAmmoItemId = "mgammo";
+
+        [Serializable]
+        private class WeaponAmmoEntry
+        {
+            public string itemId;
+            public int ammo;
+
+            public WeaponAmmoEntry()
+            {
+            }
+
+            public WeaponAmmoEntry(string itemId, int ammo)
+            {
+                this.itemId = itemId;
+                this.ammo = ammo;
+            }
+        }
+
+        [Serializable]
+        private class WeaponAmmoIdMapping
+        {
+            public WeaponClass weaponClass;
+            public string ammoItemId;
+
+            public WeaponAmmoIdMapping()
+            {
+            }
+
+            public WeaponAmmoIdMapping(WeaponClass weaponClass, string ammoItemId)
+            {
+                this.weaponClass = weaponClass;
+                this.ammoItemId = ammoItemId;
+            }
+        }
 
         [Header("S.O Data")]
         [SerializeField] private WeaponData[] weaponDataArray = new WeaponData[MaxWeaponCount];
@@ -49,18 +89,16 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         [SerializeField] private SingleStringEventChannel itemIDEventChannel;
 
         [Header("Weapon Ammo")]
-        [SerializeField] private int pistolAmmo;
-        [SerializeField] private int smgAmmo;
-        [SerializeField] private int sgAmmo;
-        [SerializeField] private int arAmmo;
-        [SerializeField] private int mgAmmo;
+        [SerializeField] private WeaponAmmoEntry[] weaponAmmoEntries;
+        [SerializeField] private WeaponAmmoIdMapping[] weaponAmmoIdMappings;
 
         public WeaponData[] WeaponDataArray => weaponDataArray;
         public WeaponRuntime[] WeaponRuntimes => weaponRuntimes;
         public WeaponController WeaponController => weaponController;
-        public IReadOnlyDictionary<WeaponClass, int> WeaponAmmoByClass => weaponAmmoByClass;
+        public IReadOnlyDictionary<string, int> WeaponAmmoByItemId => weaponAmmoByItemId;
 
-        private readonly Dictionary<WeaponClass, int> weaponAmmoByClass = new Dictionary<WeaponClass, int>();
+        private readonly Dictionary<string, int> weaponAmmoByItemId = new Dictionary<string, int>();
+        private readonly Dictionary<WeaponClass, string> ammoItemIdByWeaponClass = new Dictionary<WeaponClass, string>();
         private bool missingItemIDEventChannelLogged;
 
         private void Awake()
@@ -150,6 +188,33 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             }
         }
 
+        private void EnsureWeaponAmmoSettings()
+        {
+            if (weaponAmmoEntries == null || weaponAmmoEntries.Length == 0)
+            {
+                weaponAmmoEntries = new[]
+                {
+                    new WeaponAmmoEntry(PistolAmmoItemId, 100),
+                    new WeaponAmmoEntry(SmgAmmoItemId, 100),
+                    new WeaponAmmoEntry(SgAmmoItemId, 100),
+                    new WeaponAmmoEntry(ArAmmoItemId, 100),
+                    new WeaponAmmoEntry(MgAmmoItemId, 500)
+                };
+            }
+
+            if (weaponAmmoIdMappings == null || weaponAmmoIdMappings.Length == 0)
+            {
+                weaponAmmoIdMappings = new[]
+                {
+                    new WeaponAmmoIdMapping(WeaponClass.Pistol, PistolAmmoItemId),
+                    new WeaponAmmoIdMapping(WeaponClass.SMG, SmgAmmoItemId),
+                    new WeaponAmmoIdMapping(WeaponClass.SG, SgAmmoItemId),
+                    new WeaponAmmoIdMapping(WeaponClass.AR, ArAmmoItemId),
+                    new WeaponAmmoIdMapping(WeaponClass.MG, MgAmmoItemId)
+                };
+            }
+        }
+
         private void SyncWeaponRuntimesWithWeaponDataArray()
         {
             for (int i = 0; i < MaxWeaponCount; i++)
@@ -179,11 +244,73 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         private void SyncWeaponAmmoDictionary()
         {
-            weaponAmmoByClass[WeaponClass.Pistol] = Mathf.Max(pistolAmmo, 0);
-            weaponAmmoByClass[WeaponClass.SMG] = Mathf.Max(smgAmmo, 0);
-            weaponAmmoByClass[WeaponClass.SG] = Mathf.Max(sgAmmo, 0);
-            weaponAmmoByClass[WeaponClass.AR] = Mathf.Max(arAmmo, 0);
-            weaponAmmoByClass[WeaponClass.MG] = Mathf.Max(mgAmmo, 0);
+            EnsureWeaponAmmoSettings();
+            weaponAmmoByItemId.Clear();
+            ammoItemIdByWeaponClass.Clear();
+
+            for (int i = 0; i < weaponAmmoEntries.Length; i++)
+            {
+                WeaponAmmoEntry entry = weaponAmmoEntries[i];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.itemId))
+                    continue;
+
+                string normalizedItemId = NormalizeId(entry.itemId);
+                int safeAmmo = Mathf.Max(entry.ammo, 0);
+                entry.itemId = normalizedItemId;
+                entry.ammo = safeAmmo;
+                weaponAmmoByItemId[normalizedItemId] = safeAmmo;
+            }
+
+            for (int i = 0; i < weaponAmmoIdMappings.Length; i++)
+            {
+                WeaponAmmoIdMapping mapping = weaponAmmoIdMappings[i];
+                if (mapping == null || string.IsNullOrWhiteSpace(mapping.ammoItemId))
+                    continue;
+
+                string normalizedItemId = NormalizeId(mapping.ammoItemId);
+                mapping.ammoItemId = normalizedItemId;
+                ammoItemIdByWeaponClass[mapping.weaponClass] = normalizedItemId;
+
+                if (!weaponAmmoByItemId.ContainsKey(normalizedItemId))
+                    weaponAmmoByItemId.Add(normalizedItemId, 0);
+            }
+        }
+
+        private void SyncWeaponAmmoEntriesFromDictionary()
+        {
+            EnsureWeaponAmmoSettings();
+            HashSet<string> syncedItemIds = new HashSet<string>();
+
+            for (int i = 0; i < weaponAmmoEntries.Length; i++)
+            {
+                WeaponAmmoEntry entry = weaponAmmoEntries[i];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.itemId))
+                    continue;
+
+                string normalizedItemId = NormalizeId(entry.itemId);
+                entry.itemId = normalizedItemId;
+
+                if (weaponAmmoByItemId.TryGetValue(normalizedItemId, out int ammo))
+                    entry.ammo = Mathf.Max(ammo, 0);
+
+                syncedItemIds.Add(normalizedItemId);
+            }
+
+            foreach (KeyValuePair<string, int> ammoPair in weaponAmmoByItemId)
+            {
+                if (syncedItemIds.Contains(ammoPair.Key))
+                    continue;
+
+                AddWeaponAmmoEntry(ammoPair.Key, ammoPair.Value);
+                syncedItemIds.Add(ammoPair.Key);
+            }
+        }
+
+        private void AddWeaponAmmoEntry(string itemId, int ammo)
+        {
+            int entryCount = weaponAmmoEntries != null ? weaponAmmoEntries.Length : 0;
+            Array.Resize(ref weaponAmmoEntries, entryCount + 1);
+            weaponAmmoEntries[entryCount] = new WeaponAmmoEntry(itemId, Mathf.Max(ammo, 0));
         }
 
         private void ValidateWeaponRuntimeData()
@@ -352,7 +479,6 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
             runtime.Reload(reloadAmount);
             SetWeaponAmmoValue(weaponData.WeaponType, availableWeaponAmmo - consumedAmmo);
-            SyncWeaponAmmoDictionary();
             return true;
         }
 
@@ -441,52 +567,105 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         public bool TryGetWeaponAmmo(WeaponClass weaponClass, out int ammo)
         {
-            ammo = GetWeaponAmmoValue(weaponClass);
-            SyncWeaponAmmoDictionary();
+            ammo = 0;
+
+            if (!TryGetAmmoItemId(weaponClass, out string itemId))
+                return false;
+
+            return TryGetWeaponAmmo(itemId, out ammo);
+        }
+
+        public bool TryGetWeaponAmmo(string itemId, out int ammo)
+        {
+            ammo = 0;
+
+            if (string.IsNullOrWhiteSpace(itemId))
+                return false;
+
+            ammo = GetWeaponAmmoValue(itemId);
+            return true;
+        }
+
+        public bool TryGetAmmoItemId(WeaponClass weaponClass, out string itemId)
+        {
+            itemId = string.Empty;
+
+            if (!ammoItemIdByWeaponClass.TryGetValue(weaponClass, out string mappedItemId))
+                return false;
+
+            itemId = mappedItemId;
+            return !string.IsNullOrWhiteSpace(itemId);
+        }
+
+        public bool TryIncreaseWeaponAmmo(string itemId, int amount, out int currentAmmo)
+        {
+            currentAmmo = 0;
+
+            if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
+                return false;
+
+            string normalizedItemId = NormalizeId(itemId);
+            int currentValue = GetWeaponAmmoValue(normalizedItemId);
+            long nextValue = (long)currentValue + amount;
+            currentAmmo = nextValue > int.MaxValue ? int.MaxValue : (int)nextValue;
+            SetWeaponAmmoValue(normalizedItemId, currentAmmo);
+            return true;
+        }
+
+        public bool TryConsumeWeaponAmmo(string itemId, int amount, out int currentAmmo)
+        {
+            currentAmmo = 0;
+
+            if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
+                return false;
+
+            string normalizedItemId = NormalizeId(itemId);
+            int currentValue = GetWeaponAmmoValue(normalizedItemId);
+            if (currentValue < amount)
+                return false;
+
+            currentAmmo = currentValue - amount;
+            SetWeaponAmmoValue(normalizedItemId, currentAmmo);
             return true;
         }
 
         private int GetWeaponAmmoValue(WeaponClass weaponClass)
         {
-            switch (weaponClass)
+            if (!TryGetAmmoItemId(weaponClass, out string itemId))
+                return 0;
+
+            return GetWeaponAmmoValue(itemId);
+        }
+
+        private int GetWeaponAmmoValue(string itemId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId))
+                return 0;
+
+            if (weaponAmmoByItemId.TryGetValue(NormalizeId(itemId), out int ammo))
             {
-                case WeaponClass.Pistol:
-                    return Mathf.Max(pistolAmmo, 0);
-                case WeaponClass.SMG:
-                    return Mathf.Max(smgAmmo, 0);
-                case WeaponClass.SG:
-                    return Mathf.Max(sgAmmo, 0);
-                case WeaponClass.AR:
-                    return Mathf.Max(arAmmo, 0);
-                case WeaponClass.MG:
-                    return Mathf.Max(mgAmmo, 0);
-                default:
-                    return 0;
+                return Mathf.Max(ammo, 0);
             }
+
+            return 0;
         }
 
         private void SetWeaponAmmoValue(WeaponClass weaponClass, int ammo)
         {
-            int safeAmmo = Mathf.Max(ammo, 0);
+            if (!TryGetAmmoItemId(weaponClass, out string itemId))
+                return;
 
-            switch (weaponClass)
-            {
-                case WeaponClass.Pistol:
-                    pistolAmmo = safeAmmo;
-                    break;
-                case WeaponClass.SMG:
-                    smgAmmo = safeAmmo;
-                    break;
-                case WeaponClass.SG:
-                    sgAmmo = safeAmmo;
-                    break;
-                case WeaponClass.AR:
-                    arAmmo = safeAmmo;
-                    break;
-                case WeaponClass.MG:
-                    mgAmmo = safeAmmo;
-                    break;
-            }
+            SetWeaponAmmoValue(itemId, ammo);
+        }
+
+        private void SetWeaponAmmoValue(string itemId, int ammo)
+        {
+            if (string.IsNullOrWhiteSpace(itemId))
+                return;
+
+            string normalizedItemId = NormalizeId(itemId);
+            weaponAmmoByItemId[normalizedItemId] = Mathf.Max(ammo, 0);
+            SyncWeaponAmmoEntriesFromDictionary();
         }
 
         private bool TryGetWeaponRuntimeByItemId(string itemId, out WeaponRuntime foundRuntime)
