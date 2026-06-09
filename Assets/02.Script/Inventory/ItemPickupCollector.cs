@@ -33,19 +33,19 @@ public class ItemPickupCollector : MonoBehaviour
         string normalizedId = NormalizeItemId(worldItem.itemID);
         if (string.IsNullOrEmpty(normalizedId))
         {
-            Debug.LogWarning($"[ItemPickupCollector] ��� �ִ� itemID�� ���� WorldItem�� �����մϴ�. object = {worldItem.gameObject.name}");
+            Debug.LogWarning($"[ItemPickupCollector] is null or empty normalizedid:{normalizedId} object = {worldItem.gameObject.name}");
             return;
         }
         if (!itemCatalogManager.IsRegistered(normalizedId))
         {
-            Debug.LogWarning($"[ItemPickupCollector] īŻ�α׿� ���� itemId�Դϴ�. id={normalizedId}, object={worldItem.gameObject.name}");
+            Debug.LogWarning($"[ItemPickupCollector] is registered normalizedid:{normalizedId}. id={normalizedId}, object={worldItem.gameObject.name}");
             return;
         }
 
         int requestedAmount = Mathf.Max(1, worldItem.amount);
         if (!playerInventory.TryAddItemsFromPickup(normalizedId, requestedAmount, out int addedAmount))
         {
-            Debug.LogWarning($"[ItemPickupCollector] ���� ����(����/���� �ѵ�). id={normalizedId}, requested={requestedAmount},added={addedAmount}");
+            Debug.LogWarning($"[ItemPickupCollector] try add items from pickup. id={normalizedId}, requested={requestedAmount},added={addedAmount}");
             return;
         }
 

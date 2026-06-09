@@ -7,12 +7,12 @@ public class InventoryCommandRouter : MonoBehaviour
     [SerializeField] private StarterAssetsInputs starterAssetsInputs;
     [SerializeField] private PlayerInventory playerInventory;
 
-    [Header("Inventory UI")]
+    /*[Header("Inventory UI")]
     [SerializeField]
     private GameObject inventoryUIPanel;
 
     [SerializeField]
-    private InventoryGridUI inventoryGridUI;
+    private InventoryGridUI inventoryGridUI;*/
 
     
 
@@ -24,7 +24,7 @@ public class InventoryCommandRouter : MonoBehaviour
         if (playerInventory == null)        
             playerInventory = GetComponent<PlayerInventory>();
 
-        inventoryUIPanel.SetActive(false);
+        //inventoryUIPanel.SetActive(false);
     }
 
 
@@ -41,19 +41,19 @@ public class InventoryCommandRouter : MonoBehaviour
 
     private void ToggleInventoryPanel()
     {
-        if (inventoryUIPanel == null)
+        /*if (inventoryUIPanel == null)
         {
             Debug.Log("inventoryUIPanel == null");
             return;
-        }
+        }*/
 
         // 게임오브젝트.activeSelf
         // 해당 게임오브젝트가, 활성화 여부 자기진단 값
         // readonly 읽기전용 값
-        bool willShow = !inventoryUIPanel.activeSelf;
-        inventoryUIPanel.SetActive(willShow);
+        //bool willShow = !inventoryUIPanel.activeSelf;
+        //inventoryUIPanel.SetActive(willShow);
 
-        if (willShow)
+        /*if (willShow)
         {
             //패널이 꺼져있을 때는, OnDisable 로 이벤트가 구독이 끊길수 있음 
             //열 때 마다, 한번 그리도록 ~ 
@@ -65,24 +65,24 @@ public class InventoryCommandRouter : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-        }
+        }*/
 
     }
 
 
     private void RefreshInventoryGridIfPossible()
     {
-        InventoryGridUI grid = inventoryGridUI;
-        if (grid == null && inventoryUIPanel != null)
+        //InventoryGridUI grid = inventoryGridUI;
+        /*if (grid == null && inventoryUIPanel != null)
         {
             grid = inventoryUIPanel.GetComponentInChildren<InventoryGridUI>(true);
-        }
+        }*/
 
-        if (grid != null)
+        /*if (grid != null)
         {
             //TODO ::
             grid.RefreshDisplay();
-        }
+        }*/
     }
 }
 
