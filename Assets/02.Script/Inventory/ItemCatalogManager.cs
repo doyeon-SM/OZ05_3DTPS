@@ -8,12 +8,29 @@ public class ItemCatalogManager : MonoBehaviour, IItemCatalogReader
     [Tooltip("비어 있으면 샘플용 기본 행이 런타임에만 채워집니다. 씬 저장 시 Inspector에 직접 넣는 것을 권장합니다.")]
     [SerializeField] private ItemCatalogEntry[] itemCatalogEntries;
 
+    private static ItemCatalogManager instance = null;
+
     private readonly Dictionary<string, ItemCatalogEntry> catalogById = new Dictionary<string, ItemCatalogEntry>();
 
     private void Awake()
     {
         EnsureCatalogNotEmptyForRuntime();
         BuildCatalogDictionary();
+
+        if(null == instance)
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public static ItemCatalogManager Instance
+    {
+        get { if (null == instance) return null; return instance; }
     }
     public bool TryGetEntry(string itemId, out ItemCatalogEntry entry)
     {
