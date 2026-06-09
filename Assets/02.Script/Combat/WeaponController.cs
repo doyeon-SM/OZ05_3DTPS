@@ -74,6 +74,7 @@ namespace _02.Script.Combat
         private Coroutine _burstCoroutine;
         [SerializeField]private AnimationController _animationController;
         private bool wasAttackInputPressed;
+        private bool isAttackAnimationActive;
 
         private WeaponRuntime CurrentWeapon
         {
@@ -242,8 +243,6 @@ namespace _02.Script.Combat
 
         public bool HandleAttackInput(bool isAttackPressed)
         {
-            SetAttackAnimation(false);
-
             bool isAttackStarted = isAttackPressed && !wasAttackInputPressed;
             bool fired = false;
 
@@ -251,6 +250,7 @@ namespace _02.Script.Combat
             if (isAttackPressed && !ValidateCurrentWeapon(currentWeapon))
             {
                 wasAttackInputPressed = isAttackPressed;
+                SetAttackAnimation(false);
                 return false;
             }
 
@@ -277,8 +277,37 @@ namespace _02.Script.Combat
 
             if (fired)
                 SetAttackAnimation(true);
+            else
+                SetAttackAnimation(ShouldKeepAttackAnimation(currentWeapon, isAttackPressed));
 
             return fired;
+        }
+
+        private bool ShouldKeepAttackAnimation(WeaponRuntime currentWeapon, bool isAttackPressed)
+        {
+            if (currentWeapon == null || currentWeapon.data == null)
+                return false;
+
+            switch (currentWeapon.data.fireMode)
+            {
+                case FireMode.Auto:
+                    return isAttackAnimationActive && isAttackPressed && CanHoldAttackAnimation(currentWeapon);
+                case FireMode.Burst:
+                    return isAttackAnimationActive && _burstCoroutine != null && CanHoldAttackAnimation(currentWeapon);
+                default:
+                    return false;
+            }
+        }
+
+        private bool CanHoldAttackAnimation(WeaponRuntime currentWeapon)
+        {
+            if (isReloading)
+                return false;
+
+            if (currentWeapon == null || currentWeapon.data == null)
+                return false;
+
+            return currentWeapon.HasAmmo() && currentWeapon.hasEnoughAmmo();
         }
 
         private bool TryStartBurstAttack(WeaponRuntime burstWeapon)
@@ -518,6 +547,8 @@ namespace _02.Script.Combat
 
         private void SetAttackAnimation(bool attacking)
         {
+            isAttackAnimationActive = attacking;
+
             if (_animationController == null) return;
 
             _animationController.SetAttack(attacking);

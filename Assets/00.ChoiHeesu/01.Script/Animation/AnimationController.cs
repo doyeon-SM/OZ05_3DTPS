@@ -22,8 +22,6 @@ namespace StarterAssets
         private int _animIDFreeFall;
         private int _animIDX;
         private int _animIDY;
-        // MotionSpeed는 현재 애니메이션 블렌딩에 사용하지 않음
-        // private int _animIDMotionSpeed;
         private int _animIDAttack;
         private int _animIDReloading;
         private int _animIDAiming;
