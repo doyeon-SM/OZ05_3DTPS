@@ -32,6 +32,9 @@ namespace _01.Scenes.PhaseValidation
 
         protected List<EnemyStatus> activeEnemies = new();
 
+        private Door entryDoorObject;
+        private Door exitDoorObject;
+
         private void Start()
         {
             Collider col = GetComponent<Collider>();
@@ -41,8 +44,19 @@ namespace _01.Scenes.PhaseValidation
             if (exitDoor == null) Debug.Log("ExitDoor Null");
 
             // 시작 시: 입장문 비활성화(통과 가능), 퇴장문 활성화(막혀있음)
-            if (entryDoor != null) entryDoor.SetActive(false);
-            if (exitDoor != null) exitDoor.SetActive(true);
+            if (entryDoor != null)
+            {
+                //entryDoor.SetActive(false);
+                entryDoorObject = entryDoor.GetComponent<Door>();
+                entryDoorObject.Interaction();
+                entryDoorObject.SetDoorActive(true);                
+            }
+            if (exitDoor != null)
+            {
+                //exitDoor.SetActive(true);
+                exitDoorObject = exitDoor.GetComponent<Door>();
+                exitDoorObject.SetDoorActive(false);
+            } 
 
             OnSectorStart();
         }
@@ -69,7 +83,18 @@ namespace _01.Scenes.PhaseValidation
             activeEnemies.Clear();
 
             // 클리어 시: 퇴장문만 비활성화(다음 구역 개방), 입장문은 열린 상태 유지
-            if (exitDoor != null) exitDoor.SetActive(false);
+            if (exitDoor != null && entryDoor != null)
+            {
+                // exitDoor.SetActive(false);                
+                entryDoorObject.SetDoorActive(true);                
+                exitDoorObject.SetDoorActive(true);
+                exitDoorObject.Interaction();
+            }
+            else
+            {  
+                entryDoorObject.SetDoorActive(true);
+                entryDoorObject.Interaction();
+            }
 
             Debug.Log($"[{gameObject.name}] 섹터 클리어!");
             OnSectorCleared();
@@ -86,7 +111,12 @@ namespace _01.Scenes.PhaseValidation
             isBattleActive = true;
 
             // 진입 시: 입장문 활성화(퇴로 차단)
-            if (entryDoor != null) entryDoor.SetActive(true);
+            if (entryDoor != null)
+            {
+                //entryDoor.SetActive(true);
+                entryDoorObject.Interaction();
+                entryDoorObject.SetDoorActive(false);                
+            }
 
             Debug.Log($"[{gameObject.name}] 플레이어 진입 — 전투 시작");
             StartBattle();

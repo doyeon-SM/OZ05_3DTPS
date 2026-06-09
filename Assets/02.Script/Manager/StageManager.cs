@@ -15,8 +15,8 @@ namespace _01.Scenes.PhaseValidation
         [Header("스테이지 공용 드랍 테이블")]
         [SerializeField] private DropTableData dropTable;
 
-        [Header("참조")]
-        [SerializeField] private ItemCatalogManager itemCatalogManager;
+        //[Header("참조")]
+        //[SerializeField] private ItemCatalogManager itemCatalogManager;
 
         [Header("드랍 연출")]
         [Tooltip("드랍 아이템이 적 위치에서 위로 튀어오를 오프셋")]
@@ -31,8 +31,8 @@ namespace _01.Scenes.PhaseValidation
             }
             Instance = this;
 
-            if (itemCatalogManager == null)
-                itemCatalogManager = FindFirstObjectByType<ItemCatalogManager>();
+            //if (itemCatalogManager == null)
+            //   itemCatalogManager = FindFirstObjectByType<ItemCatalogManager>();
         }
 
         /// <summary>
@@ -59,8 +59,8 @@ namespace _01.Scenes.PhaseValidation
             {
                 // ItemCatalogManager에서 displayName 조회
                 string displayName = itemId;
-                if (itemCatalogManager != null)
-                    displayName = itemCatalogManager.ResolveDisplayName(itemId);
+                if (ItemCatalogManager.Instance != null)
+                    displayName = ItemCatalogManager.Instance.ResolveDisplayName(itemId);
 
                 // 여러 아이템이 겹치지 않도록 살짝 랜덤 오프셋
                 Vector3 scatter = new Vector3(
