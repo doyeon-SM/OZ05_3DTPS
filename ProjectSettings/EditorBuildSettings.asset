@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/00.ChoiHeesu/TPS_MoveTestScene.unity
     guid: cd4f96d59f7264e42832eb64681c05c5
+  - enabled: 1
+    path: Assets/01.Scenes/LobyScene.unity
+    guid: 245ae9e081755394d8e613e45d815253
+  - enabled: 1
+    path: Assets/01.Scenes/EasyStageScene.unity
+    guid: 209ea41e15799114bb1d2587ceda727f
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: a3f5862be45838e41be567432fc2e56e, type: 2}
     com.unity.dt.app-ui: {fileID: 11400000, guid: 99f9c9493070a9d4c979a8fec7c5a8d3, type: 2}
