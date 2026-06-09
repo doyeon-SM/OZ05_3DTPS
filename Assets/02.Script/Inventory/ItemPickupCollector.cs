@@ -10,13 +10,13 @@ public class ItemPickupCollector : MonoBehaviour
     private void Awake()
     {
         if (playerInventory == null)
-            playerInventory = GetComponent<PlayerInventory>();
+            TryGetComponent(out playerInventory);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        WorldItem worldItem = other.GetComponent<WorldItem>();
-        if (worldItem == null) return;
+        if (!other.TryGetComponent(out WorldItem worldItem))
+            return;
 
         if (playerInventory == null)
         {
