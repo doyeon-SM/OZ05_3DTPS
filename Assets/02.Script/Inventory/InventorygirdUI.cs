@@ -4,7 +4,7 @@ using UnityEngine;
 // PlayerInventory의 Slot 프리팹을 Grid 알에ㅔ 만들고 변경 시, 다시 전체를 그립니다.
 public class InventoryGridUI : MonoBehaviour
 {
-    [Header("Ref")]
+    /*[Header("Ref")]
     [SerializeField] private PlayerInventory inventory;
     [SerializeField] private RectTransform slotContainer; //슬롯들의 부모 객체 
     [SerializeField] private InventorySlotView slotPrefab;
@@ -147,5 +147,5 @@ public class InventoryGridUI : MonoBehaviour
         _selectedSlot.SetSelected(true);
 
         itemInfoView?.Bind(clickedSlot.CachedSlot, clickedSlot.CachedCatalog);
-    }
+    }*/
 }

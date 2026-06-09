@@ -1,403 +1,112 @@
-using System;
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
     [Header("ItemCatalog")]
-    [Tooltip("¾ÆÀÌÅÛ Ä«Å»·Î±× ´ÜÀÏ ¼Ò½ºÀÔ´Ï´Ù.")]
     [SerializeField] private ItemCatalogManager itemCatalogManager;
-
-    [Header("Slot Grid")]
-    [Tooltip("ÀÎº¥ ±×¸®µå Ä­ ¼ö. UI(InventoryGridUI)¿Í ¸ÂÃâ °Í.")]
-    [SerializeField] private int slotCapacity = 20;
 
     [Header("Runtime")]
     public List<string> itemIDs = new List<string>();
-    //public Queue<string> pickUpMessages = new Queue<string>();
-    //public Stack<string> undoStack = new Stack<string>();
     public Dictionary<string, int> itemCountById = new Dictionary<string, int>();
-
-    /// <summary>ÀÎº¥ µ¥ÀÌÅÍ°¡ ¹Ù²î¾úÀ» ¶§ UI µîÀÌ ±¸µ¶ÇÕ´Ï´Ù.</summary>
-    public event Action InventoryChanged;
-
-    private readonly List<InventorySlotData> inventorySlots = new List<InventorySlotData>();
-
-    /// <summary>±×¸®µå Ä­ ¼ö(UI ÇÁ¸®ÆÕ °³¼ö¿Í µ¿ÀÏÇÏ°Ô ¼³Á¤).</summary>
-    public int SlotCapacity => slotCapacity;
-
-    /// <summary>½½·Ô ½º³À¼¦(UI ÀüÃ¼ redraw¿ë). ³»ºÎ ¸®½ºÆ®¿Í µ¿ÀÏ ÂüÁ¶ÀÌ¹Ç·Î ¿ÜºÎ¿¡¼­ ¼öÁ¤ÇÏÁö ¸» °Í.</summary>
-    public IReadOnlyList<InventorySlotData> InventorySlots => inventorySlots;
 
     private void Awake()
     {
         EnsureCatalogReference();
-        InitializeSlots();
     }
 
-    /// <summary>
-    /// UI¿¡¼­ ¾ÆÀÌÄÜ¡¤ÀÌ¸§ µîÀ» °¡Á®¿Ã ¶§ »ç¿ëÇÕ´Ï´Ù. ¹Ìµî·Ï idÀÌ¸é false.
-    /// </summary>
-    public bool TryGetCatalogEntry(string itemId, out ItemCatalogEntry entry)
-    {
-        entry = default;
-        return itemCatalogManager != null && itemCatalogManager.TryGetEntry(itemId, out entry);
-    }
-    /// <summary>½½·Ô ¸®½ºÆ®¸¦ ºñ¿ì°í slotCapacity¸¸Å­ ºó Ä­À» ¸¸µì´Ï´Ù.</summary>
-    private void InitializeSlots()
-    {
-        inventorySlots.Clear();
-        int safeCapacity = Mathf.Max(0, slotCapacity);
-        for (int i = 0; i < safeCapacity; i++)
-        {
-            inventorySlots.Add(new InventorySlotData { itemId = string.Empty, amount = 0 });
-        }
-    }
-    /// <summary>¸ğµç ½½·ÔÀ» ºñ¿ó´Ï´Ù.</summary>
-    private void ClearAllSlots()
-    {
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            inventorySlots[i] = new InventorySlotData { itemId = string.Empty, amount = 0 };
-        }
-    }
-    /// <summary>
-    /// ¿ÜºÎ¿¡¼­ ¾ÆÀÌÅÛÀ» ³ÖÀ» ¶§(»óÁ¡¡¤º¸»ó µî). ½½·Ô¡¤½ºÅÃ ±ÔÄ¢À» ¹İ¿µÇÕ´Ï´Ù.
-    /// </summary>
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Public API
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
     public bool TryAddItems(string itemId, int amount)
     {
         return TryAddItemsInternal(itemId, amount, out _);
     }
-    /// <summary>
-    /// ¿ùµå ½Àµæ Àü¿ë Ãß°¡ APIÀÔ´Ï´Ù. ¼º°ø ½Ã Undo ±â·ÏÀ» ³²±â°í ½ÇÁ¦ Ãß°¡ ¼ö·®À» ¹İÈ¯ÇÕ´Ï´Ù.
-    /// </summary>
+
     public bool TryAddItemsFromPickup(string itemId, int amount, out int addedAmount)
     {
         return TryAddItemsInternal(itemId, amount, out addedAmount);
     }
+
     public void EnqueuePickupMessage(string itemId, int amount)
     {
-        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
-        {
-            return;
-        }
-
-        string normalizedId = itemId.Trim();
-        string displayName = ResolveDisplayName(normalizedId);
-        //pickUpMessages.Enqueue($"{displayName} È¹µæ x{amount}");
-        Debug.Log($"[Inventory] {displayName} È¹µæ x{amount}");
+        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0) return;
+        string displayName = ResolveDisplayName(itemId.Trim());
+        Debug.Log($"[PlayerInventory] {displayName} íšë“ x{amount}");
     }
-    /// <summary>
-    /// recordPerUnitForUndo°¡ trueÀÏ ¶§¸¸ Undo ½ºÅÃ¿¡ ÇÑ °³¾¿ ½×½À´Ï´Ù.
-    /// </summary>
-    private bool TryAddItemsInternal(string itemId, int amount, out int addedAmount)
-    {
-        addedAmount = 0;
-        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
-        {
-            return false;
-        }
 
-        itemId = itemId.Trim();
-        if (!IsRegisteredItemId(itemId))
-        {
-            Debug.LogWarning("[Inventory] ¹Ìµî·Ï id TryAdd: " + itemId);
-            return false;
-        }
-
-        int roomInSlots = GetTotalRoomForItemInSlots(itemId);
-        if (roomInSlots <= 0)
-        {
-            return false;
-        }
-
-        int toAdd = Mathf.Min(amount, roomInSlots);
-        if (toAdd <= 0)
-        {
-            return false;
-        }
-
-        int placed = PlaceAmountIntoSlots(itemId, toAdd);
-        if (placed <= 0)
-        {
-            return false;
-        }
-
-        if (placed != toAdd)
-        {
-            Debug.LogWarning($"[Inventory] ½½·Ô ¹èÄ¡ ¼ö°¡ ¿¹»ó°ú ´Ù¸¨´Ï´Ù. ¿¹»ó={toAdd} ½ÇÁ¦={placed}. ÀÌÈÄ ·ÎÁ÷À» Á¡°ËÇÏ¼¼¿ä.");
-        }
-
-        for (int i = 0; i < placed; i++)
-        {
-            itemIDs.Add(itemId);
-        }
-
-        IncreaseItemCount(itemId, placed);
-        addedAmount = placed;
-        RaiseInventoryChanged();
-        return true;
-    }
-    /// <summary>
-    /// ¹®¡¤Äù½ºÆ® µî¿¡¼­ °³¼ö¸¦ ÁÙÀÏ ¶§ »ç¿ë. ½½·Ô¡¤List¡¤Dictionary¸¦ ÇÔ²² ¸ÂÃä´Ï´Ù.
-    /// </summary>
     public bool TryRemoveItems(string itemId, int amount)
     {
-        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
-        {
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0) return false;
 
         itemId = itemId.Trim();
-        if (GetItemCount(itemId) < amount)
-        {
-            return false;
-        }
+        if (GetItemCount(itemId) < amount) return false;
 
-        RemoveAmountFromSlots(itemId, amount);
         RemoveFromItemIdList(itemId, amount);
         DecreaseItemCount(itemId, amount);
-        RaiseInventoryChanged();
         return true;
     }
+
     public bool HasAtLeast(string itemId, int amount)
     {
-        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0)
-        {
-            return amount == 0;
-        }
-
+        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0) return amount == 0;
         return GetItemCount(itemId.Trim()) >= amount;
     }
 
     public int GetItemCount(string itemId)
     {
-        if (string.IsNullOrWhiteSpace(itemId))
-        {
-            return 0;
-        }
-
-        if (itemCountById.TryGetValue(itemId.Trim(), out int count))
-        {
-            return count;
-        }
-        return 0;
+        if (string.IsNullOrWhiteSpace(itemId)) return 0;
+        itemCountById.TryGetValue(itemId.Trim(), out int count);
+        return count;
     }
 
-    /*private void PrintInventory()
+    public bool TryGetCatalogEntry(string itemId, out ItemCatalogEntry entry)
     {
-        Debug.Log("====[Inventory: List]====");
-        for (int i = 0; i < itemIDs.Count; i++)
-        {
-            Debug.Log(itemIDs[i]);
-        }
-        Debug.Log($"[Inventory Count] : {itemIDs.Count}");
-
-        Debug.Log("====[Inventory: Dictionary]====");
-        foreach (KeyValuePair<string, int> pair in itemCountById)
-        {
-            Debug.Log($"{pair.Key} : {pair.Value}");
-        }
-
-        Debug.Log("====[Inventory: Slots]====");
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            InventorySlotData slot = inventorySlots[i];
-            Debug.Log($"[{i}] {(slot.IsEmpty ? "(empty)" : slot.itemId + " x" + slot.amount)}");
-        }
-    }*/
-
-    private void RaiseInventoryChanged()
-    {
-        InventoryChanged?.Invoke();
+        entry = default;
+        return itemCatalogManager != null && itemCatalogManager.TryGetEntry(itemId, out entry);
     }
 
-    /// <summary>ÇØ´ç id¸¦ ³ÖÀ» ¼ö ÀÖ´Â ÀüÃ¼ ¿©À¯(¸ğµç ½½·Ô ÇÕ»ê, int ¹üÀ§·Î Ä¸).</summary>
-    private int GetTotalRoomForItemInSlots(string itemId)
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Internal
+    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    private bool TryAddItemsInternal(string itemId, int amount, out int addedAmount)
     {
-        int maxStack = GetMaxStackForItem(itemId);
-        long room = 0;
-        for (int i = 0; i < inventorySlots.Count; i++)
+        addedAmount = 0;
+        if (string.IsNullOrWhiteSpace(itemId) || amount <= 0) return false;
+
+        itemId = itemId.Trim();
+        if (!IsRegisteredItemId(itemId))
         {
-            InventorySlotData slot = inventorySlots[i];
-            if (slot.IsEmpty)
-            {
-                room += maxStack == int.MaxValue ? int.MaxValue : maxStack;
-            }
-            else if (slot.itemId == itemId)
-            {
-                long cap = maxStack == int.MaxValue ? int.MaxValue : maxStack;
-                room += cap - slot.amount;
-            }
+            Debug.LogWarning("[PlayerInventory] ë¯¸ë“±ë¡ ì•„ì´í…œ id: " + itemId);
+            return false;
         }
 
-        if (room >= int.MaxValue)
-        {
-            return int.MaxValue;
-        }
+        for (int i = 0; i < amount; i++)
+            itemIDs.Add(itemId);
 
-        return (int)room;
-    }
-    /// <summary>°°Àº Á¾·ù ½ºÅÃ¿¡ ³²´Â Ä­ÀÌ ÀÖÀ¸¸é ±× ÀÎµ¦½º, ¾øÀ¸¸é -1.</summary>
-    private int FindFirstStackableSlotIndex(string itemId, int maxStack)
-    {
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            InventorySlotData slot = inventorySlots[i];
-            if (slot.IsEmpty || slot.itemId != itemId)
-            {
-                continue;
-            }
-
-            if (maxStack == int.MaxValue)
-            {
-                // ½½·Ô´ç ÇÑµµ°¡ »ç½Ç»ó ¹«Á¦ÇÑÀÏ ¶§µµ int ¿À¹öÇÃ·Î¸¦ ¸·±â À§ÇØ °¡µæ Âù ½½·ÔÀº °Ç³Ê¶İ´Ï´Ù.
-                if (slot.amount < int.MaxValue)
-                {
-                    return i;
-                }
-
-                continue;
-            }
-
-            if (slot.amount < maxStack)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-    private int FindFirstEmptySlotIndex()
-    {
-        for (int i = 0; i < inventorySlots.Count; i++)
-        {
-            if (inventorySlots[i].IsEmpty)
-            {
-                return i;
-            }
-        }
-
-        return -1;
+        IncreaseItemCount(itemId, amount);
+        addedAmount = amount;
+        return true;
     }
 
-    /// <summary>½½·Ô¿¡ itemId¸¦ ÃÖ´ë amount¸¸Å­ Ã¤¿ì°í, ½ÇÁ¦ µé¾î°£ °³¼ö¸¦ ¹İÈ¯ÇÕ´Ï´Ù.</summary>
-    private int PlaceAmountIntoSlots(string itemId, int amount)
-    {
-        if (amount <= 0)
-        {
-            return 0;
-        }
-
-        int maxStack = GetMaxStackForItem(itemId);
-        int remaining = amount;
-        int totalPlaced = 0;
-
-        while (remaining > 0)
-        {
-            int slotIndex = FindFirstStackableSlotIndex(itemId, maxStack);
-            if (slotIndex < 0)
-            {
-                slotIndex = FindFirstEmptySlotIndex();
-            }
-
-            if (slotIndex < 0)
-            {
-                break;
-            }
-
-            InventorySlotData slot = inventorySlots[slotIndex];
-            int currentInSlot = slot.IsEmpty ? 0 : slot.amount;
-            int cap = maxStack == int.MaxValue ? int.MaxValue : maxStack;
-            long canFitLong = (long)cap - currentInSlot;
-            int canFit = canFitLong > int.MaxValue ? int.MaxValue : (int)canFitLong;
-            if (canFit <= 0)
-            {
-                Debug.LogWarning("[Inventory] PlaceAmountIntoSlots: canFit<=0 ºÒÀÏÄ¡");
-                break;
-            }
-
-            int put = Mathf.Min(remaining, canFit);
-            slot.itemId = itemId;
-            slot.amount = currentInSlot + put;
-            inventorySlots[slotIndex] = slot;
-            remaining -= put;
-            totalPlaced += put;
-        }
-
-        return totalPlaced;
-    }
-    /// <summary>µÚÂÊ ½½·ÔºÎÅÍ itemId¸¦ amount¸¸Å­ Á¦°ÅÇÕ´Ï´Ù.</summary>
-    private void RemoveAmountFromSlots(string itemId, int amount)
-    {
-        int remaining = amount;
-        for (int i = inventorySlots.Count - 1; i >= 0 && remaining > 0; i--)
-        {
-            InventorySlotData slot = inventorySlots[i];
-            if (slot.IsEmpty || slot.itemId != itemId)
-            {
-                continue;
-            }
-
-            int take = Mathf.Min(slot.amount, remaining);
-            slot.amount -= take;
-            remaining -= take;
-            if (slot.amount <= 0)
-            {
-                slot.itemId = string.Empty;
-                slot.amount = 0;
-            }
-
-            inventorySlots[i] = slot;
-        }
-    }
-    private bool IsRegisteredItemId(string targetId)
-    {
-        return itemCatalogManager != null && itemCatalogManager.IsRegistered(targetId);
-    }
-
-    private int GetMaxStackForItem(string itemId)
-    {
-        return itemCatalogManager != null ? itemCatalogManager.GetMaxStack(itemId) : 0;
-    }
-
-    private string ResolveDisplayName(string itemId)
-    {
-        return itemCatalogManager != null ? itemCatalogManager.ResolveDisplayName(itemId) : itemId;
-    }
     private void IncreaseItemCount(string itemId, int amount)
     {
-        if (itemCountById.TryGetValue(itemId, out int currentCount))
-        {
-            itemCountById[itemId] = currentCount + amount;
-        }
+        if (itemCountById.TryGetValue(itemId, out int current))
+            itemCountById[itemId] = current + amount;
         else
-        {
             itemCountById[itemId] = amount;
-        }
     }
 
     private void DecreaseItemCount(string itemId, int amount)
     {
-        if (!itemCountById.TryGetValue(itemId, out int currentCount))
-        {
-            return;
-        }
-
-        int nextCount = currentCount - amount;
-        if (nextCount <= 0)
-        {
-            itemCountById.Remove(itemId);
-        }
-        else
-        {
-            itemCountById[itemId] = nextCount;
-        }
+        if (!itemCountById.TryGetValue(itemId, out int current)) return;
+        int next = current - amount;
+        if (next <= 0) itemCountById.Remove(itemId);
+        else itemCountById[itemId] = next;
     }
 
-    /// <summary>
-    /// List¿¡¼­ ÇØ´ç id¸¦ µÚ¿¡¼­ºÎÅÍ amount°³ Á¦°ÅÇÕ´Ï´Ù.
-    /// </summary>
     private void RemoveFromItemIdList(string itemId, int amount)
     {
         int removed = 0;
@@ -410,16 +119,23 @@ public class PlayerInventory : MonoBehaviour
             }
         }
     }
+
+    private bool IsRegisteredItemId(string itemId)
+    {
+        return itemCatalogManager != null && itemCatalogManager.IsRegistered(itemId);
+    }
+
+    private string ResolveDisplayName(string itemId)
+    {
+        return itemCatalogManager != null ? itemCatalogManager.ResolveDisplayName(itemId) : itemId;
+    }
+
     private void EnsureCatalogReference()
     {
         if (itemCatalogManager == null)
-        {
             itemCatalogManager = FindFirstObjectByType<ItemCatalogManager>();
-        }
 
         if (itemCatalogManager == null)
-        {
-            Debug.LogWarning("[PlayerInventory] ItemCatalogManager ÂüÁ¶°¡ ¾ø½À´Ï´Ù. Ä«Å»·Î±× ±â¹İ °ËÁõÀÌ ½ÇÆĞÇÒ ¼ö ÀÖ½À´Ï´Ù.");
-        }
+            Debug.LogWarning("[PlayerInventory] ItemCatalogManagerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
     }
 }
