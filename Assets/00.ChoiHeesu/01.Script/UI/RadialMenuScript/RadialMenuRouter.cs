@@ -15,6 +15,7 @@ namespace ProjectSpedex
         [SerializeField] private WeaponSwitcher weaponSwitcher;
         [SerializeField] private RadialMenu radialMenu;
         [SerializeField] private StarterAssetsInputs starterAssetsInputs;
+        [SerializeField] private string starterAssetsInputsObjectName = "Player_Soldier";
         [SerializeField] private GameObject radialMenuRoot;
 
         [Header("Open Close")]
@@ -46,6 +47,7 @@ namespace ProjectSpedex
         [SerializeField] private Color unLockIconColor = Color.white;
 
         private bool missingStarterAssetsInputsLogged;
+        private bool missingWeaponRuntimeManagerLogged;
         private bool wasWeaponSelectHeld;
 
         private void Awake()
@@ -65,6 +67,14 @@ namespace ProjectSpedex
             SetLookInputBlocked(radialMenuRoot != null && radialMenuRoot.activeSelf);
         }
 
+        private void Start()
+        {
+            CacheReferences();
+            SyncWeaponSelectState();
+            RefreshRadialMenu();
+            SetLookInputBlocked(radialMenuRoot != null && radialMenuRoot.activeSelf);
+        }
+
         private void Update()
         {
             HandleWeaponSelectInput();
@@ -77,6 +87,21 @@ namespace ProjectSpedex
 
         private void CacheReferences()
         {
+            if (weaponRuntimeManager == null)
+                weaponRuntimeManager = WeaponRuntimeManager.Instance;
+
+            if (weaponRuntimeManager == null)
+                weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
+
+            if (weaponRuntimeManager != null)
+                missingWeaponRuntimeManagerLogged = false;
+
+            if (starterAssetsInputs == null)
+                starterAssetsInputs = FindStarterAssetsInputsByObjectName();
+
+            if (starterAssetsInputs != null)
+                missingStarterAssetsInputsLogged = false;
+
             if (radialMenu == null)
                 TryGetComponent(out radialMenu);
 
@@ -85,6 +110,21 @@ namespace ProjectSpedex
 
             if (radialMenuRoot == null && radialMenu != null)
                 radialMenuRoot = radialMenu.gameObject;
+        }
+
+        private StarterAssetsInputs FindStarterAssetsInputsByObjectName()
+        {
+            if (string.IsNullOrWhiteSpace(starterAssetsInputsObjectName))
+                return null;
+
+            GameObject inputOwner = GameObject.Find(starterAssetsInputsObjectName);
+            if (inputOwner == null)
+                return null;
+
+            if (inputOwner.TryGetComponent(out StarterAssetsInputs foundInputs))
+                return foundInputs;
+
+            return null;
         }
 
         private void HandleWeaponSelectInput()
@@ -190,7 +230,7 @@ namespace ProjectSpedex
         {
             if (weaponRuntimeManager == null)
             {
-                Debug.LogError("[RadialMenuRouter] weaponRuntimeManager가 null입니다. Inspector에 WeaponRuntimeManager를 연결해주세요.", this);
+                ReportMissingWeaponRuntimeManager();
                 return false;
             }
 
@@ -443,12 +483,21 @@ namespace ProjectSpedex
             return weaponRuntimeManager.TryGetWeaponAmmo(runtime.data.WeaponType, out int ammo) && ammo > 0;
         }
 
+        private void ReportMissingWeaponRuntimeManager()
+        {
+            if (missingWeaponRuntimeManagerLogged)
+                return;
+
+            Debug.LogError("[RadialMenuRouter] weaponRuntimeManager가 null입니다. 씬 시작 시 WeaponRuntimeManager.Instance와 로드된 오브젝트를 탐색했지만 찾지 못했습니다.", this);
+            missingWeaponRuntimeManagerLogged = true;
+        }
+
         private void ReportMissingStarterAssetsInputs()
         {
             if (missingStarterAssetsInputsLogged)
                 return;
 
-            Debug.LogError("[RadialMenuRouter] starterAssetsInputs가 null입니다. WeaponSelect 입력을 받으려면 Player의 StarterAssetsInputs를 Inspector에 연결해주세요.", this);
+            Debug.LogError("[RadialMenuRouter] starterAssetsInputs가 null입니다. Inspector의 starterAssetsInputsObjectName 이름과 같은 활성 GameObject를 찾고 StarterAssetsInputs 연결을 시도했지만 실패했습니다.", this);
             missingStarterAssetsInputsLogged = true;
         }
     }

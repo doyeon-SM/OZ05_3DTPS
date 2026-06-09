@@ -1,11 +1,15 @@
 using StarterAssets;
 using _00.ChoiHeesu._02.RayCastInteract;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace _00.ChoiHeesu._01.MoveTest.Interact
 {
     public class RaycastInteractor : MonoBehaviour
     {
+        private const string InteractUICanvasName = "Canvas";
+        private const string InteractUIObjectName = "InteractUI";
+
         [Header("필요 Scripts")]
         [SerializeField] private AnimationController animationController;
         [SerializeField] private InteractPrintUI interactPrintUI;
@@ -30,8 +34,7 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
 
         private void Awake()
         {
-            if (mainCamera == null)
-                mainCamera = Camera.main;
+            CacheSceneStartReferences();
 
             if (mainCamera == null)
                 ReportMissingReference(nameof(mainCamera), "Raycast를 생성할 Camera가 없습니다. Main Camera 태그 또는 Inspector 연결을 확인하세요.");
@@ -41,6 +44,46 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
 
             if (itemIDEventChannel == null)
                 ReportMissingReference(nameof(itemIDEventChannel), "픽업한 아이템의 WeaponId를 전달하려면 ItemIDEventChannel을 Inspector에 연결해야 합니다.");
+        }
+
+        private void CacheSceneStartReferences()
+        {
+            if (mainCamera == null)
+                mainCamera = Camera.main;
+
+            if (interactPrintUI == null)
+                interactPrintUI = FindInteractPrintUIInLoadedScenes();
+        }
+
+        private InteractPrintUI FindInteractPrintUIInLoadedScenes()
+        {
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                Scene scene = SceneManager.GetSceneAt(i);
+                if (!scene.isLoaded)
+                    continue;
+
+                GameObject[] rootObjects = scene.GetRootGameObjects();
+                for (int j = 0; j < rootObjects.Length; j++)
+                {
+                    GameObject rootObject = rootObjects[j];
+                    if (rootObject == null || rootObject.name != InteractUICanvasName)
+                        continue;
+
+                    Transform interactUITransform = rootObject.transform.Find(InteractUIObjectName);
+                    if (interactUITransform == null)
+                        continue;
+
+                    if (interactUITransform.TryGetComponent(out InteractPrintUI foundUI))
+                        return foundUI;
+
+                    foundUI = interactUITransform.GetComponentInChildren<InteractPrintUI>(true);
+                    if (foundUI != null)
+                        return foundUI;
+                }
+            }
+
+            return FindFirstObjectByType<InteractPrintUI>(FindObjectsInactive.Include);
         }
 
         private void ValidateRequiredReferences()
