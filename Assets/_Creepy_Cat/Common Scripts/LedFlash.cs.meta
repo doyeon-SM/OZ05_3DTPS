@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 820d2f6297fa447db868f562f4452a35
+timeCreated: 1535929175
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/Common Scripts/LedFlash.cs
+  uploadId: 691968

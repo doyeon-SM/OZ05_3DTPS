@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2eac3b5cbef65d542991b510e2eb857a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/Common Scripts/_Infinity_Exemple_Scripts/Infinity_Joystick_01.cs
+  uploadId: 691968

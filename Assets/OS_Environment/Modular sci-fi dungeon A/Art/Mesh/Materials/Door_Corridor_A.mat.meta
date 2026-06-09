@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 212b4849c02966d4d9d5557e3b3d8de3
+timeCreated: 1512982047
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Art/Mesh/Materials/Door_Corridor_A.mat
+  uploadId: 218249

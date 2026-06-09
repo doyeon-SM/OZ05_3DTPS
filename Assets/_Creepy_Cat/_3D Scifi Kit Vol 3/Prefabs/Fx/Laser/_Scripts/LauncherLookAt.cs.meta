@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 6df206385623ff34891341a4510acad7
+timeCreated: 1533579557
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/_3D Scifi Kit Vol 3/Prefabs/Fx/Laser/_Scripts/LauncherLookAt.cs
+  uploadId: 691968

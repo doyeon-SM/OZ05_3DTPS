@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 87404ebd236608845b1f6ed61ce6f6de
+timeCreated: 1513045444
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107096
+  packageName: Modular sci-fi dungeon A
+  packageVersion: 1.0
+  assetPath: Assets/OS_Environment/Modular sci-fi dungeon A/Prefabs/Floor_Cross_B.prefab
+  uploadId: 218249

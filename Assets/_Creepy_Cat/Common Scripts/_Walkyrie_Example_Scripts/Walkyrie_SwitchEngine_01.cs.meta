@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 395fe3f27c8d0c0459270e482334eebd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/Common Scripts/_Walkyrie_Example_Scripts/Walkyrie_SwitchEngine_01.cs
+  uploadId: 691968

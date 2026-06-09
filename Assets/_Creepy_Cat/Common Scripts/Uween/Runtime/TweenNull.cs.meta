@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2bca7d1147655463997204dd4ea868f7
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/Common Scripts/Uween/Runtime/TweenNull.cs
+  uploadId: 691968

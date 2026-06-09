@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 6cc30105f49fb416aa83999074ae30f6
+timeCreated: 1529341230
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 121447
+  packageName: 3D Scifi Kit Vol 3
+  packageVersion: 1.5
+  assetPath: Assets/_Creepy_Cat/Common Scripts/ScrollTexture.cs
+  uploadId: 691968
