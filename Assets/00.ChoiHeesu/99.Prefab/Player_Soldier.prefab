@@ -1982,7 +1982,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 151e9ca150e65ed40bf18c071420acfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickupCollector
-  playerInventory: {fileID: 1303925898255753789}
+  playerInventory: {fileID: 0}
   itemCatalogManager: {fileID: 0}
 --- !u!114 &-6043035618307843273
 MonoBehaviour:
@@ -2400,70 +2400,6 @@ Transform:
   - {fileID: 8857836425333626558}
   m_Father: {fileID: 5786406113116926512}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &6867162611984096770
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 342046576843335701}
-  - component: {fileID: 1303925898255753789}
-  - component: {fileID: 3904354669074868112}
-  m_Layer: 7
-  m_Name: Inventory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &342046576843335701
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6867162611984096770}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2542007875471310758}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1303925898255753789
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6867162611984096770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4f03f0bdfe172c4ba3e06d6f548a4ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  itemCatalogManager: {fileID: 0}
-  slotCapacity: 20
-  itemIDs: []
---- !u!114 &3904354669074868112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6867162611984096770}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0f7092745b937b45bfbbdec52cc8ef3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryCommandRouter
-  starterAssetsInputs: {fileID: 6720829549027223185}
-  playerInventory: {fileID: 1303925898255753789}
-  inventoryUIPanel: {fileID: 0}
-  inventoryGridUI: {fileID: 0}
 --- !u!1 &6923326798334979488
 GameObject:
   m_ObjectHideFlags: 0
@@ -3333,7 +3269,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3333512430401229509}
-  - {fileID: 342046576843335701}
   - {fileID: 2109106593606943004}
   - {fileID: 3653939080914243951}
   m_Father: {fileID: 4396053498136997635}
