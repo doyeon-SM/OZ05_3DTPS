@@ -14358,9 +14358,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1350959627}
     m_Modifications:
+    - target: {fileID: 849097165122234793, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 849097165122234795, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1849115999009421522, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 6624098028604134902, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
       propertyPath: m_Name
-      value: P_Display_Level_01
+      value: BossEntranceObject
+      objectReference: {fileID: 0}
+    - target: {fileID: 6624098028604134902, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8006805038318180125, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
       propertyPath: m_LocalScale.x
@@ -14422,6 +14438,12 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6624098028604134902, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 424078595}
+    - targetCorrespondingSourceObject: {fileID: 6624098028604134902, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 424078596}
     - targetCorrespondingSourceObject: {fileID: 1849115999009421522, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 424078593}
@@ -14465,6 +14487,44 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &424078594 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6624098028604134902, guid: 471ee3fee92d44d4aad0d470cb88b37e, type: 3}
+  m_PrefabInstance: {fileID: 424078590}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &424078595
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 424078594}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.2075031, y: 4.331867, z: 3.9135065}
+  m_Center: {x: 0.10375149, y: 1.665933, z: 1.4567615}
+--- !u!114 &424078596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 424078594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c27f65f9095f447bb46bcbbd6de289, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMoveInteractionObject
 --- !u!1001 &425457025
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31252,7 +31312,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5619115482594424986, guid: c4955a342a3f2e047aba1cd122fd0c20, type: 3}
+    - {fileID: 5400094568869373551, guid: c4955a342a3f2e047aba1cd122fd0c20, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
