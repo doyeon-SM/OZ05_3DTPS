@@ -2630,9 +2630,26 @@ PrefabInstance:
       propertyPath: itemCatalogManager
       value: 
       objectReference: {fileID: 1198158211}
+    - target: {fileID: 2568133427229020032, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.98665756
+      objectReference: {fileID: 0}
+    - target: {fileID: 2568133427229020032, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.16280931
+      objectReference: {fileID: 0}
+    - target: {fileID: 2568133427229020032, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 18.74
+      objectReference: {fileID: 0}
     - target: {fileID: 3103775955095492695, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_WarningMessage
-      value: 
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'Bip001 Head'\n\tTransform 'Bip001 Neck'\n\tTransform
+        'Bip001 Spine'\n\tTransform 'Bip001 Pelvis'\n\tTransform 'Bip001 Head'\n\tTransform
+        'Bip001 Neck'\n\tTransform 'Bip001 Spine'\n\tTransform 'Bip001 Pelvis'\n\tTransform
+        'Bip001 Head'\n\tTransform 'Bip001 Neck'\n\tand more ..."
       objectReference: {fileID: 0}
     - target: {fileID: 3904354669074868112, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: inventoryGridUI
@@ -2690,6 +2707,10 @@ PrefabInstance:
       propertyPath: m_Material
       value: 
       objectReference: {fileID: 1138790035}
+    - target: {fileID: 6587737689284782626, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6982709996349172965, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: aimCamera
       value: 

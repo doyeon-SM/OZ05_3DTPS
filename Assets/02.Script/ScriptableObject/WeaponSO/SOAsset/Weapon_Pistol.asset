@@ -22,7 +22,7 @@ MonoBehaviour:
   fireMode: 0
   Damage: 15
   CriticalMultiplier: 0
-  RPM: 200
+  RPM: 150
   ReloadTime: 1
   MagazineSize: 8
   BulletCost: 1
