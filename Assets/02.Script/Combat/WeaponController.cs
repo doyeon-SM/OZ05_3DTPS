@@ -31,6 +31,7 @@ namespace _02.Script.Combat
         [SerializeField] private bool isfire;
         [SerializeField] private bool isReloading;
         [SerializeField] private bool autoReloadOnEmpty = true;
+        [SerializeField] private float reloadAfterWeaponChangeDelay = 0.4f;
         [SerializeField] private float saveTime = -999f;
 
         [Header("Attack System")]
@@ -72,9 +73,11 @@ namespace _02.Script.Combat
 
         private Coroutine _reloadCoroutine;
         private Coroutine _burstCoroutine;
+        private Coroutine _reloadAfterWeaponChangeCoroutine;
         [SerializeField]private AnimationController _animationController;
         private bool wasAttackInputPressed;
         private bool isAttackAnimationActive;
+        private bool hasAppliedWeaponRuntime;
 
         private WeaponRuntime CurrentWeapon
         {
@@ -110,6 +113,7 @@ namespace _02.Script.Combat
 
             if(_animationController == null)_animationController =  GetComponentInParent<AnimationController>();
             CacheCombatReferences();
+            SetWeaponTypeAnimation(currentWeapon);
             SetReloadingAnimation(false);
             SetAttackAnimation(false);
         }
@@ -137,8 +141,10 @@ namespace _02.Script.Combat
             if (!ValidateCurrentWeapon(nextWeaponRuntime))
                 return false;
 
-            bool weaponChanged = currentWeapon != nextWeaponRuntime;
-            if (currentWeapon != nextWeaponRuntime)
+            WeaponRuntime previousWeapon = currentWeapon;
+            bool runtimeReferenceChanged = currentWeapon != nextWeaponRuntime;
+            bool weaponChanged = !IsSameWeaponRuntime(previousWeapon, nextWeaponRuntime);
+            if (runtimeReferenceChanged)
             {
                 StopCurrentWeaponActions();
                 currentWeapon = nextWeaponRuntime;
@@ -148,15 +154,57 @@ namespace _02.Script.Combat
 
             currentWeapon.RefreshCachedData();
             SendAmmoUI(currentWeapon.currentAmmo, currentWeapon.data.MagazineSize);
+            SetWeaponTypeAnimation(currentWeapon);
 
-            if (weaponChanged && currentWeapon.data.UseAmmo && currentWeapon.currentAmmo <= 0)
-                TryReload();
+            bool weaponChangeAnimationPlayed = false;
+            if (hasAppliedWeaponRuntime && weaponChanged)
+                weaponChangeAnimationPlayed = SetWeaponChangeAnimation(currentWeapon);
 
+            if (runtimeReferenceChanged && currentWeapon.data.UseAmmo && currentWeapon.currentAmmo <= 0)
+            {
+                if (weaponChangeAnimationPlayed)
+                    StartReloadAfterWeaponChange(currentWeapon);
+                else
+                    TryReload();
+            }
+
+            hasAppliedWeaponRuntime = true;
             return true;
+        }
+
+        private bool IsSameWeaponRuntime(WeaponRuntime previousWeapon, WeaponRuntime nextWeapon)
+        {
+            if (previousWeapon == nextWeapon)
+                return true;
+
+            if (previousWeapon == null || nextWeapon == null)
+                return false;
+
+            if (previousWeapon.data == null || nextWeapon.data == null)
+                return false;
+
+            string previousWeaponId = NormalizeWeaponId(previousWeapon.data.WeaponId);
+            string nextWeaponId = NormalizeWeaponId(nextWeapon.data.WeaponId);
+
+            if (!string.IsNullOrEmpty(previousWeaponId) || !string.IsNullOrEmpty(nextWeaponId))
+                return string.Equals(previousWeaponId, nextWeaponId, System.StringComparison.Ordinal);
+
+            return previousWeapon.data == nextWeapon.data;
+        }
+
+        private string NormalizeWeaponId(string weaponId)
+        {
+            return string.IsNullOrWhiteSpace(weaponId) ? string.Empty : weaponId.Trim();
         }
 
         private void StopCurrentWeaponActions()
         {
+            if (_reloadAfterWeaponChangeCoroutine != null)
+            {
+                StopCoroutine(_reloadAfterWeaponChangeCoroutine);
+                _reloadAfterWeaponChangeCoroutine = null;
+            }
+
             if (_burstCoroutine != null)
             {
                 StopCoroutine(_burstCoroutine);
@@ -493,6 +541,34 @@ namespace _02.Script.Combat
             TryReload();
         }
 
+        private void StartReloadAfterWeaponChange(WeaponRuntime weaponRuntime)
+        {
+            if (_reloadAfterWeaponChangeCoroutine != null)
+                StopCoroutine(_reloadAfterWeaponChangeCoroutine);
+
+            _reloadAfterWeaponChangeCoroutine = StartCoroutine(ReloadAfterWeaponChangeRoutine(weaponRuntime));
+        }
+
+        private IEnumerator ReloadAfterWeaponChangeRoutine(WeaponRuntime weaponRuntime)
+        {
+            float waitTime = Mathf.Max(reloadAfterWeaponChangeDelay, 0f);
+            if (waitTime > 0f)
+                yield return new WaitForSeconds(waitTime);
+
+            _reloadAfterWeaponChangeCoroutine = null;
+
+            if (CurrentWeapon != weaponRuntime)
+                yield break;
+
+            if (weaponRuntime == null || weaponRuntime.data == null)
+                yield break;
+
+            if (!weaponRuntime.data.UseAmmo || weaponRuntime.currentAmmo > 0)
+                yield break;
+
+            TryReload();
+        }
+
         private IEnumerator ReloadRoutine(WeaponRuntime reloadWeapon)
         {
             isReloading = true;
@@ -543,6 +619,23 @@ namespace _02.Script.Combat
             if (_animationController == null) return;
 
             _animationController.SetReloading(reloading);
+        }
+
+        private void SetWeaponTypeAnimation(WeaponRuntime weaponRuntime)
+        {
+            if (_animationController == null) return;
+            if (weaponRuntime == null || weaponRuntime.data == null) return;
+
+            _animationController.SetWeaponType(weaponRuntime.data.WeaponType);
+        }
+
+        private bool SetWeaponChangeAnimation(WeaponRuntime weaponRuntime)
+        {
+            if (_animationController == null) return false;
+            if (weaponRuntime == null || weaponRuntime.data == null) return false;
+
+            _animationController.PlayWeaponChange(weaponRuntime.data.WeaponType);
+            return true;
         }
 
         private void SetAttackAnimation(bool attacking)

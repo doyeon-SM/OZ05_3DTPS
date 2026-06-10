@@ -32,6 +32,8 @@ namespace StarterAssets
         private int _animIDPickup;
         private int _animIDSnapTurn;
         private int _animIDTurnDirection;
+        private int _animIDWeaponType;
+        private int _animIDWeaponChange;
 
         private void Awake()
         {
@@ -113,6 +115,38 @@ namespace StarterAssets
             if (!CanUseAnimator(nameof(SetDead))) return;
 
             _animator.SetBool(_animIDDead, isDead);
+        }
+
+        public void SetWeaponType(int weaponType)
+        {
+            if (!CanUseAnimator(nameof(SetWeaponType))) return;
+
+            _animator.SetInteger(_animIDWeaponType, weaponType);
+        }
+
+        public void SetWeaponType(WeaponClass weaponType)
+        {
+            SetWeaponType((int)weaponType);
+        }
+
+        public void SetWeaponChange()
+        {
+            if (!CanUseAnimator(nameof(SetWeaponChange))) return;
+
+            _animator.SetTrigger(_animIDWeaponChange);
+        }
+
+        public void PlayWeaponChange(int weaponType)
+        {
+            if (!CanUseAnimator(nameof(PlayWeaponChange))) return;
+
+            _animator.SetInteger(_animIDWeaponType, weaponType);
+            _animator.SetTrigger(_animIDWeaponChange);
+        }
+
+        public void PlayWeaponChange(WeaponClass weaponType)
+        {
+            PlayWeaponChange((int)weaponType);
         }
 
         public void SetInteractive()
@@ -207,6 +241,8 @@ namespace StarterAssets
             _animIDPickup = Animator.StringToHash("Pickup");
             _animIDSnapTurn = Animator.StringToHash("SnapTurn");
             _animIDTurnDirection = Animator.StringToHash("TurnDirection");
+            _animIDWeaponType = Animator.StringToHash("WeaponType");
+            _animIDWeaponChange = Animator.StringToHash("WeaponChange");
             _animationIDsAssigned = true;
         }
 
