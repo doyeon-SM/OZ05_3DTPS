@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -24,6 +24,7 @@ namespace StarterAssets
 		public bool Interact;
 		public bool Attack;
 		public bool Inventory;
+		public bool Map;
 		public bool WeaponSelect;
 		public bool WeaponSelectPressed;
 		public bool WeaponSelectReleased;
@@ -66,6 +67,10 @@ namespace StarterAssets
 			CacheAimInputActions();
 			SubscribeAimInputActions();
 			SyncWeaponSelectActionState();
+
+			// 씬 전환 후 ActionMap이 비활성화되는 경우 강제 활성화
+			if (playerInput != null && playerInput.currentActionMap == null)
+				playerInput.SwitchCurrentActionMap("Player");
 		}
 
 		private void OnDisable()
@@ -119,6 +124,11 @@ namespace StarterAssets
         {
 			InventoryInput(value.isPressed);
         }
+
+		public void OnMap(InputValue value)
+		{
+			MapInput(value.isPressed);
+		}
 
 		public void OnWeaponSelect(InputValue value)
 		{
@@ -203,6 +213,11 @@ namespace StarterAssets
         {
 			Inventory = newInventoryState;
         }
+
+		public void MapInput(bool newMapState)
+		{
+			Map = newMapState;
+		}
 
 		public void WeaponSelectInput(bool newWeaponSelectState)
 		{

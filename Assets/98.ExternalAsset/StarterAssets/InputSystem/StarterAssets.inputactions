@@ -1,4 +1,4 @@
-{
+﻿{
     "version": 1,
     "name": "StarterAssets",
     "maps": [
@@ -127,6 +127,15 @@
                     "name": "ADSClick",
                     "type": "Button",
                     "id": "c388343d-c06c-4f9c-94a2-d2bff72fed1c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Map",
+                    "type": "Button",
+                    "id": "20a5c7cb-9c24-40e2-a91a-9a94079878b8",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -417,6 +426,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "ADSClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "6887771e-0096-4e49-ac5f-17b41574d5f8",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Map",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

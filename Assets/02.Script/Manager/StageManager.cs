@@ -18,6 +18,10 @@ namespace _01.Scenes.PhaseValidation
         [Header("드랍 연출")]
         [SerializeField] private Vector3 dropOffset = new Vector3(0f, 0.5f, 0f);
 
+        [Header("클리어 연출")]
+        [SerializeField] private Light clearLight;
+        [SerializeField] private Color clearLightColor = Color.yellow;
+
         // 달성도 (0.0 ~ 1.0)
         public float GoalPercent => goalPercent;
         private float goalPercent;
@@ -77,6 +81,23 @@ namespace _01.Scenes.PhaseValidation
             OnGoalUpdated?.Invoke(goalPercent * 100f);
 
             Debug.Log($"[StageManager] 목표 달성도: {goalPercent * 100f:F0}% ({complete}/{total})");
+
+            if (goalPercent == 1.0f)
+            {
+                ApplyClearLight();
+            }
+        }
+
+        private void ApplyClearLight()
+        {
+            if (clearLight == null)
+            {
+                Debug.LogWarning("[StageManager] clearLight가 설정되지 않았습니다.");
+                return;
+            }
+
+            clearLight.color = clearLightColor;
+            Debug.Log($"[StageManager] 클리어 달성 - Light 색상을 {clearLightColor}으로 변경했습니다.");
         }
 
         public void OnEnemyDied(Vector3 deathPosition)
