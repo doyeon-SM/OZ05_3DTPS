@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using StarterAssets;
 
 /// <summary>
 /// 스테이지 선택 UI 전체를 관리한다.
@@ -39,6 +40,10 @@ public class StageSelectUI : MonoBehaviour
     // -------------------------------------------------------
     private StageInfoSO _selectedStage;
 
+    // 커서/카메라 제어용
+    private StarterAssetsInputs _inputs;
+    private bool _isCursorOverridden = false;
+
     // -------------------------------------------------------
     // Unity 이벤트
     // -------------------------------------------------------
@@ -61,18 +66,59 @@ public class StageSelectUI : MonoBehaviour
     }
 
     // -------------------------------------------------------
+    // 커서 / 카메라 제어 (RadialMenu 참고)
+    // -------------------------------------------------------
+
+    /// <summary>
+    /// UI 열릴 때 호출. 마우스 커서를 활성화하고 카메라 look 입력을 차단한다.
+    /// </summary>
+    private void EnableUIMode()
+    {
+        if (_isCursorOverridden) return;
+
+        // StarterAssetsInputs를 지연 탐색 (씬 전환 후 Player가 새로 생성되므로)
+        _inputs = FindObjectOfType<StarterAssetsInputs>();
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible   = true;
+
+        if (_inputs != null)
+            _inputs.SetLookInputBlocked(true);
+
+        _isCursorOverridden = true;
+    }
+
+    /// <summary>
+    /// UI 닫힐 때 호출. 커서를 다시 잠그고 카메라 look 입력을 복원한다.
+    /// </summary>
+    private void DisableUIMode()
+    {
+        if (!_isCursorOverridden) return;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible   = false;
+
+        if (_inputs != null)
+            _inputs.SetLookInputBlocked(false);
+
+        _isCursorOverridden = false;
+    }
+
+    // -------------------------------------------------------
     // 외부 진입점
     // -------------------------------------------------------
 
     /// <summary>SceneMoveInteractionObject.Interaction()에서 호출</summary>
     public void OpenStageList()
     {
+        EnableUIMode();
         stageListPanel.SetActive(true);
         stageInfoPopup.SetActive(false);
     }
 
     public void CloseStageList()
     {
+        DisableUIMode();
         stageListPanel.SetActive(false);
         stageInfoPopup.SetActive(false);
     }
@@ -95,14 +141,16 @@ public class StageSelectUI : MonoBehaviour
 
     private void OpenPopup(StageInfoSO info)
     {
-        stageNameText.text  = info.stageName;
-        //sceneNameText.text  = info.sceneName;
+        stageNameText.text = info.stageName;
+        //sceneNameText.text = info.sceneName;
         stageInfoPopup.SetActive(true);
     }
+
     private void CloseUI()
     {
         ClosePopup();
         stageListPanel.SetActive(false);
+        DisableUIMode();
     }
 
     private void ClosePopup()
@@ -127,8 +175,10 @@ public class StageSelectUI : MonoBehaviour
 
         ScenePositionManager.Instance.SetNextSpawnPoint(_selectedStage.spawnPointName);
 
-        // UI 닫고 씬 이동
-        CloseStageList();
+        // UI 닫고 씬 이동 (DisableUIMode는 씬 이동으로 인해 불필요하지만 명시적으로 호출)
+        DisableUIMode();
+        stageListPanel.SetActive(false);
+        stageInfoPopup.SetActive(false);
         Debug.Log($"[StageSelectUI] '{_selectedStage.sceneName}' 씬으로 이동합니다.");
         SceneManager.LoadScene(_selectedStage.sceneName);
     }
