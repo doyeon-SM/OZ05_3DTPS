@@ -224,7 +224,6 @@ MonoBehaviour:
   defaultPrefab: {fileID: 0}
   prewarmCountPerType: 10
   poolRoot: {fileID: 0}
-  itemCatalogManager: {fileID: 0}
 --- !u!4 &138075702
 Transform:
   m_ObjectHideFlags: 0
@@ -2536,6 +2535,46 @@ PrefabInstance:
       value: RuntimeManager
       objectReference: {fileID: 0}
     - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: 'weaponDataArray.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: 'weaponDataArray.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: 'weaponDataArray.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: 'weaponDataArray.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: 'weaponDataArray.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2ee15943a7770064899591c572170292, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[0].data
+      value: 
+      objectReference: {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[1].data
+      value: 
+      objectReference: {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[2].data
+      value: 
+      objectReference: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[3].data
+      value: 
+      objectReference: {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[4].data
+      value: 
+      objectReference: {fileID: 11400000, guid: 2ee15943a7770064899591c572170292, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
       propertyPath: weaponAmmoEntries.Array.data[1].ammo
       value: 500
       objectReference: {fileID: 0}
@@ -2552,12 +2591,48 @@ PrefabInstance:
       value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[0].UnLocked
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
       propertyPath: weaponRuntimes.Array.data[1].UnLocked
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
       propertyPath: weaponRuntimes.Array.data[2].UnLocked
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[3].UnLocked
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[4].UnLocked
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[0].currentAmmo
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[0].ShotDelayTime
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[1].ShotDelayTime
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[2].ShotDelayTime
+      value: 0.08571429
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[3].ShotDelayTime
+      value: 0.075
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[4].ShotDelayTime
+      value: 0.4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2604,9 +2679,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 18.74
       objectReference: {fileID: 0}
+    - target: {fileID: 2875284441415650600, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3103775955095492695, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_WarningMessage
-      value: 
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'Bip001 Head'\n\tTransform 'Bip001 Neck'\n\tTransform
+        'Bip001 Spine'\n\tTransform 'Bip001 Pelvis'\n\tTransform 'Bip001 Head'\n\tTransform
+        'Bip001 Neck'\n\tTransform 'Bip001 Spine'\n\tTransform 'Bip001 Pelvis'\n\tTransform
+        'Bip001 Head'\n\tTransform 'Bip001 Neck'\n\tand more ..."
       objectReference: {fileID: 0}
     - target: {fileID: 3904354669074868112, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: inventoryGridUI
@@ -2666,7 +2750,7 @@ PrefabInstance:
       objectReference: {fileID: 1138790035}
     - target: {fileID: 6587737689284782626, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6982709996349172965, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: aimCamera
