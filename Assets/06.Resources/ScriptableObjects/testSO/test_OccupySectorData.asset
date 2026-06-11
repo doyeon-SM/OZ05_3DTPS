@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: test_OccupySectorData
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.OccupySectorData
   sectorName: "\uC810\uB839 \uC139\uD130"
-  occupyDuration: 60
+  occupyDuration: 10
   enemyEntries:
   - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
     count: 2
