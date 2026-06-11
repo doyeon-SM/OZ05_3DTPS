@@ -194,6 +194,7 @@ GameObject:
   m_Component:
   - component: {fileID: 85861031}
   - component: {fileID: 85861032}
+  - component: {fileID: 85861033}
   m_Layer: 0
   m_Name: SceneManager
   m_TagString: Untagged
@@ -228,6 +229,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f4d807489dc93542bfd01c5bda2cda8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScenePositionManager
+--- !u!114 &85861033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 85861030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9430be9ad0f8439f8cfa1e7dc853151f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.UI.UIController
 --- !u!1001 &119840767
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1783,7 +1796,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4174b52fa8722b4eb5c07ce8526f2b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageButtonHover
-  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverColor: {r: 1, g: 0.8950032, b: 0, a: 1}
   hoverThickness: {x: 3, y: -3}
 --- !u!114 &1387821122
 MonoBehaviour:
