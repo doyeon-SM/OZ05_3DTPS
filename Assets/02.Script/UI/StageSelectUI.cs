@@ -51,7 +51,14 @@ public class StageSelectUI : MonoBehaviour
         stageInfoPopup.SetActive(false);
     }
 
-    // ── 커서 / 카메라 제어 ────────────────────────────────────
+    private void Update()
+    {
+        // UI가 열려 있는 동안 매 프레임 공격 입력 차단
+        if (_isCursorOverridden && _inputs != null)
+            _inputs.Attack = false;
+    }
+
+    // ── 커서 / 카메라 / 공격 제어 ─────────────────────────────
 
     private void EnableUIMode()
     {
@@ -59,7 +66,11 @@ public class StageSelectUI : MonoBehaviour
         _inputs = FindObjectOfType<StarterAssetsInputs>();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible   = true;
-        if (_inputs != null) _inputs.SetLookInputBlocked(true);
+        if (_inputs != null)
+        {
+            _inputs.SetLookInputBlocked(true);
+            _inputs.Attack = false;   // 열리는 순간 즉시 차단
+        }
         _isCursorOverridden = true;
     }
 
@@ -68,7 +79,9 @@ public class StageSelectUI : MonoBehaviour
         if (!_isCursorOverridden) return;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
-        if (_inputs != null) _inputs.SetLookInputBlocked(false);
+        if (_inputs != null)
+            _inputs.SetLookInputBlocked(false);
+        // Attack은 false 상태로 두면 됨 — 다음 입력 시 자연스럽게 true로 전환됨
         _isCursorOverridden = false;
     }
 
@@ -80,8 +93,6 @@ public class StageSelectUI : MonoBehaviour
         EnableUIMode();
         stageListPanel.SetActive(true);
         stageInfoPopup.SetActive(false);
-
-        // UIController 스택에 등록 — ESC 시 CloseUI() 호출
         UIController.Instance?.Push(stageListPanel, CloseUI);
     }
 
@@ -101,7 +112,6 @@ public class StageSelectUI : MonoBehaviour
             Debug.LogWarning($"[StageSelectUI] stageInfos[{index}]가 비어 있습니다.");
             return;
         }
-
         _selectedStage = stageInfos[index];
         OpenPopup(_selectedStage);
     }
@@ -110,8 +120,6 @@ public class StageSelectUI : MonoBehaviour
     {
         stageNameText.text = info.stageName;
         stageInfoPopup.SetActive(true);
-
-        // 팝업도 스택에 등록 — ESC 시 팝업만 먼저 닫힘
         UIController.Instance?.Push(stageInfoPopup, ClosePopup);
     }
 
@@ -136,15 +144,12 @@ public class StageSelectUI : MonoBehaviour
             Debug.LogWarning("[StageSelectUI] 선택된 스테이지 정보가 없습니다.");
             return;
         }
-
         if (ScenePositionManager.Instance == null)
         {
             Debug.LogError("[StageSelectUI] ScenePositionManager 인스턴스가 없습니다.");
             return;
         }
-
         ScenePositionManager.Instance.SetNextSpawnPoint(_selectedStage.spawnPointName);
-
         DisableUIMode();
         stageListPanel.SetActive(false);
         stageInfoPopup.SetActive(false);
