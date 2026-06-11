@@ -1733,56 +1733,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1193244922}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1198158210
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1198158212}
-  - component: {fileID: 1198158211}
-  m_Layer: 0
-  m_Name: ItemCatalogManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1198158211
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1198158210}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f02da1161d8e7a8418e5dd21fc2955a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemCatalogManager
-  itemCatalogEntries:
-  - id: gold
-    displayName: Gold
-    maxStack: 99
-    iconTint: {r: 0, g: 0, b: 0, a: 0}
-    worldItemPrefab: {fileID: 0}
---- !u!4 &1198158212
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1198158210}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.61314, y: 0, z: -3.01569}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1224090624
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2625,11 +2575,23 @@ PrefabInstance:
     - target: {fileID: 1129587840661099956, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: itemCatalogManager
       value: 
-      objectReference: {fileID: 1198158211}
+      objectReference: {fileID: 0}
     - target: {fileID: 1303925898255753789, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: itemCatalogManager
       value: 
-      objectReference: {fileID: 1198158211}
+      objectReference: {fileID: 0}
+    - target: {fileID: 2568133427229020032, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2568133427229020032, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.089
+      objectReference: {fileID: 0}
+    - target: {fileID: 2568133427229020032, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.061
+      objectReference: {fileID: 0}
     - target: {fileID: 2568133427229020032, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.98665756
@@ -2644,12 +2606,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3103775955095492695, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_WarningMessage
-      value: "\nBinding warning: Some generic clip(s) animate transforms that are
-        already bound by a Humanoid avatar. These transforms can only be changed
-        by Humanoid clips.\n\tTransform 'Bip001 Head'\n\tTransform 'Bip001 Neck'\n\tTransform
-        'Bip001 Spine'\n\tTransform 'Bip001 Pelvis'\n\tTransform 'Bip001 Head'\n\tTransform
-        'Bip001 Neck'\n\tTransform 'Bip001 Spine'\n\tTransform 'Bip001 Pelvis'\n\tTransform
-        'Bip001 Head'\n\tTransform 'Bip001 Neck'\n\tand more ..."
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3904354669074868112, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: inventoryGridUI
@@ -2709,7 +2666,7 @@ PrefabInstance:
       objectReference: {fileID: 1138790035}
     - target: {fileID: 6587737689284782626, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6982709996349172965, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: aimCamera
@@ -2809,7 +2766,7 @@ PrefabInstance:
     - target: {fileID: 2753407521515950046, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: itemCatalogManager
       value: 
-      objectReference: {fileID: 1198158211}
+      objectReference: {fileID: 0}
     - target: {fileID: 3102068143259172417, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_Camera
       value: 
@@ -3139,7 +3096,6 @@ SceneRoots:
   - {fileID: 819106920}
   - {fileID: 497473508}
   - {fileID: 138075702}
-  - {fileID: 1198158212}
   - {fileID: 1166662279}
   - {fileID: 2051028712616902493}
   - {fileID: 1098561732}
