@@ -1,79 +1,124 @@
-using UnityEngine;
+﻿using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 namespace _01.Scenes.PhaseValidation
 {
-    /// <summary>
-    /// 스테이지 전반을 관리하는 매니저.
-    /// - 공용 드랍 테이블 보유
-    /// - EnemyStatus.OnDied 이벤트를 받아 아이템 드랍 처리
-    /// - 이후 보스 도전 해금 등 스테이지 흐름 관리 예정
-    /// </summary>
     public class StageManager : MonoBehaviour
     {
         public static StageManager Instance { get; private set; }
 
+        [Header("스테이지 목표 리스트")]
+        [SerializeField] private List<SectorBase> sectorList;
+        [SerializeField] private List<RepairObject> repairList;
+
         [Header("스테이지 공용 드랍 테이블")]
         [SerializeField] private DropTableData dropTable;
 
-        [Header("참조")]
-        [SerializeField] private ItemCatalogManager itemCatalogManager;
-
         [Header("드랍 연출")]
-        [Tooltip("드랍 아이템이 적 위치에서 위로 튀어오를 오프셋")]
         [SerializeField] private Vector3 dropOffset = new Vector3(0f, 0.5f, 0f);
+
+        [Header("클리어 연출")]
+        [SerializeField] private Light clearLight;
+        [SerializeField] private Color clearLightColor = Color.yellow;
+
+        // 달성도 (0.0 ~ 1.0)
+        public float GoalPercent => goalPercent;
+        private float goalPercent;
+
+        // 달성도 변경 이벤트 (0~100 % float)
+        public event Action<float> OnGoalUpdated;
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-
-            if (itemCatalogManager == null)
-                itemCatalogManager = FindFirstObjectByType<ItemCatalogManager>();
+            goalPercent = 0f;
         }
 
-        /// <summary>
-        /// EnemyPoolManager 또는 SectorBase에서 적 사망 시 호출.
-        /// 드랍 테이블을 굴려 아이템을 월드에 스폰한다.
-        /// </summary>
+        private void Start()
+        {
+            // 각 목표에 완료 이벤트 구독
+            foreach (var sector in sectorList)
+            {
+                if (sector != null)
+                    sector.OnCleared += HandleGoalCompleted;
+            }
+            foreach (var repair in repairList)
+            {
+                if (repair != null)
+                    repair.OnRepaired += HandleGoalCompleted;
+            }
+
+            SetGoalPercent();
+        }
+
+        private void OnDestroy()
+        {
+            foreach (var sector in sectorList)
+                if (sector != null) sector.OnCleared -= HandleGoalCompleted;
+            foreach (var repair in repairList)
+                if (repair != null) repair.OnRepaired -= HandleGoalCompleted;
+        }
+
+        private void HandleGoalCompleted()
+        {
+            SetGoalPercent();
+        }
+
+        public void SetGoalPercent()
+        {
+            int total = sectorList.Count + repairList.Count;
+            if (total == 0) { goalPercent = 0f; OnGoalUpdated?.Invoke(0f); return; }
+
+            int complete = 0;
+            foreach (var sector in sectorList)
+                if (sector != null && sector.IsCleared) complete++;
+            foreach (var repair in repairList)
+                if (repair != null && repair.IsRepaired) complete++;
+
+            goalPercent = (float)complete / total;
+            OnGoalUpdated?.Invoke(goalPercent * 100f);
+
+            Debug.Log($"[StageManager] 목표 달성도: {goalPercent * 100f:F0}% ({complete}/{total})");
+
+            if (goalPercent == 1.0f)
+            {
+                ApplyClearLight();
+            }
+        }
+
+        private void ApplyClearLight()
+        {
+            if (clearLight == null)
+            {
+                Debug.LogWarning("[StageManager] clearLight가 설정되지 않았습니다.");
+                return;
+            }
+
+            clearLight.color = clearLightColor;
+            Debug.Log($"[StageManager] 클리어 달성 - Light 색상을 {clearLightColor}으로 변경했습니다.");
+        }
+
         public void OnEnemyDied(Vector3 deathPosition)
         {
-            if (dropTable == null)
-            {
-                Debug.LogWarning("[StageManager] DropTableData가 설정되지 않았습니다.");
-                return;
-            }
-
-            if (ItemDropPoolManager.Instance == null)
-            {
-                Debug.LogWarning("[StageManager] ItemDropPoolManager.Instance가 없습니다.");
-                return;
-            }
+            if (dropTable == null) { Debug.LogWarning("[StageManager] DropTableData가 설정되지 않았습니다."); return; }
+            if (ItemDropPoolManager.Instance == null) { Debug.LogWarning("[StageManager] ItemDropPoolManager.Instance가 없습니다."); return; }
 
             var drops = dropTable.RollDrops();
-
             foreach (var (itemId, amount) in drops)
             {
-                // ItemCatalogManager에서 displayName 조회
                 string displayName = itemId;
-                if (itemCatalogManager != null)
-                    displayName = itemCatalogManager.ResolveDisplayName(itemId);
+                if (ItemCatalogManager.Instance != null)
+                    displayName = ItemCatalogManager.Instance.ResolveDisplayName(itemId);
 
-                // 여러 아이템이 겹치지 않도록 살짝 랜덤 오프셋
-                Vector3 scatter = new Vector3(
-                    Random.Range(-0.4f, 0.4f),
-                    0f,
-                    Random.Range(-0.4f, 0.4f)
-                );
-
+                Vector3 scatter = new Vector3(UnityEngine.Random.Range(-0.4f, 0.4f), 0f, UnityEngine.Random.Range(-0.4f, 0.4f));
                 Vector3 spawnPos = deathPosition + dropOffset + scatter;
                 ItemDropPoolManager.Instance.Spawn(itemId, displayName, amount, spawnPos);
-
-                Debug.Log($"[StageManager] 드랍: {displayName} x{amount} @ {spawnPos}");
             }
         }
+
+        public List<SectorBase> GetSectorList() => sectorList;
+        public List<RepairObject> GetRepairList() => repairList;
     }
 }

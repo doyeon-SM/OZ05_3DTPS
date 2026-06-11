@@ -22,9 +22,9 @@ namespace _01.Scenes.PhaseValidation
         [Tooltip("풀링 오브젝트 부모 Transform (씨넜 정리용)")]
         [SerializeField] private Transform poolRoot;
 
-        [Header("아이템 카탈로그 참조")]
-        [Tooltip("id별 프리팩을 가져오기 위한 ItemCatalogManager")]
-        [SerializeField] private ItemCatalogManager itemCatalogManager;
+        //[Header("아이템 카탈로그 참조")]
+        //[Tooltip("id별 프리팩을 가져오기 위한 ItemCatalogManager")]
+        //[SerializeField] private ItemCatalogManager itemCatalogManager;
 
         // id -> 풀 (Queue)
         private readonly Dictionary<string, Queue<WorldItem>> pools = new();
@@ -43,8 +43,8 @@ namespace _01.Scenes.PhaseValidation
             if (poolRoot == null)
                 poolRoot = new GameObject("ItemDropPool").transform;
 
-            if (itemCatalogManager == null)
-                itemCatalogManager = FindFirstObjectByType<ItemCatalogManager>();
+            //if (itemCatalogManager == null)
+            //    itemCatalogManager = FindFirstObjectByType<ItemCatalogManager>();
 
             Prewarm();
         }
@@ -66,9 +66,9 @@ namespace _01.Scenes.PhaseValidation
                     ReturnToPool(null, CreateItem(defaultPrefab)); // id 없이 defaultPool에 넣음
             }
 
-            if (itemCatalogManager == null) return;
+            //if (itemCatalogManager == null) return;
 
-            var entries = itemCatalogManager.GetAllEntries();
+            var entries = ItemCatalogManager.Instance.GetAllEntries();
             if (entries == null) return;
 
             foreach (var entry in entries)
@@ -98,8 +98,8 @@ namespace _01.Scenes.PhaseValidation
                 // 전용 풀: 비어있으면 전용 프리팩으로 새로 생성
                 if (typedPool.Count > 0)
                     item = typedPool.Dequeue();
-                else if (itemCatalogManager != null &&
-                         itemCatalogManager.TryGetEntry(itemId, out var entry) &&
+                else if (ItemCatalogManager.Instance != null &&
+                         ItemCatalogManager.Instance.TryGetEntry(itemId, out var entry) &&
                          entry.worldItemPrefab != null)
                     item = CreateItem(entry.worldItemPrefab);
             }

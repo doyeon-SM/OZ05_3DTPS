@@ -1,4 +1,4 @@
-{
+﻿{
     "version": 1,
     "name": "MyStarterAssets",
     "maps": [
@@ -55,6 +55,15 @@
                     "name": "Interaction",
                     "type": "Button",
                     "id": "c8ba03ce-08ac-4843-997e-992c16f93cfd",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Map",
+                    "type": "Button",
+                    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -266,6 +275,17 @@
                     "processors": "",
                     "groups": ";KeyboardMouse",
                     "action": "Interaction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f1e2d3c4-b5a6-7890-fedc-ba9876543210",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";KeyboardMouse",
+                    "action": "Map",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

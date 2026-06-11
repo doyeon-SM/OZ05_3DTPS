@@ -4,6 +4,7 @@ using UnityEngine;
 public class Door : MonoBehaviour, IInteraction
 {
     private bool _isDoorOpen;
+    private bool _isActive = true;
 
     [SerializeField] private GameObject leftDoorObject;
     [SerializeField] private GameObject rightDoorObject;
@@ -20,6 +21,7 @@ public class Door : MonoBehaviour, IInteraction
     private Coroutine _slideCoroutine;
 
     public bool IsDoorOpen => _isDoorOpen;
+    public bool IsDoorActive => _isActive;
 
     private void Awake()
     {
@@ -34,7 +36,7 @@ public class Door : MonoBehaviour, IInteraction
     public void Interaction()
     {
         Debug.Log("[Door] 상호작용 실행 - 현재 상태: " + (_isDoorOpen ? "열림" : "닫힘"));
-        if (!_isDoorOpen) Open();
+        if (!_isDoorOpen && _isActive) Open();
         else              Close();
     }
 
@@ -81,6 +83,10 @@ public class Door : MonoBehaviour, IInteraction
         if (rightDoorObject != null) rightDoorObject.transform.localPosition = rightTarget;
 
         _slideCoroutine = null;
+    }
+    public void SetDoorActive(bool set)
+    {
+        _isActive = set;
     }
 
     private void OnDrawGizmosSelected()
