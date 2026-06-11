@@ -87,6 +87,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         [Header("Event Channel")]
         [SerializeField] private SingleStringEventChannel itemIDEventChannel;
+        [SerializeField] private SingleIntEventChannel weaponAmmoEvent;
 
         [Header("Weapon Ammo")]
         [SerializeField] private WeaponAmmoEntry[] weaponAmmoEntries;
@@ -100,6 +101,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         private readonly Dictionary<string, int> weaponAmmoByItemId = new Dictionary<string, int>();
         private readonly Dictionary<WeaponClass, string> ammoItemIdByWeaponClass = new Dictionary<WeaponClass, string>();
         private bool missingItemIDEventChannelLogged;
+        private bool missingWeaponAmmoEventLogged;
 
         private void Awake()
         {
@@ -424,6 +426,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             }
 
             currentWeaponId = runtime.data.WeaponId;
+            RaiseCurrentWeaponAmmo();
             return true;
         }
 
@@ -479,6 +482,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
             runtime.Reload(reloadAmount);
             SetWeaponAmmoValue(weaponData.WeaponType, availableWeaponAmmo - consumedAmmo);
+            RaiseCurrentWeaponAmmoIfChangedWeapon(weaponData.WeaponType);
             return true;
         }
 
@@ -507,7 +511,11 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
                 return false;
 
             currentWeaponId = runtime.data.WeaponId;
-            return weaponController.SetCurrentWeaponRuntime(runtime);
+            bool applied = weaponController.SetCurrentWeaponRuntime(runtime);
+            if (applied)
+                RaiseCurrentWeaponAmmo();
+
+            return applied;
         }
 
         private WeaponRuntime GetCurrentOrDefaultRuntime()
@@ -609,6 +617,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             long nextValue = (long)currentValue + amount;
             currentAmmo = nextValue > int.MaxValue ? int.MaxValue : (int)nextValue;
             SetWeaponAmmoValue(normalizedItemId, currentAmmo);
+            RaiseCurrentWeaponAmmoIfChangedAmmoItem(normalizedItemId);
             return true;
         }
 
@@ -626,7 +635,60 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
             currentAmmo = currentValue - amount;
             SetWeaponAmmoValue(normalizedItemId, currentAmmo);
+            RaiseCurrentWeaponAmmoIfChangedAmmoItem(normalizedItemId);
             return true;
+        }
+
+        private void RaiseCurrentWeaponAmmoIfChangedWeapon(WeaponClass changedWeaponClass)
+        {
+            WeaponRuntime currentRuntime = GetCurrentOrDefaultRuntime();
+            if (currentRuntime == null || currentRuntime.data == null)
+                return;
+
+            if (currentRuntime.data.WeaponType != changedWeaponClass)
+                return;
+
+            RaiseCurrentWeaponAmmo();
+        }
+
+        private void RaiseCurrentWeaponAmmoIfChangedAmmoItem(string changedAmmoItemId)
+        {
+            WeaponRuntime currentRuntime = GetCurrentOrDefaultRuntime();
+            if (currentRuntime == null || currentRuntime.data == null)
+                return;
+
+            if (!TryGetAmmoItemId(currentRuntime.data.WeaponType, out string currentAmmoItemId))
+                return;
+
+            if (NormalizeId(currentAmmoItemId) != NormalizeId(changedAmmoItemId))
+                return;
+
+            RaiseCurrentWeaponAmmo();
+        }
+
+        private void RaiseCurrentWeaponAmmo()
+        {
+            if (weaponAmmoEvent == null)
+            {
+                ReportMissingWeaponAmmoEvent();
+                return;
+            }
+
+            WeaponRuntime currentRuntime = GetCurrentOrDefaultRuntime();
+            if (currentRuntime == null || currentRuntime.data == null)
+                return;
+
+            int currentWeaponAmmo = GetWeaponAmmoValue(currentRuntime.data.WeaponType);
+            weaponAmmoEvent.Raise(currentWeaponAmmo);
+        }
+
+        private void ReportMissingWeaponAmmoEvent()
+        {
+            if (missingWeaponAmmoEventLogged)
+                return;
+
+            Debug.LogError("[WeaponRuntimeManager] weaponAmmoEvent가 null입니다. WeaponAmmoEvent.asset을 Inspector에 연결해야 CombatUI 보유 탄약 UI를 갱신할 수 있습니다.", this);
+            missingWeaponAmmoEventLogged = true;
         }
 
         private int GetWeaponAmmoValue(WeaponClass weaponClass)

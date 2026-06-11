@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 303e7ef14d9d443588c1d600d8aafe7c, type: 3}
-  m_Name: AmmoEvent
-  m_EditorClassIdentifier: Assembly-CSharp::DoubleIntEventChannel
+  m_Script: {fileID: 11500000, guid: b6a241ab183e43b5921982bcf97ca1e9, type: 3}
+  m_Name: WeaponAmmoEvent
+  m_EditorClassIdentifier: Assembly-CSharp::SingleIntEventChannel
