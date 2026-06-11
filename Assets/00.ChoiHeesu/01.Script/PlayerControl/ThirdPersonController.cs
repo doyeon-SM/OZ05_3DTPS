@@ -259,7 +259,9 @@ namespace StarterAssets
                 _animationController.SetInteractive();
             }
 
-            _input.Interact = false;
+            // Interact 플래그 소비는 InteractionController에서 전담
+            // ThirdPersonController에서 소비하면 실행 순서에 따라 InteractionController가
+            // 이미 false가 된 플래그를 읽어 빌드에서 Interact()가 작동하지 않음
         }
 
         private void HandleAttack()
