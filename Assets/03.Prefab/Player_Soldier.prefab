@@ -1941,6 +1941,7 @@ MonoBehaviour:
   Interact: 0
   Attack: 0
   Inventory: 0
+  Map: 0
   WeaponSelect: 0
   WeaponSelectPressed: 0
   WeaponSelectReleased: 0
@@ -1983,7 +1984,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemPickupCollector
   playerInventory: {fileID: 8645169118902040492}
-  itemCatalogManager: {fileID: 0}
 --- !u!114 &-6043035618307843273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2573,6 +2573,7 @@ MonoBehaviour:
   isfire: 0
   isReloading: 0
   autoReloadOnEmpty: 1
+  reloadAfterWeaponChangeDelay: 0.4
   saveTime: -999
   hitscanSystem: {fileID: 4212851093045489019}
   spreadProvider: {fileID: 0}
@@ -3319,8 +3320,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f03f0bdfe172c4ba3e06d6f548a4ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
-  itemCatalogManager: {fileID: 0}
-  itemIDs: []
+  weaponRuntimeManager: {fileID: 0}
 --- !u!114 &5883369196189068325
 MonoBehaviour:
   m_ObjectHideFlags: 0

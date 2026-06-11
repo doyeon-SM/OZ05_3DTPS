@@ -2,7 +2,13 @@
 
 public class PlayerMoveInteractionObject : MonoBehaviour, IInteraction
 {
+    [Header("상호작용 UI")]
+    [SerializeField] private string _interactionLabel = "[E] 이동";
+
     [SerializeField] private Transform targetTransform;
+
+    // IInteraction
+    public string InteractionLabel => _interactionLabel;
 
     public void Interaction()
     {
