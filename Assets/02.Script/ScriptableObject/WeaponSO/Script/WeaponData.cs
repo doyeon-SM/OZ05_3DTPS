@@ -31,6 +31,10 @@ public class WeaponData : ScriptableObject
     [Header("Attack Pattern")]
     public float basicSpreadAngle = 0f;
 
+    [Header("Recoil")]
+    [SerializeField] private float recoil;
+    public float Recoil => recoil;
+
     [Header("CrossHair")]
     [SerializeField] private GameObject crossHairstylePrefab;
     public GameObject CrossHairstylePrefab => crossHairstylePrefab;

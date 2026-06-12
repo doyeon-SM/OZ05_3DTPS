@@ -1,4 +1,5 @@
 using _00.ChoiHeesu._03.WeaponChangeSystem;
+using _00.ChoiHeesu._01.Script;
 using System;
 using System.Collections;
 using StarterAssets;
@@ -38,6 +39,7 @@ namespace _02.Script.Combat
         [Header("Attack System")]
         [SerializeField] private TPS_TwoStepHitscanSystem hitscanSystem;
         [SerializeField] private PlayerSpreadProvider spreadProvider;
+        [SerializeField] private PlayerRecoilController recoilController;
         [SerializeField] private Transform muzzle;
         [SerializeField] private float aimRange;
         [SerializeField] private float shotRange;
@@ -86,6 +88,7 @@ namespace _02.Script.Combat
         private float attackAnimationRemainTime;
         private float currentFireTime;
         private bool isFireTimeActive;
+        private bool missingRecoilControllerLogged;
         private bool hasAppliedWeaponRuntime;
 
         private WeaponRuntime CurrentWeapon
@@ -134,6 +137,9 @@ namespace _02.Script.Combat
 
             if (spreadProvider == null)
                 spreadProvider = GetComponentInParent<PlayerSpreadProvider>();
+
+            if (recoilController == null)
+                recoilController = GetComponentInParent<PlayerRecoilController>();
 
             if (aimRange <= 0f)
                 aimRange = 100f;
@@ -500,9 +506,35 @@ namespace _02.Script.Combat
                 : hitscanSystem.Fire(request);
 
             if (fired)
+            {
                 LastAimDirection = hitscanSystem.AimDirection;
+                ApplyRecoil(weaponData);
+            }
 
             return fired;
+        }
+
+        private void ApplyRecoil(WeaponData weaponData)
+        {
+            if (weaponData == null || weaponData.Recoil <= 0f)
+                return;
+
+            if (recoilController == null)
+                CacheCombatReferences();
+
+            if (recoilController == null)
+            {
+                if (!missingRecoilControllerLogged)
+                {
+                    missingRecoilControllerLogged = true;
+                    Debug.LogWarning("[WeaponController] PlayerRecoilController is missing. Add it to the player hierarchy or assign it in the Inspector to apply recoil.", this);
+                }
+
+                return;
+            }
+
+            missingRecoilControllerLogged = false;
+            recoilController.ApplyRecoil(weaponData);
         }
 
         private float GetCurrentSpreadAngle(WeaponData weaponData)

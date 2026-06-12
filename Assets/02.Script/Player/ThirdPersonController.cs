@@ -90,6 +90,11 @@ namespace StarterAssets
             TopClamp = Mathf.Max(angleLimit.x, angleLimit.y);
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
         }
+
+        public void AddCameraPitch(float pitchDelta)
+        {
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch + pitchDelta, BottomClamp, TopClamp);
+        }
         
         
         // cinemachine
