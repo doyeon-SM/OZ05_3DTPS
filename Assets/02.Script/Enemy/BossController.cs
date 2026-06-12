@@ -39,6 +39,9 @@ namespace _01.Scenes.PhaseValidation
         [Tooltip("레이저 공격 표시/판정용 자식 오브젝트 (보스 정면, Capsule)")]
         [SerializeField] private BossLaserHitbox laserHitbox;
 
+        [Tooltip("특수패턴(바닥패턴) 컨트롤러")]
+        [SerializeField] private BossFloorPatternController floorPatternController;
+
         [Header("부채꼴 공격 설정")]
         [Tooltip("부채꼴 판정 각도 (전체 각도, 정면 기준 좌우 절반씩)")]
         [SerializeField] private float fanAngle = 90f;
@@ -145,6 +148,7 @@ namespace _01.Scenes.PhaseValidation
 
                 _isAttacking = true;
 
+                // 기본패턴: 거리 기반 부채꼴/레이저
                 float dist = GetHorizontalDistance(transform.position, _player.position);
                 if (dist <= GetMeleeRange())
                 {
@@ -153,6 +157,14 @@ namespace _01.Scenes.PhaseValidation
                 else
                 {
                     yield return StartCoroutine(DoLaserAttack());
+                }
+
+                yield return new WaitForSeconds(patternInterval);
+
+                // 특수패턴: 바닥패턴(#자/파도/컨테이너)
+                if (floorPatternController != null)
+                {
+                    yield return StartCoroutine(floorPatternController.PlaySpecialPattern());
                 }
 
                 _isAttacking = false;
