@@ -301,6 +301,9 @@ MonoBehaviour:
   thirdPersonToADSBlendTime: 0.01
   adsToThirdPersonBlendTime: 0.01
   aimModeSwitchBlendTime: 0.12
+  thirdPersonCameraAngleLimit: {x: -50, y: 30}
+  followAimingCameraAngleLimit: {x: -50, y: 30}
+  adsCameraAngleLimit: {x: -15, y: 40}
   dontDestroyOnLoad: 0
   autoCacheChildReferences: 1
   configureADSAsFirstPerson: 1

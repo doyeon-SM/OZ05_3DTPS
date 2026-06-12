@@ -9,6 +9,7 @@ namespace _02.Script.Combat
         [Header("Reference")]
         [SerializeField] private ThirdPersonController thirdPersonController;
         [SerializeField] private CharacterController characterController;
+        [SerializeField] private WeaponController weaponController;
 
         [Header("Move Spread")]
         [SerializeField] private float speedForMaxMoveSpread;
@@ -18,9 +19,14 @@ namespace _02.Script.Combat
         [SerializeField] private float airSpreadAngle = 4f;
 
         [Header("State Spread")]
+        [SerializeField] private float normalSpreadAngle = 0.5f;
         [SerializeField] private float normalFireSpreadAngle = 0.5f;
         [SerializeField] private float aimHoldSpreadAngle = 0.2f;
         [SerializeField] private float aimingSpreadAngle;
+
+        [Header("Fire Time Spread")]
+        [SerializeField] private AnimationCurve fireTimeSpreadCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
+        [SerializeField] private float maxFireTimeSpread;
 
         private void Awake()
         {
@@ -32,9 +38,14 @@ namespace _02.Script.Combat
             speedForMaxMoveSpread = Mathf.Max(speedForMaxMoveSpread, 0f);
             maxMoveSpreadAngle = Mathf.Max(maxMoveSpreadAngle, 0f);
             airSpreadAngle = Mathf.Max(airSpreadAngle, 0f);
+            normalSpreadAngle = Mathf.Max(normalSpreadAngle, 0f);
             normalFireSpreadAngle = Mathf.Max(normalFireSpreadAngle, 0f);
             aimHoldSpreadAngle = Mathf.Max(aimHoldSpreadAngle, 0f);
             aimingSpreadAngle = Mathf.Max(aimingSpreadAngle, 0f);
+            maxFireTimeSpread = Mathf.Max(maxFireTimeSpread, 0f);
+
+            if (fireTimeSpreadCurve == null || fireTimeSpreadCurve.length == 0)
+                fireTimeSpreadCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
         }
 
         public float GetTotalSpreadAngle(float weaponBaseSpreadAngle)
@@ -46,7 +57,7 @@ namespace _02.Script.Combat
         public float GetAdditionalSpreadAngle()
         {
             CacheReferences();
-            return GetMoveSpreadAngle() + GetAirSpreadAngle() + GetStateSpreadAngle();
+            return GetMoveSpreadAngle() + GetAirSpreadAngle() + GetStateSpreadAngle() + GetFireTimeSpreadAngle();
         }
 
         private void CacheReferences()
@@ -56,6 +67,9 @@ namespace _02.Script.Combat
 
             if (characterController == null)
                 characterController = GetComponentInParent<CharacterController>();
+
+            if (weaponController == null)
+                weaponController = GetComponentInParent<WeaponController>();
         }
 
         private float GetMoveSpreadAngle()
@@ -80,6 +94,8 @@ namespace _02.Script.Combat
 
             switch (thirdPersonController.CurrentActionState)
             {
+                case PlayerActionState.Normal:
+                    return normalSpreadAngle;
                 case PlayerActionState.Normal_Fire:
                     return normalFireSpreadAngle;
                 case PlayerActionState.AimHold:
@@ -89,6 +105,28 @@ namespace _02.Script.Combat
                 default:
                     return 0f;
             }
+        }
+
+        private float GetFireTimeSpreadAngle()
+        {
+            if (weaponController == null || fireTimeSpreadCurve == null || maxFireTimeSpread <= 0f)
+                return 0f;
+
+            float fireTime = Mathf.Max(weaponController.CurrentFireTime, 0f);
+            if (fireTime <= 0f)
+                return 0f;
+
+            float curveTime = Mathf.Min(fireTime, GetFireTimeSpreadCurveMaxTime());
+            float curveValue = Mathf.Clamp01(fireTimeSpreadCurve.Evaluate(curveTime));
+            return maxFireTimeSpread * curveValue;
+        }
+
+        private float GetFireTimeSpreadCurveMaxTime()
+        {
+            if (fireTimeSpreadCurve == null || fireTimeSpreadCurve.length == 0)
+                return 0f;
+
+            return Mathf.Max(fireTimeSpreadCurve.keys[fireTimeSpreadCurve.length - 1].time, 0f);
         }
 
         private float GetHorizontalSpeed()

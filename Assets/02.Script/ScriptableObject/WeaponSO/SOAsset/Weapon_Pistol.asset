@@ -28,6 +28,7 @@ MonoBehaviour:
   BulletCost: 1
   UseAmmo: 1
   basicSpreadAngle: 1
+  crossHairstylePrefab: {fileID: 358551951872314273, guid: f1ba6584d01fe3942aabd0b9beb9326a, type: 3}
   pelletCount: 1
   burstCount: 3
   FireEffect: {fileID: 0}

@@ -1,4 +1,5 @@
 using _00.ChoiHeesu._03.WeaponChangeSystem;
+using System;
 using System.Collections;
 using StarterAssets;
 using UnityEngine;
@@ -56,7 +57,11 @@ namespace _02.Script.Combat
         public bool IsFiring => isfire;
         public bool IsReloading => isReloading;
         public WeaponRuntime CurrentWeaponRuntime => CurrentWeapon;
+        public WeaponData CurrentWeaponData => CurrentWeapon != null ? CurrentWeapon.data : null;
+        public float CurrentSpreadAngle => GetCurrentSpreadAngle(CurrentWeaponData);
+        public float CurrentFireTime => currentFireTime;
         public Vector3 LastAimDirection { get; private set; }
+        public event Action<WeaponRuntime> CurrentWeaponChanged;
 
         public bool SetMuzzle(Transform nextMuzzle)
         {
@@ -79,6 +84,8 @@ namespace _02.Script.Combat
         private bool wasAttackInputPressed;
         private bool isAttackAnimationActive;
         private float attackAnimationRemainTime;
+        private float currentFireTime;
+        private bool isFireTimeActive;
         private bool hasAppliedWeaponRuntime;
 
         private WeaponRuntime CurrentWeapon
@@ -157,6 +164,7 @@ namespace _02.Script.Combat
             currentWeapon.RefreshCachedData();
             SendAmmoUI(currentWeapon.currentAmmo, currentWeapon.data.MagazineSize);
             SetWeaponTypeAnimation(currentWeapon);
+            CurrentWeaponChanged?.Invoke(currentWeapon);
 
             bool weaponChangeAnimationPlayed = false;
             if (hasAppliedWeaponRuntime && weaponChanged)
@@ -221,6 +229,7 @@ namespace _02.Script.Combat
 
             isfire = false;
             isReloading = false;
+            ResetFireTime();
             SetReloadingAnimation(false);
             SetAttackAnimation(false);
         }
@@ -299,9 +308,12 @@ namespace _02.Script.Combat
             bool fired = false;
 
             WeaponRuntime currentWeapon = CurrentWeapon;
+            UpdateFireTime(isAttackPressed, currentWeapon);
+
             if (isAttackPressed && !ValidateCurrentWeapon(currentWeapon))
             {
                 wasAttackInputPressed = isAttackPressed;
+                ResetFireTime();
                 SetAttackAnimation(false);
                 return false;
             }
@@ -333,6 +345,52 @@ namespace _02.Script.Combat
                 SetAttackAnimation(ShouldKeepAttackAnimation(currentWeapon, isAttackPressed));
 
             return fired;
+        }
+
+        private void UpdateFireTime(bool isAttackPressed, WeaponRuntime currentWeapon)
+        {
+            if (!CanAccumulateFireTime(isAttackPressed, currentWeapon))
+            {
+                ResetFireTime();
+                return;
+            }
+
+            if (!isFireTimeActive)
+            {
+                isFireTimeActive = true;
+                currentFireTime = 0f;
+                return;
+            }
+
+            currentFireTime += Time.deltaTime;
+        }
+
+        private bool CanAccumulateFireTime(bool isAttackPressed, WeaponRuntime currentWeapon)
+        {
+            if (isReloading)
+                return false;
+
+            if (currentWeapon == null || currentWeapon.data == null)
+                return false;
+
+            if (!currentWeapon.HasAmmo() || !currentWeapon.hasEnoughAmmo())
+                return false;
+
+            switch (currentWeapon.data.fireMode)
+            {
+                case FireMode.Auto:
+                    return isAttackPressed;
+                case FireMode.Burst:
+                    return isAttackPressed || _burstCoroutine != null;
+                default:
+                    return false;
+            }
+        }
+
+        private void ResetFireTime()
+        {
+            currentFireTime = 0f;
+            isFireTimeActive = false;
         }
 
         private bool ShouldKeepAttackAnimation(WeaponRuntime currentWeapon, bool isAttackPressed)

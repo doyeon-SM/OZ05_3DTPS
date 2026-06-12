@@ -20,7 +20,7 @@ MonoBehaviour:
   WeaponPrefab: {fileID: 6734225644313519354, guid: df4dd6fc522d5ef4a87c7f05b96d292e, type: 3}
   HolderPosition: {x: 0.017, y: 0.141, z: 0.047}
   HolderRotation: {x: 0, y: 29.737, z: 0}
-  fireMode: 1
+  fireMode: 2
   Damage: 15
   CriticalMultiplier: 0
   RPM: 600
@@ -29,6 +29,7 @@ MonoBehaviour:
   BulletCost: 1
   UseAmmo: 1
   basicSpreadAngle: 2
+  crossHairstylePrefab: {fileID: 358551951872314273, guid: f1ba6584d01fe3942aabd0b9beb9326a, type: 3}
   pelletCount: 1
   burstCount: 3
   FireEffect: {fileID: 0}
