@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using _01.Scenes.PhaseValidation.UI;
 
 namespace _01.Scenes.PhaseValidation
 {
@@ -9,7 +10,7 @@ namespace _01.Scenes.PhaseValidation
     ///  1. PlayerMoveInteractionObject로 플레이어가 진입
     ///  2. OnTriggerEnter → StartBattle() 호출
     ///  3. 목표 달성(GoalPercent == 1.0) 확인 후 보스 소환 + HUD 표시
-    ///  4. BossStatus.OnBossDied → ClearSector()
+    ///  4. BossStatus.OnBossDied → ClearSector() + BossClearUI.Show()
     /// </summary>
     public class BossSector : SectorBase
     {
@@ -99,6 +100,9 @@ namespace _01.Scenes.PhaseValidation
             }
 
             ClearSector();
+
+            // 클리어 UI 표시 — [확인] 클릭 시 로비 씬으로 이동
+            BossClearUI.Instance?.Show();
         }
 
         protected override void OnSectorCleared()
