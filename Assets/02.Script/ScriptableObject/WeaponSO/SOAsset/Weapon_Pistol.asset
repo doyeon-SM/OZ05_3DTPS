@@ -17,8 +17,8 @@ MonoBehaviour:
   WeaponDescription: It's a basic weapon.
   WeaponType: 0
   WeaponPrefab: {fileID: 8152767091756984911, guid: 2b4c7039bb2793e4a813c56ab1faf020, type: 3}
-  HolderPosition: {x: 0, y: 0.095, z: 0.03}
-  HolderRotation: {x: 0, y: 0, z: 0}
+  HolderPosition: {x: 0.01, y: 0.089, z: 0.061}
+  HolderRotation: {x: 0, y: 18.74, z: 0}
   fireMode: 0
   Damage: 15
   CriticalMultiplier: 0
