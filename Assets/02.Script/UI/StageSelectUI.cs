@@ -51,13 +51,6 @@ public class StageSelectUI : MonoBehaviour
         stageInfoPopup.SetActive(false);
     }
 
-    private void Update()
-    {
-        // UI가 열려 있는 동안 매 프레임 공격 입력 차단
-        if (_isCursorOverridden && _inputs != null)
-            _inputs.Attack = false;
-    }
-
     // ── 커서 / 카메라 / 공격 제어 ─────────────────────────────
 
     private void EnableUIMode()
@@ -69,7 +62,7 @@ public class StageSelectUI : MonoBehaviour
         if (_inputs != null)
         {
             _inputs.SetLookInputBlocked(true);
-            _inputs.Attack = false;   // 열리는 순간 즉시 차단
+            _inputs.SetAttackInputBlocked(true);   // 입력 발생 즉시 차단 (Update 순서 무관)
         }
         _isCursorOverridden = true;
     }
@@ -80,8 +73,10 @@ public class StageSelectUI : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible   = false;
         if (_inputs != null)
+        {
             _inputs.SetLookInputBlocked(false);
-        // Attack은 false 상태로 두면 됨 — 다음 입력 시 자연스럽게 true로 전환됨
+            _inputs.SetAttackInputBlocked(false);
+        }
         _isCursorOverridden = false;
     }
 
