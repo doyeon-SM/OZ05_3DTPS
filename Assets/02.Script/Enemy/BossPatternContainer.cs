@@ -39,6 +39,9 @@ namespace _01.Scenes.PhaseValidation
         /// <summary>현재 낙하 중이거나 바닥에 정착해 상호작용을 기다리는 중인지 여부.</summary>
         public bool IsActive => gameObject.activeSelf;
 
+        /// <summary>낙하를 시작할 대기 위치의 로컬 Y 좌표.</summary>
+        public float IdleLocalY => idleLocalPosition.y;
+
         private bool _isFalling;
         private float _targetLocalY;
         private int _tickDamage;

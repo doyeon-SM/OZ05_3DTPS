@@ -329,14 +329,14 @@ namespace _01.Scenes.PhaseValidation
             if (circleIndicator != null)
                 circleIndicator.Show(targetWorld);
 
-            // 컨테이너 낙하 시작 - 로컬 XZ를 목표 지점으로, Y는 기존(idle) 높이 유지
-            Vector3 containerLocalPos = container.transform.localPosition;
+            // 컨테이너 낙하 시작 - 로컬 XZ를 목표 지점으로, Y는 idle(대기) 높이에서 시작
             Transform parent = container.transform.parent;
             Vector3 targetLocal = parent != null ? parent.InverseTransformPoint(targetWorld) : targetWorld;
-            container.transform.localPosition = new Vector3(targetLocal.x, containerLocalPos.y, targetLocal.z);
+            float startLocalY = container.IdleLocalY;
+            container.transform.localPosition = new Vector3(targetLocal.x, startLocalY, targetLocal.z);
 
             // Ground 레이어를 향해 레이캐스트하여 바닥 월드 Y를 구하고, 로컬 Y로 변환
-            float floorLocalY = containerLocalPos.y - 4f; // 레이캐스트 실패 시 대체값 (기존 동작 유지)
+            float floorLocalY = startLocalY - 4f; // 레이캐스트 실패 시 대체값 (기존 동작 유지)
             int groundLayerMask = LayerMask.GetMask("Ground");
             Vector3 rayOrigin = new Vector3(targetWorld.x, container.transform.position.y, targetWorld.z);
             RaycastHit hitInfo;

@@ -863,7 +863,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.BossPatternContainer
   fallSpeed: 4
   containerDamageMultiplier: 1.2
-  idleLocalPosition: {x: 0, y: 8, z: 0}
+  idleLocalPosition: {x: 0, y: 11, z: 0}
   interactionLabel: "[E] \uCEE8\uD14C\uC774\uB108 \uD68C\uC218"
 --- !u!1 &5445288260152341870
 GameObject:
@@ -991,7 +991,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7579090934975076261
 Transform:
   m_ObjectHideFlags: 0
@@ -1552,7 +1552,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8133535302800537182
 Transform:
   m_ObjectHideFlags: 0

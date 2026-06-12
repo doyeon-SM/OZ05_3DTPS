@@ -109,9 +109,11 @@ namespace _01.Scenes.PhaseValidation
             if (fanAttackHitbox != null)
             {
                 Transform t = fanAttackHitbox.transform;
-                float scaleXZ = meleeRange / 5f;
+                // Plane 기본 크기 10m -> scale = meleeRange / 10 (한 변의 길이 = meleeRange)
+                float scaleXZ = meleeRange / 10f;
                 t.localScale = new Vector3(scaleXZ, t.localScale.y, scaleXZ);
-                t.localPosition = new Vector3(0f, fanIndicatorYOffset, 0f);
+                // Plane의 한 변이 보스 원점에 닿고 정면으로 meleeRange만큼 펼쳐지도록 중심을 z = meleeRange/2로 이동
+                t.localPosition = new Vector3(0f, fanIndicatorYOffset, meleeRange / 2f);
             }
 
             if (laserHitbox != null)
@@ -184,10 +186,17 @@ namespace _01.Scenes.PhaseValidation
             if (fanAttackHitbox != null)
             {
                 Transform hitboxTransform = fanAttackHitbox.transform;
-                // 전방 기준 배치된 오브젝트를 후방 공격 시 180도 회전
+                float meleeRange = GetMeleeRange();
+                float zOffset = meleeRange / 2f;
+
+                // 전방 기준 배치된 오브젝트를 후방 공격 시 180도 회전 + 반대편(z 반전)으로 이동
                 hitboxTransform.localRotation = isBackAttack
                     ? Quaternion.Euler(0f, 180f, 0f)
                     : Quaternion.identity;
+
+                Vector3 pos = hitboxTransform.localPosition;
+                pos.z = isBackAttack ? -zOffset : zOffset;
+                hitboxTransform.localPosition = pos;
 
                 fanAttackHitbox.ShowTelegraph();
             }
