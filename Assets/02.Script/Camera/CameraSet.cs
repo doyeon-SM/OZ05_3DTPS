@@ -33,6 +33,11 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         [SerializeField] private float adsToThirdPersonBlendTime = 0.32f;
         [SerializeField] private float aimModeSwitchBlendTime = 0.12f;
 
+        [Header("Camera Angle Set ( Min , Max )")]
+        [SerializeField] private Vector2 thirdPersonCameraAngleLimit = new Vector2(-30f, 70f);
+        [SerializeField] private Vector2 followAimingCameraAngleLimit = new Vector2(-30f, 70f);
+        [SerializeField] private Vector2 adsCameraAngleLimit = new Vector2(-30f, 70f);
+
         [Header("Options")]
         [SerializeField] private bool dontDestroyOnLoad;
         [SerializeField] private bool autoCacheChildReferences = true;
@@ -47,6 +52,8 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         private bool missingThirdPersonCameraLogged;
         private bool missingFollowAimingCameraLogged;
         private bool missingADSCameraLogged;
+
+        public Vector2 CurrentCameraAngleLimit => GetCameraAngleLimit(currentCameraMode);
 
         private void Awake()
         {
@@ -132,6 +139,19 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 
             currentCameraMode = resolvedCameraMode;
             hasCameraState = true;
+        }
+
+        public Vector2 GetCameraAngleLimit(PlayerCameraMode cameraMode)
+        {
+            switch (cameraMode)
+            {
+                case PlayerCameraMode.FollowAiming:
+                    return ToPitchClampLimit(followAimingCameraAngleLimit);
+                case PlayerCameraMode.ADS:
+                    return ToPitchClampLimit(adsCameraAngleLimit);
+                default:
+                    return ToPitchClampLimit(thirdPersonCameraAngleLimit);
+            }
         }
 
         private void CacheReferences()
@@ -294,6 +314,13 @@ namespace _00.ChoiHeesu._04.StateChangeScript
                 return;
 
             targetCamera.Priority.Value = priority;
+        }
+
+        private static Vector2 ToPitchClampLimit(Vector2 angleLimit)
+        {
+            float downAngle = Mathf.Abs(angleLimit.x);
+            float upAngle = Mathf.Abs(angleLimit.y);
+            return new Vector2(-upAngle, downAngle);
         }
 
         private void LogMissingReference(string fieldName, ref bool alreadyLogged, string message)

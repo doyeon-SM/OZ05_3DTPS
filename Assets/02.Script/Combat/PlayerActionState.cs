@@ -5,5 +5,6 @@ public enum PlayerActionState
 {
     Normal,
     AimHold,
-    Aiming
+    Aiming,
+    Normal_Fire
 }

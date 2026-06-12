@@ -41,6 +41,7 @@ namespace _02.Script.Combat
         [SerializeField] private float aimRange;
         [SerializeField] private float shotRange;
         [SerializeField] private float muzzleBlockRadius;
+        [SerializeField] private float attackAnimationMinDuration = 0.15f;
         [SerializeField] private LayerMask aimMask;
         [SerializeField] private LayerMask shotMask;
         [SerializeField] private LayerMask muzzleBlockMask;
@@ -77,6 +78,7 @@ namespace _02.Script.Combat
         [SerializeField]private AnimationController _animationController;
         private bool wasAttackInputPressed;
         private bool isAttackAnimationActive;
+        private float attackAnimationRemainTime;
         private bool hasAppliedWeaponRuntime;
 
         private WeaponRuntime CurrentWeapon
@@ -291,6 +293,8 @@ namespace _02.Script.Combat
 
         public bool HandleAttackInput(bool isAttackPressed)
         {
+            UpdateAttackAnimationTimer();
+
             bool isAttackStarted = isAttackPressed && !wasAttackInputPressed;
             bool fired = false;
 
@@ -324,7 +328,7 @@ namespace _02.Script.Combat
             wasAttackInputPressed = isAttackPressed;
 
             if (fired)
-                SetAttackAnimation(true);
+                StartAttackAnimation();
             else
                 SetAttackAnimation(ShouldKeepAttackAnimation(currentWeapon, isAttackPressed));
 
@@ -335,6 +339,9 @@ namespace _02.Script.Combat
         {
             if (currentWeapon == null || currentWeapon.data == null)
                 return false;
+
+            if (attackAnimationRemainTime > 0f)
+                return true;
 
             switch (currentWeapon.data.fireMode)
             {
@@ -356,6 +363,20 @@ namespace _02.Script.Combat
                 return false;
 
             return currentWeapon.HasAmmo() && currentWeapon.hasEnoughAmmo();
+        }
+
+        private void StartAttackAnimation()
+        {
+            attackAnimationRemainTime = Mathf.Max(attackAnimationMinDuration, Time.deltaTime);
+            SetAttackAnimation(true);
+        }
+
+        private void UpdateAttackAnimationTimer()
+        {
+            if (attackAnimationRemainTime <= 0f)
+                return;
+
+            attackAnimationRemainTime = Mathf.Max(attackAnimationRemainTime - Time.deltaTime, 0f);
         }
 
         private bool TryStartBurstAttack(WeaponRuntime burstWeapon)
@@ -640,6 +661,9 @@ namespace _02.Script.Combat
 
         private void SetAttackAnimation(bool attacking)
         {
+            if (!attacking)
+                attackAnimationRemainTime = 0f;
+
             isAttackAnimationActive = attacking;
 
             if (_animationController == null) return;

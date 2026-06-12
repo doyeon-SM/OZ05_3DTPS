@@ -199,9 +199,18 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 
             CameraSet.PlayerCameraMode cameraMode = GetCameraMode(actionState);
             cameraSet.SetCameraMode(cameraMode, instant || !hasLastActionState);
+            ApplyCameraAngleLimit();
 
             lastActionState = actionState;
             hasLastActionState = true;
+        }
+
+        private void ApplyCameraAngleLimit()
+        {
+            if (thirdPersonController == null || cameraSet == null)
+                return;
+
+            thirdPersonController.SetCameraAngleLimit(cameraSet.CurrentCameraAngleLimit);
         }
 
         private static CameraSet.PlayerCameraMode GetCameraMode(PlayerActionState actionState)
@@ -211,6 +220,9 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 
             if (actionState == PlayerActionState.AimHold)
                 return CameraSet.PlayerCameraMode.FollowAiming;
+
+            if (actionState == PlayerActionState.Normal_Fire)
+                return CameraSet.PlayerCameraMode.ThirdPerson;
 
             return CameraSet.PlayerCameraMode.ThirdPerson;
         }

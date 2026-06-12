@@ -2813,6 +2813,10 @@ PrefabInstance:
       propertyPath: interactPrintUI
       value: 
       objectReference: {fileID: 912341641}
+    - target: {fileID: 9036437321398294158, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
+      propertyPath: attackAnimationMinDuration
+      value: 0.25
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

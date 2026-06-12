@@ -226,7 +226,9 @@ namespace _00.ChoiHeesu._04.StateChangeScript
 
         private static bool IsAimState(PlayerActionState actionState)
         {
-            return actionState == PlayerActionState.AimHold || actionState == PlayerActionState.Aiming;
+            return actionState == PlayerActionState.AimHold ||
+                   actionState == PlayerActionState.Aiming ||
+                   actionState == PlayerActionState.Normal_Fire;
         }
 
         private void LogMissingReference(string fieldName, ref bool alreadyLogged, string message)

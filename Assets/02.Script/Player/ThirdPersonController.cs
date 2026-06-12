@@ -1,6 +1,7 @@
 ﻿using _02.Script.Combat;
 using _00.ChoiHeesu._01.MoveTest.Interact;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -16,8 +17,15 @@ namespace StarterAssets
     {
         [Header("Player State")]
         [SerializeField] private PlayerActionState currentActionState = PlayerActionState.Normal;
-        [SerializeField] private float aimingChangeDelayTime = 0.3f;
+        [FormerlySerializedAs("aimingChangeDelayTime")]
+        [SerializeField] private float normalFireDelayTime = 0.3f;
         public PlayerActionState CurrentActionState => currentActionState;
+
+        [Header("달리기 제한 설정")]
+        [SerializeField] private bool restrictSprintInNormal;
+        [SerializeField] private bool restrictSprintInAimHold = true;
+        [SerializeField] private bool restrictSprintInAiming = true;
+        [SerializeField] private bool restrictSprintInNormalFire = true;
 
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
@@ -75,6 +83,13 @@ namespace StarterAssets
 
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition;
+
+        public void SetCameraAngleLimit(Vector2 angleLimit)
+        {
+            BottomClamp = Mathf.Min(angleLimit.x, angleLimit.y);
+            TopClamp = Mathf.Max(angleLimit.x, angleLimit.y);
+            _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
+        }
         
         
         // cinemachine
@@ -88,7 +103,7 @@ namespace StarterAssets
         private float _rotationVelocity;
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
-        private float _attackAimingRemainTime;
+        private float _normalFireRemainTime;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -217,33 +232,78 @@ namespace StarterAssets
             bool hasADSInput = _input.ADSClick;
             bool hasAimHoldInput = _input.AimHold;
             bool hasAttackInput = _input.Attack;
+            bool hasAimInput = hasADSInput || hasAimHoldInput;
 
-            if (hasAttackInput)
-            {
-                _attackAimingRemainTime = Mathf.Max(aimingChangeDelayTime, 0f);
-            }
-            else if (_attackAimingRemainTime > 0f)
-            {
-                _attackAimingRemainTime = Mathf.Max(_attackAimingRemainTime - Time.deltaTime, 0f);
-            }
-
-            bool hasAttackAimHold = hasAttackInput || _attackAimingRemainTime > 0f;
-            currentActionState = GetNextActionState(hasADSInput, hasAimHoldInput, hasAttackAimHold);
+            UpdateNormalFireTimer(hasAttackInput, hasAimInput);
+            currentActionState = GetNextActionState(hasADSInput, hasAimHoldInput, _normalFireRemainTime > 0f);
 
             if (_animationController != null)
-                _animationController.SetAiming(currentActionState != PlayerActionState.Normal);
+                _animationController.SetAiming(ShouldPlayAimingAnimation());
         }
 
-        private PlayerActionState GetNextActionState(bool hasADSInput, bool hasAimHoldInput, bool hasAttackAimHold)
+        private PlayerActionState GetNextActionState(bool hasADSInput, bool hasAimHoldInput, bool hasNormalFire)
         {
             if (hasADSInput)
                 return PlayerActionState.Aiming;
 
-            if (hasAimHoldInput || hasAttackAimHold)
+            if (hasAimHoldInput)
                 return PlayerActionState.AimHold;
+
+            if (hasNormalFire)
+                return PlayerActionState.Normal_Fire;
 
             return PlayerActionState.Normal;
         }
+
+        private void UpdateNormalFireTimer(bool hasAttackInput, bool hasAimInput)
+        {
+            if (hasAimInput)
+            {
+                _normalFireRemainTime = 0f;
+                return;
+            }
+
+            if (hasAttackInput)
+            {
+                _normalFireRemainTime = Mathf.Max(normalFireDelayTime, 0f);
+                return;
+            }
+
+            if (_normalFireRemainTime <= 0f)
+                return;
+
+            _normalFireRemainTime = Mathf.Max(_normalFireRemainTime - Time.deltaTime, 0f);
+        }
+
+        private bool ShouldPlayAimingAnimation()
+        {
+            return currentActionState == PlayerActionState.AimHold ||
+                   currentActionState == PlayerActionState.Aiming ||
+                   currentActionState == PlayerActionState.Normal_Fire;
+        }
+
+        private static bool IsNormalMoveState(PlayerActionState actionState)
+        {
+            return actionState == PlayerActionState.Normal;
+        }
+
+        private bool IsSprintRestricted(PlayerActionState actionState)
+        {
+            switch (actionState)
+            {
+                case PlayerActionState.Normal:
+                    return restrictSprintInNormal;
+                case PlayerActionState.AimHold:
+                    return restrictSprintInAimHold;
+                case PlayerActionState.Aiming:
+                    return restrictSprintInAiming;
+                case PlayerActionState.Normal_Fire:
+                    return restrictSprintInNormalFire;
+                default:
+                    return false;
+            }
+        }
+
         private void HandleInteract()
         {
             if (_input == null || !_input.Interact)
@@ -347,7 +407,7 @@ namespace StarterAssets
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            bool canSprint = currentActionState == PlayerActionState.Normal;
+            bool canSprint = !IsSprintRestricted(currentActionState);
             float targetSpeed = _input.sprint && canSprint ? SprintSpeed : MoveSpeed;
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
@@ -394,7 +454,7 @@ namespace StarterAssets
             // if there is a move input rotate player when the player is moving
             if (_input.move != Vector2.zero)
             {
-                if (currentActionState == PlayerActionState.Normal)
+                if (IsNormalMoveState(currentActionState))
                 {
                     _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
                                       (_mainCamera != null ? _mainCamera.transform.eulerAngles.y : 0f);
