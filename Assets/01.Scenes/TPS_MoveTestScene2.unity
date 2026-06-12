@@ -2815,7 +2815,7 @@ PrefabInstance:
       objectReference: {fileID: 912341641}
     - target: {fileID: 9036437321398294158, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: attackAnimationMinDuration
-      value: 0.25
+      value: 0.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3101,6 +3101,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1026801108676548100, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
+      propertyPath: adsCameraAngleLimit.x
+      value: -40
+      objectReference: {fileID: 0}
+    - target: {fileID: 1026801108676548100, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
+      propertyPath: adsCameraAngleLimit.y
+      value: 40
+      objectReference: {fileID: 0}
     - target: {fileID: 1627764899167657953, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.90507
