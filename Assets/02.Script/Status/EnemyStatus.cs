@@ -7,7 +7,7 @@ namespace _01.Scenes.PhaseValidation
     {
         [SerializeField] private EnemyData enemyData;
 
-        private int currentHealth;
+        [SerializeField] private int currentHealth;
         private bool isDead;
 
         // 섹터 매니저에서 구독 — 풀 반환 처리 위임

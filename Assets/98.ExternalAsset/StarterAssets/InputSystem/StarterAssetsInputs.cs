@@ -393,6 +393,16 @@ namespace StarterAssets
 			ADSClickReleased = false;
 		}
 
+		public void ClearAimInputState()
+		{
+			AimHold = false;
+			AimHoldPressed = false;
+			AimHoldReleased = false;
+			ADSClick = false;
+			ADSClickPressed = false;
+			ADSClickReleased = false;
+		}
+
 		public void RollInput(bool newRollState)
 		{
 			Roll = newRollState;
@@ -402,8 +412,11 @@ namespace StarterAssets
 
 		public void GrenadeInput(bool newGrenadeState)
 		{
-			GrenadePressed = newGrenadeState && !Grenade;
-			GrenadeReleased = !newGrenadeState && Grenade;
+			if (newGrenadeState)
+				GrenadePressed = !Grenade;
+			else
+				GrenadeReleased = Grenade;
+
 			Grenade = newGrenadeState;
 			Debug.Log("Grenade 키 입력 들어옴.");
 		}

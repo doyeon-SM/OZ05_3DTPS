@@ -26,6 +26,24 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             return true;
         }
 
+        private bool EnsureInitialized()
+        {
+            if (!InitializeSingleton())
+                return false;
+
+            if (isInitialized)
+                return true;
+
+            EnsureWeaponDataArray();
+            EnsureWeaponRuntimeArray();
+            SyncWeaponRuntimesWithWeaponDataArray();
+            InitializeWeaponRuntimeMagazines();
+            SyncWeaponAmmoDictionary();
+            ValidateWeaponRuntimeData();
+            isInitialized = true;
+            return true;
+        }
+
         private void OnDestroy()
         {
             if (Instance == this)
@@ -109,24 +127,19 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         private readonly Dictionary<WeaponClass, string> ammoItemIdByWeaponClass = new Dictionary<WeaponClass, string>();
         private bool missingItemIDEventChannelLogged;
         private bool missingWeaponAmmoEventLogged;
+        private bool isInitialized;
 
         private void Awake()
         {
-            if (!InitializeSingleton())
+            if (!EnsureInitialized())
                 return;
 
-            EnsureWeaponDataArray();
-            EnsureWeaponRuntimeArray();
-            SyncWeaponRuntimesWithWeaponDataArray();
-            InitializeWeaponRuntimeMagazines();
-            SyncWeaponAmmoDictionary();
-            ValidateWeaponRuntimeData();
             FindAndBindWeaponController();
         }
 
         private void OnEnable()
         {
-            if (Instance != this)
+            if (!EnsureInitialized())
                 return;
 
             if (itemIDEventChannel != null)
@@ -164,6 +177,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         public bool FindAndBindWeaponController()
         {
+            if (!EnsureInitialized())
+                return false;
+
             if (weaponController == null)
                 weaponController = FindFirstObjectByType<WeaponController>(FindObjectsInactive.Include);
 
@@ -415,6 +431,12 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         {
             blockMessage = string.Empty;
 
+            if (!EnsureInitialized())
+            {
+                blockMessage = "[WeaponRuntimeManager] 초기화가 완료되지 않아 무기를 변경할 수 없습니다.";
+                return false;
+            }
+
             if (!CanSelectWeaponByLock(itemId, out blockMessage))
                 return false;
 
@@ -462,6 +484,12 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             reloadAmount = 0;
             consumedAmmo = 0;
             blockMessage = string.Empty;
+
+            if (!EnsureInitialized())
+            {
+                blockMessage = "[WeaponRuntimeManager] 초기화가 완료되지 않아 재장전 정보를 계산할 수 없습니다.";
+                return false;
+            }
 
             if (runtime == null || runtime.data == null)
             {

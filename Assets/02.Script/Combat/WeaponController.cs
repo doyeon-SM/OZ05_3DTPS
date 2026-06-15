@@ -626,13 +626,14 @@ namespace _02.Script.Combat
                 return;
             }
 
-            if (WeaponRuntimeManager.Instance == null)
+            WeaponRuntimeManager weaponRuntimeManager = GetWeaponRuntimeManager();
+            if (weaponRuntimeManager == null)
             {
                 Debug.LogWarning("[WeaponController] WeaponRuntimeManager가 없어 보유 탄약을 확인할 수 없습니다.", this);
                 return;
             }
 
-            if (!WeaponRuntimeManager.Instance.TryGetReloadPreview(currentWeapon, out int reloadAmount, out int consumedAmmo, out string blockMessage))
+            if (!weaponRuntimeManager.TryGetReloadPreview(currentWeapon, out int reloadAmount, out int consumedAmmo, out string blockMessage))
             {
                 Debug.Log(blockMessage, this);
                 return;
@@ -697,7 +698,7 @@ namespace _02.Script.Combat
                 yield break;
             }
 
-            WeaponRuntimeManager weaponRuntimeManager = WeaponRuntimeManager.Instance;
+            WeaponRuntimeManager weaponRuntimeManager = GetWeaponRuntimeManager();
             if (weaponRuntimeManager == null)
             {
                 Debug.Log("[WeaponController] WeaponRuntimeManager가 없어 재장전을 적용할 수 없습니다.", this);
@@ -723,6 +724,15 @@ namespace _02.Script.Combat
             Debug.Log($"[WeaponController] 재장전 적용: 탄창 +{reloadAmount}, 보유 탄약 -{consumedAmmo}");
 
             LogWeaponState(LogReloadComplete);
+        }
+
+        private WeaponRuntimeManager GetWeaponRuntimeManager()
+        {
+            WeaponRuntimeManager weaponRuntimeManager = WeaponRuntimeManager.Instance;
+            if (weaponRuntimeManager != null)
+                return weaponRuntimeManager;
+
+            return FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
         }
 
         private void SetReloadingAnimation(bool reloading)

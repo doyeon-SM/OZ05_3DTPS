@@ -3,6 +3,9 @@ using _02.Script.Combat;
 using StarterAssets;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace _00.ChoiHeesu._01.Script.Explosion
 {
@@ -32,6 +35,12 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         [SerializeField] private string throwTriggerParameter;
         [SerializeField] private string cancelTriggerParameter;
 
+        [Header("Input")]
+        [SerializeField] private string grenadeInputActionName = "Grenade";
+#if !ENABLE_INPUT_SYSTEM
+        [SerializeField] private KeyCode legacyGrenadeKey = KeyCode.G;
+#endif
+
         [Header("Debug")]
         [SerializeField] private bool logMissingReferences;
 
@@ -46,6 +55,14 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         private bool hasCachedThrowData;
         private WeaponController subscribedWeaponController;
         private bool missingWeaponRuntimeManagerLogged;
+        private bool wasGrenadeInputHeld;
+        private bool queuedGrenadeInputPressed;
+
+#if ENABLE_INPUT_SYSTEM
+        private PlayerInput playerInput;
+        private InputAction grenadeInputAction;
+        private bool grenadeInputActionSubscribed;
+#endif
 
         public bool IsGrenadeMode => isGrenadeMode;
         public bool IsGrenadeThrowLocked => isGrenadeThrowLocked;
@@ -62,6 +79,9 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         {
             SceneManager.sceneLoaded += HandleSceneLoaded;
             CacheReferences();
+#if ENABLE_INPUT_SYSTEM
+            SubscribeGrenadeInputAction();
+#endif
             BindExternalRuntimeReferences(true);
             SubscribeWeaponChanged();
         }
@@ -69,6 +89,9 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         private void Start()
         {
             CacheReferences();
+#if ENABLE_INPUT_SYSTEM
+            SubscribeGrenadeInputAction();
+#endif
             BindExternalRuntimeReferences(true);
             SubscribeWeaponChanged();
         }
@@ -76,7 +99,11 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         private void OnDisable()
         {
             SceneManager.sceneLoaded -= HandleSceneLoaded;
+#if ENABLE_INPUT_SYSTEM
+            UnsubscribeGrenadeInputAction();
+#endif
             UnsubscribeWeaponChanged();
+            queuedGrenadeInputPressed = false;
             HideTrajectory();
         }
 
@@ -100,7 +127,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
 
             if (!HasGrenadesAvailable() && !isThrowingGrenade)
             {
-                ExitGrenadeMode();
+                ExitGrenadeMode(true, "NoGrenadesInUpdate");
                 wasAttackPressed = input.Attack;
                 return;
             }
@@ -155,7 +182,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
                 return;
             }
 
-            ExitGrenadeMode();
+            ExitGrenadeMode(true, "ThrowEndNoGrenades");
         }
 
         public void OnGrenadeCancelAnimationEnd()
@@ -176,16 +203,16 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             if (IsWeaponChangeBlocked)
                 return false;
 
-            ExitGrenadeMode(false);
+            ExitGrenadeMode(false, "WeaponChangeRequest");
             return true;
         }
 
         public void ExitGrenadeMode()
         {
-            ExitGrenadeMode(true);
+            ExitGrenadeMode(true, "External");
         }
 
-        private void ExitGrenadeMode(bool playWeaponChangeAnimation)
+        private void ExitGrenadeMode(bool playWeaponChangeAnimation, string reason = "")
         {
             bool wasGrenadeMode = isGrenadeMode;
 
@@ -209,16 +236,69 @@ namespace _00.ChoiHeesu._01.Script.Explosion
 
             if (wasGrenadeMode && playWeaponChangeAnimation)
                 PlayWeaponChangeTrigger();
+
+            if (wasGrenadeMode && logMissingReferences)
+            {
+                Debug.Log(
+                    $"[GrenadeThrowController] Grenade mode exited. reason:{reason}, playWeaponChange:{playWeaponChangeAnimation}",
+                    this);
+            }
         }
 
         private void HandleGrenadeEquipInput()
         {
-            if (!input.GrenadePressed)
+            if (!ConsumeGrenadeEquipPressed())
                 return;
 
-            input.ConsumeGrenadeInput();
-
             TryEnterGrenadeMode(true);
+        }
+
+        private bool ConsumeGrenadeEquipPressed()
+        {
+            bool queuedInputPressed = queuedGrenadeInputPressed;
+            queuedGrenadeInputPressed = false;
+
+            bool isGrenadeInputHeld = ReadGrenadeInputHeld();
+            bool isGrenadeInputPressed = isGrenadeInputHeld && !wasGrenadeInputHeld;
+            wasGrenadeInputHeld = isGrenadeInputHeld;
+
+            bool messageInputPressed = input != null && input.GrenadePressed;
+
+            if (input != null)
+            {
+                if (!isGrenadeInputHeld && input.Grenade)
+                    input.GrenadeInput(false);
+
+                input.ConsumeGrenadeInput();
+            }
+
+            bool detected = queuedInputPressed || messageInputPressed || isGrenadeInputPressed;
+
+            if (detected && logMissingReferences)
+            {
+                Debug.Log(
+                    $"[GrenadeThrowController] Grenade input detected. queued:{queuedInputPressed}, message:{messageInputPressed}, polled:{isGrenadeInputPressed}, held:{isGrenadeInputHeld}",
+                    this);
+            }
+
+            return detected;
+        }
+
+        private bool ReadGrenadeInputHeld()
+        {
+#if ENABLE_INPUT_SYSTEM
+            CacheGrenadeInputAction();
+
+            if (grenadeInputAction != null && grenadeInputAction.ReadValue<float>() > 0.5f)
+                return true;
+
+            if (Keyboard.current != null && Keyboard.current.gKey.isPressed)
+                return true;
+#else
+            return Input.GetKey(legacyGrenadeKey);
+#endif
+
+            return input != null && input.Grenade;
         }
 
         private bool TryEnterGrenadeMode(bool logBlocked = false)
@@ -247,6 +327,14 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             SetGrenadeAnimator(true);
             PlayEnterGrenadeTrigger();
             EnterGrenadeNormalState();
+
+            if (logMissingReferences)
+            {
+                Debug.Log(
+                    $"[GrenadeThrowController] Grenade mode entered. GrenadeCount:{(weaponRuntimeManager != null ? weaponRuntimeManager.GrenadeCount : -1)}",
+                    this);
+            }
+
             return true;
         }
 
@@ -285,7 +373,10 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         private void HandleGrenadeRoutineInput()
         {
             if (isCancelingGrenade)
+            {
+                ClearAimCancelInput();
                 return;
+            }
 
             if (CanCancelThrowInput())
             {
@@ -307,7 +398,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         {
             if (!HasGrenadesAvailable())
             {
-                ExitGrenadeMode();
+                ExitGrenadeMode(true, "BeginHoldNoGrenades");
                 return;
             }
 
@@ -346,6 +437,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             hasCachedThrowData = false;
             wasAttackPressed = input != null && input.Attack;
 
+            ClearAimCancelInput();
             HideTrajectory();
             PlayOptionalTrigger(cancelTriggerParameter);
             EnterGrenadeRoutineState();
@@ -448,7 +540,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             if (HasGrenadesAvailable())
                 EnterGrenadeNormalState();
             else
-                ExitGrenadeMode();
+                ExitGrenadeMode(true, "AbortThrowNoGrenades");
         }
 
         private void RestoreGrenadeNormalAfterCancel()
@@ -460,10 +552,11 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             isCancelingGrenade = false;
             hasCachedThrowData = false;
             HideTrajectory();
+            ClearAimCancelInput();
 
             if (!HasGrenadesAvailable())
             {
-                ExitGrenadeMode();
+                ExitGrenadeMode(true, "CancelEndNoGrenades");
                 return;
             }
 
@@ -483,6 +576,14 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         {
             if (thirdPersonController != null)
                 thirdPersonController.SetGrenadeActionState(PlayerActionState.GrenadeRoutine);
+        }
+
+        private void ClearAimCancelInput()
+        {
+            if (input == null)
+                return;
+
+            input.ClearAimInputState();
         }
 
         private void HideTrajectory()
@@ -531,9 +632,10 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         private void LogGrenadeEntryBlocked(string blockReason)
         {
             Debug.LogError(
-                $"[GrenadeThrowController] G키 수류탄 모드 진입이 차단되었습니다. reason:{blockReason}, " +
+                $"[GrenadeThrowController] Grenade entry blocked. reason:{blockReason}, " +
                 $"isGrenadeMode:{isGrenadeMode}, isHoldingGrenade:{isHoldingGrenade}, isThrowingGrenade:{isThrowingGrenade}, " +
                 $"isGrenadeThrowLocked:{isGrenadeThrowLocked}, isCancelingGrenade:{isCancelingGrenade}, pendingThrow:{pendingThrow}, " +
+                $"inputGrenadeHeld:{(input != null && input.Grenade)}, polledGrenadeHeld:{wasGrenadeInputHeld}, " +
                 $"weaponRuntimeManager:{(weaponRuntimeManager != null ? weaponRuntimeManager.name : "null")}",
                 this);
         }
@@ -582,20 +684,77 @@ namespace _00.ChoiHeesu._01.Script.Explosion
 
             if (weaponSwitcher == null)
                 weaponSwitcher = GetComponentInParent<WeaponSwitcher>();
+
+#if ENABLE_INPUT_SYSTEM
+            CacheGrenadeInputAction();
+#endif
         }
+
+#if ENABLE_INPUT_SYSTEM
+        private void CacheGrenadeInputAction()
+        {
+            if (playerInput == null)
+                TryGetComponent(out playerInput);
+
+            if (playerInput == null)
+                playerInput = GetComponentInParent<PlayerInput>();
+
+            if (playerInput == null || playerInput.actions == null || string.IsNullOrWhiteSpace(grenadeInputActionName))
+            {
+                SetGrenadeInputAction(null);
+                return;
+            }
+
+            SetGrenadeInputAction(playerInput.actions.FindAction(grenadeInputActionName, false));
+        }
+
+        private void SetGrenadeInputAction(InputAction nextAction)
+        {
+            if (grenadeInputAction == nextAction)
+                return;
+
+            UnsubscribeGrenadeInputAction();
+            grenadeInputAction = nextAction;
+
+            if (isActiveAndEnabled)
+                SubscribeGrenadeInputAction();
+        }
+
+        private void SubscribeGrenadeInputAction()
+        {
+            if (grenadeInputActionSubscribed || grenadeInputAction == null)
+                return;
+
+            grenadeInputAction.performed += HandleGrenadeInputActionPerformed;
+            grenadeInputActionSubscribed = true;
+        }
+
+        private void UnsubscribeGrenadeInputAction()
+        {
+            if (!grenadeInputActionSubscribed)
+                return;
+
+            if (grenadeInputAction != null)
+                grenadeInputAction.performed -= HandleGrenadeInputActionPerformed;
+
+            grenadeInputActionSubscribed = false;
+        }
+
+        private void HandleGrenadeInputActionPerformed(InputAction.CallbackContext context)
+        {
+            queuedGrenadeInputPressed = true;
+
+            if (logMissingReferences)
+                Debug.Log("[GrenadeThrowController] Grenade InputAction performed queued.", this);
+        }
+#endif
 
         private void BindExternalRuntimeReferences(bool logIfMissing)
         {
             WeaponRuntimeManager foundManager = WeaponRuntimeManager.Instance;
 
             if (foundManager == null)
-            {
-                // WeaponRuntimeManager는 싱글톤 초기화가 끝난 뒤에만 안전하게 사용할 수 있다.
-                // 플레이어 Awake가 RuntimeManager Awake보다 먼저 실행되면 Find로 객체는 보이지만 Instance는 아직 null일 수 있다.
-                WeaponRuntimeManager pendingManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
-                if (pendingManager != null)
-                    return;
-            }
+                foundManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
 
             if (foundManager == null)
             {
@@ -615,10 +774,6 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             }
 
             missingWeaponRuntimeManagerLogged = false;
-
-            // 플레이어는 씬마다 새로 생성될 수 있으므로, 외부 RuntimeManager가 현재 씬의 WeaponController를 다시 잡도록 갱신한다.
-            if (weaponRuntimeManager.WeaponController == null)
-                weaponRuntimeManager.FindAndBindWeaponController();
         }
 
         private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -657,7 +812,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         private void HandleCurrentWeaponChanged(WeaponRuntime weaponRuntime)
         {
             if (isGrenadeMode)
-                ExitGrenadeMode(false);
+                ExitGrenadeMode(false, "CurrentWeaponChanged");
         }
 
         private void SyncTrajectorySettings()
