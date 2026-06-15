@@ -30,6 +30,8 @@ namespace StarterAssets
 		public bool WeaponSelectReleased;
 		public bool Roll;
 		public bool Grenade;
+		public bool GrenadePressed;
+		public bool GrenadeReleased;
 		public bool Reload;
 		public bool UIClose;
 		public bool AimHold;
@@ -377,6 +379,12 @@ namespace StarterAssets
 			WeaponSelectReleased = false;
 		}
 
+		public void ConsumeGrenadeInput()
+		{
+			GrenadePressed = false;
+			GrenadeReleased = false;
+		}
+
 		public void ConsumeAimInput()
 		{
 			AimHoldPressed = false;
@@ -394,6 +402,8 @@ namespace StarterAssets
 
 		public void GrenadeInput(bool newGrenadeState)
 		{
+			GrenadePressed = newGrenadeState && !Grenade;
+			GrenadeReleased = !newGrenadeState && Grenade;
 			Grenade = newGrenadeState;
 			Debug.Log("Grenade 키 입력 들어옴.");
 		}

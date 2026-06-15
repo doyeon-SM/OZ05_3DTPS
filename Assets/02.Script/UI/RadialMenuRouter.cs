@@ -15,6 +15,7 @@ namespace ProjectSpedex
         [SerializeField] private WeaponSwitcher weaponSwitcher;
         [SerializeField] private RadialMenu radialMenu;
         [SerializeField] private StarterAssetsInputs starterAssetsInputs;
+        [SerializeField] private ThirdPersonController thirdPersonController;
         [SerializeField] private string starterAssetsInputsObjectName = "Player_Soldier";
         [SerializeField] private GameObject radialMenuRoot;
 
@@ -102,6 +103,9 @@ namespace ProjectSpedex
             if (starterAssetsInputs != null)
                 missingStarterAssetsInputsLogged = false;
 
+            if (thirdPersonController == null && starterAssetsInputs != null)
+                thirdPersonController = starterAssetsInputs.GetComponent<ThirdPersonController>();
+
             if (radialMenu == null)
                 TryGetComponent(out radialMenu);
 
@@ -132,6 +136,14 @@ namespace ProjectSpedex
             if (starterAssetsInputs == null)
             {
                 ReportMissingStarterAssetsInputs();
+                return;
+            }
+
+            if (IsWeaponChangeBlocked())
+            {
+                CloseRadialMenu();
+                wasWeaponSelectHeld = starterAssetsInputs.WeaponSelect;
+                starterAssetsInputs.ConsumeWeaponSelectInput();
                 return;
             }
 
@@ -481,6 +493,12 @@ namespace ProjectSpedex
                 return false;
 
             return weaponRuntimeManager.TryGetWeaponAmmo(runtime.data.WeaponType, out int ammo) && ammo > 0;
+        }
+
+        private bool IsWeaponChangeBlocked()
+        {
+            return thirdPersonController != null &&
+                   thirdPersonController.CurrentActionState == PlayerActionState.GrenadeRoutine;
         }
 
         private void ReportMissingWeaponRuntimeManager()

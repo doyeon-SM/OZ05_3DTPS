@@ -13,6 +13,7 @@ namespace StarterAssets
         private Animator _animator;
         private bool _hasAnimator;
         private bool _missingAnimatorLogged;
+        private bool _missingEnterGrenadeParameterLogged;
         private bool _animationIDsAssigned;
 
         private int _animIDSpeed;
@@ -34,6 +35,8 @@ namespace StarterAssets
         private int _animIDTurnDirection;
         private int _animIDWeaponType;
         private int _animIDWeaponChange;
+        private int _animIDGrenade;
+        private int _animIDEnterGrenade;
 
         private void Awake()
         {
@@ -108,6 +111,23 @@ namespace StarterAssets
             if (!CanUseAnimator(nameof(SetAiming))) return;
 
             _animator.SetBool(_animIDAiming, isAiming);
+        }
+
+        public void SetGrenade(bool isGrenade)
+        {
+            if (!CanUseAnimator(nameof(SetGrenade))) return;
+
+            _animator.SetBool(_animIDGrenade, isGrenade);
+        }
+
+        public void PlayEnterGrenade()
+        {
+            if (!CanUseAnimator(nameof(PlayEnterGrenade))) return;
+
+            if (!HasEnterGrenadeTrigger())
+                return;
+
+            _animator.SetTrigger(_animIDEnterGrenade);
         }
 
         public void SetDead(bool isDead)
@@ -217,6 +237,23 @@ namespace StarterAssets
             _missingAnimatorLogged = true;
         }
 
+        private bool HasEnterGrenadeTrigger()
+        {
+            foreach (AnimatorControllerParameter parameter in _animator.parameters)
+            {
+                if (parameter.nameHash == _animIDEnterGrenade && parameter.type == AnimatorControllerParameterType.Trigger)
+                    return true;
+            }
+
+            if (!_missingEnterGrenadeParameterLogged)
+            {
+                Debug.LogWarning("[AnimationController] Animator에 Trigger Parameter 'EnterGrenade'가 없습니다. 수류탄 상태머신 진입 트랜지션용 Trigger를 추가해주세요.", this);
+                _missingEnterGrenadeParameterLogged = true;
+            }
+
+            return false;
+        }
+
         private void AssignAnimationIDs()
         {
             if (_animationIDsAssigned)
@@ -243,6 +280,8 @@ namespace StarterAssets
             _animIDTurnDirection = Animator.StringToHash("TurnDirection");
             _animIDWeaponType = Animator.StringToHash("WeaponType");
             _animIDWeaponChange = Animator.StringToHash("WeaponChange");
+            _animIDGrenade = Animator.StringToHash("Grenade");
+            _animIDEnterGrenade = Animator.StringToHash("EnterGrenade");
             _animationIDsAssigned = true;
         }
 

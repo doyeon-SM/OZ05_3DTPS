@@ -221,6 +221,9 @@ namespace _00.ChoiHeesu._04.StateChangeScript
             if (actionState == PlayerActionState.AimHold)
                 return CameraSet.PlayerCameraMode.FollowAiming;
 
+            if (actionState == PlayerActionState.GrenadeRoutine)
+                return CameraSet.PlayerCameraMode.FollowAiming;
+
             if (actionState == PlayerActionState.Normal_Fire)
                 return CameraSet.PlayerCameraMode.ThirdPerson;
 

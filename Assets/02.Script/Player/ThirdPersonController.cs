@@ -26,6 +26,8 @@ namespace StarterAssets
         [SerializeField] private bool restrictSprintInAimHold = true;
         [SerializeField] private bool restrictSprintInAiming = true;
         [SerializeField] private bool restrictSprintInNormalFire = true;
+        [SerializeField] private bool restrictSprintInGrenadeNormal;
+        [SerializeField] private bool restrictSprintInGrenadeRoutine = true;
 
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
@@ -234,6 +236,16 @@ namespace StarterAssets
             if (_input == null)
                 return;
 
+            if (IsGrenadeActionState(currentActionState))
+            {
+                _normalFireRemainTime = 0f;
+
+                if (_animationController != null)
+                    _animationController.SetAiming(ShouldPlayAimingAnimation());
+
+                return;
+            }
+
             bool hasADSInput = _input.ADSClick;
             bool hasAimHoldInput = _input.AimHold;
             bool hasAttackInput = _input.Attack;
@@ -284,12 +296,14 @@ namespace StarterAssets
         {
             return currentActionState == PlayerActionState.AimHold ||
                    currentActionState == PlayerActionState.Aiming ||
-                   currentActionState == PlayerActionState.Normal_Fire;
+                   currentActionState == PlayerActionState.Normal_Fire ||
+                   currentActionState == PlayerActionState.GrenadeRoutine;
         }
 
         private static bool IsNormalMoveState(PlayerActionState actionState)
         {
-            return actionState == PlayerActionState.Normal;
+            return actionState == PlayerActionState.Normal ||
+                   actionState == PlayerActionState.GrenadeNormal;
         }
 
         private bool IsSprintRestricted(PlayerActionState actionState)
@@ -304,6 +318,10 @@ namespace StarterAssets
                     return restrictSprintInAiming;
                 case PlayerActionState.Normal_Fire:
                     return restrictSprintInNormalFire;
+                case PlayerActionState.GrenadeNormal:
+                    return restrictSprintInGrenadeNormal;
+                case PlayerActionState.GrenadeRoutine:
+                    return restrictSprintInGrenadeRoutine;
                 default:
                     return false;
             }
@@ -334,6 +352,9 @@ namespace StarterAssets
             if (_input == null)
                 return;
 
+            if (IsGrenadeActionState(currentActionState))
+                return;
+
             if (_weaponController == null)
             {
                 if (_input.Attack)
@@ -354,6 +375,12 @@ namespace StarterAssets
         {
             if (_input == null || !_input.Reload)
                 return;
+
+            if (IsGrenadeActionState(currentActionState))
+            {
+                _input.Reload = false;
+                return;
+            }
 
             if (_weaponController == null)
             {
@@ -615,6 +642,37 @@ namespace StarterAssets
 #endif
 
             Debug.LogError($"[ThirdPersonController] {fieldName}이 null입니다. {message}", this);
+        }
+
+        public void SetGrenadeActionState(PlayerActionState nextState)
+        {
+            if (nextState != PlayerActionState.GrenadeNormal &&
+                nextState != PlayerActionState.GrenadeRoutine)
+            {
+                Debug.LogWarning($"[ThirdPersonController] 수류탄 상태가 아닌 값으로 변경할 수 없습니다: {nextState}", this);
+                return;
+            }
+
+            _normalFireRemainTime = 0f;
+            currentActionState = nextState;
+        }
+
+        public void ClearGrenadeActionState()
+        {
+            if (!IsGrenadeActionState(currentActionState))
+                return;
+
+            currentActionState = PlayerActionState.Normal;
+            _normalFireRemainTime = 0f;
+
+            if (_animationController != null)
+                _animationController.SetAiming(false);
+        }
+
+        private static bool IsGrenadeActionState(PlayerActionState actionState)
+        {
+            return actionState == PlayerActionState.GrenadeNormal ||
+                   actionState == PlayerActionState.GrenadeRoutine;
         }
 
         private void JumpAndGravity()

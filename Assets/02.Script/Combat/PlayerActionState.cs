@@ -6,5 +6,7 @@ public enum PlayerActionState
     Normal,
     AimHold,
     Aiming,
-    Normal_Fire
+    Normal_Fire,
+    GrenadeNormal,
+    GrenadeRoutine
 }

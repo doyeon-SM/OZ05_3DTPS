@@ -228,7 +228,8 @@ namespace _00.ChoiHeesu._04.StateChangeScript
         {
             return actionState == PlayerActionState.AimHold ||
                    actionState == PlayerActionState.Aiming ||
-                   actionState == PlayerActionState.Normal_Fire;
+                   actionState == PlayerActionState.Normal_Fire ||
+                   actionState == PlayerActionState.GrenadeRoutine;
         }
 
         private void LogMissingReference(string fieldName, ref bool alreadyLogged, string message)

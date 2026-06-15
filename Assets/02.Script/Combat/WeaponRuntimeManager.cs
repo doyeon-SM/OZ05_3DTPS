@@ -93,10 +93,17 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         [SerializeField] private WeaponAmmoEntry[] weaponAmmoEntries;
         [SerializeField] private WeaponAmmoIdMapping[] weaponAmmoIdMappings;
 
+        [Header("Grenade")]
+        [SerializeField] private int grenadeCount;
+
         public WeaponData[] WeaponDataArray => weaponDataArray;
         public WeaponRuntime[] WeaponRuntimes => weaponRuntimes;
         public WeaponController WeaponController => weaponController;
         public IReadOnlyDictionary<string, int> WeaponAmmoByItemId => weaponAmmoByItemId;
+        public int GrenadeCount => grenadeCount;
+        public bool HasGrenades => grenadeCount > 0;
+
+        public event Action<int> OnGrenadeCountChanged;
 
         private readonly Dictionary<string, int> weaponAmmoByItemId = new Dictionary<string, int>();
         private readonly Dictionary<WeaponClass, string> ammoItemIdByWeaponClass = new Dictionary<WeaponClass, string>();
@@ -147,6 +154,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             EnsureWeaponRuntimeArray();
             SyncWeaponRuntimesWithWeaponDataArray();
             SyncWeaponAmmoDictionary();
+            grenadeCount = Mathf.Max(grenadeCount, 0);
         }
 
         private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -428,6 +436,25 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             currentWeaponId = runtime.data.WeaponId;
             RaiseCurrentWeaponAmmo();
             return true;
+        }
+
+        public bool TryConsumeGrenade()
+        {
+            if (grenadeCount <= 0)
+                return false;
+
+            grenadeCount--;
+            OnGrenadeCountChanged?.Invoke(grenadeCount);
+            return true;
+        }
+
+        public void AddGrenade(int amount)
+        {
+            if (amount <= 0)
+                return;
+
+            grenadeCount += amount;
+            OnGrenadeCountChanged?.Invoke(grenadeCount);
         }
 
         public bool TryGetReloadPreview(WeaponRuntime runtime, out int reloadAmount, out int consumedAmmo, out string blockMessage)

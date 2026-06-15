@@ -102,6 +102,18 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             return UpdateWeaponControllerMuzzle(activeWeaponPrefab, weaponId);
         }
 
+        public bool SetWeaponsVisible(bool isVisible)
+        {
+            if (!EnsureInitialized())
+                return false;
+
+            if (isVisible)
+                return RefreshCurrentWeapon();
+
+            DeactivateAllWeapons();
+            return true;
+        }
+
         private bool CacheReferences()
         {
             weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
