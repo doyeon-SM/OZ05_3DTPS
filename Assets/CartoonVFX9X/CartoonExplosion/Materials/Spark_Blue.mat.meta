@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: db5f723772f15bf49976b3cc02738ae5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 281685
+  packageName: Cartoon Explosion URP
+  packageVersion: 1.0
+  assetPath: Assets/CartoonVFX9X/CartoonExplosion/Materials/Spark_Blue.mat
+  uploadId: 655508

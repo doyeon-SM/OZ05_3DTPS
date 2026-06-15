@@ -32,6 +32,9 @@ namespace _01.Scenes.PhaseValidation
         [Header("보스 데이터")]
         [SerializeField] private BossStatus bossStatus;
 
+        [Tooltip("공격 VFX/SFX 처리 컴포넌트 (비워두면 자동으로 GetComponent 시도)")]
+        [SerializeField] private BossEffectController effectController;
+
         [Header("판정 자식 오브젝트")]
         [Tooltip("부채꼴 공격 표시/판정용 자식 오브젝트 (보스 정면 기준 배치, Plane)")]
         [SerializeField] private BossFanAttackHitbox fanAttackHitbox;
@@ -84,6 +87,7 @@ namespace _01.Scenes.PhaseValidation
         private void Awake()
         {
             if (bossStatus == null) bossStatus = GetComponent<BossStatus>();
+            if (effectController == null) effectController = GetComponent<BossEffectController>();
         }
 
         private void Start()
@@ -116,14 +120,6 @@ namespace _01.Scenes.PhaseValidation
                 t.localPosition = new Vector3(0f, fanIndicatorYOffset, meleeRange / 2f);
             }
 
-            if (laserHitbox != null)
-            {
-                Transform t = laserHitbox.transform;
-                float scaleY = laserRange / 2f;
-                t.localScale = new Vector3(t.localScale.x, scaleY, t.localScale.z);
-                t.localPosition = new Vector3(0f, 0f, laserRange / 2f);
-                t.localRotation = Quaternion.Euler(laserLocalRotationEuler);
-            }
         }
 
         private void TryBindPlayer()
@@ -201,6 +197,9 @@ namespace _01.Scenes.PhaseValidation
                 fanAttackHitbox.ShowTelegraph();
             }
 
+            if (effectController != null)
+                effectController.OnTelegraphSFX_Melee();
+
             yield return new WaitForSeconds(fanTelegraphDuration);
 
             // 즉시 1회 데미지 판정
@@ -237,6 +236,12 @@ namespace _01.Scenes.PhaseValidation
                     int damage = Mathf.RoundToInt(GetAttackPower() * fanAttackMultiplier);
                     playerStatus.TakeDamage(damage);
                     Debug.Log($"[BossController] 부채꼴 공격 적중 | damage={damage} angle={angle:F1}");
+
+                    if (effectController != null)
+                    {
+                        effectController.PlayMeleeVfx(hit.transform.position, Quaternion.LookRotation(attackForward));
+                        effectController.OnHitSFX_Melee();
+                    }
                 }
             }
         }
@@ -247,9 +252,11 @@ namespace _01.Scenes.PhaseValidation
         {
             if (laserHitbox != null)
             {
-                laserHitbox.transform.localRotation = Quaternion.Euler(laserLocalRotationEuler);
                 laserHitbox.ShowTelegraph();
             }
+
+            if (effectController != null)
+                effectController.OnTelegraphSFX_Laser();
 
             // 추적(예고) 단계 - 보스가 플레이어를 향해 회전
             float elapsed = 0f;
@@ -269,6 +276,9 @@ namespace _01.Scenes.PhaseValidation
             int tickDamage = Mathf.RoundToInt(GetAttackPower() * laserTickMultiplier);
             if (laserHitbox != null)
                 laserHitbox.StartAttack(tickDamage);
+
+            if (effectController != null)
+                effectController.OnHitSFX_Laser();
 
             yield return new WaitForSeconds(laserFireDuration);
 

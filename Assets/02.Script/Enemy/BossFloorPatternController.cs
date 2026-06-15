@@ -46,6 +46,9 @@ namespace _01.Scenes.PhaseValidation
         [Header("보스 데이터")]
         [SerializeField] private BossStatus bossStatus;
 
+        [Tooltip("공격 VFX/SFX 처리 컴포넌트 (비워두면 자동으로 GetComponentInParent 시도)")]
+        [SerializeField] private BossEffectController effectController;
+
         [Tooltip("격자 중심으로 사용할 Transform (보통 보스 본체). 비워두면 this.transform 사용.")]
         [SerializeField] private Transform gridCenter;
 
@@ -72,6 +75,8 @@ namespace _01.Scenes.PhaseValidation
 
         private void Awake()
         {
+            if (effectController == null) effectController = GetComponentInParent<BossEffectController>();
+
             if (gridCenter == null)
             {
                 GameObject spawn = GameObject.Find(BossSpawnName);
@@ -217,6 +222,9 @@ namespace _01.Scenes.PhaseValidation
                 used.Add(indicator);
             }
 
+            if (effectController != null)
+                effectController.OnTelegraphSFX_FloorPattern();
+
             yield return new WaitForSeconds(lineTelegraphDuration);
 
             // 동시 공격 판정 + 표시
@@ -225,6 +233,9 @@ namespace _01.Scenes.PhaseValidation
                 var rect = isRow ? GetRowRect(idx) : GetColRect(idx);
                 ApplyFloorDamage(rect.center, rect.sizeX, rect.sizeZ);
             }
+
+            if (effectController != null)
+                effectController.OnHitSFX_FloorPattern();
 
             foreach (var indicator in used)
                 indicator.ShowAttack();
@@ -292,9 +303,16 @@ namespace _01.Scenes.PhaseValidation
             indicator.SetRect(rect.center, rect.sizeX, rect.sizeZ);
             indicator.ShowTelegraph();
 
+            if (effectController != null)
+                effectController.OnTelegraphSFX_FloorPattern();
+
             yield return new WaitForSeconds(lineTelegraphDuration);
 
             ApplyFloorDamage(rect.center, rect.sizeX, rect.sizeZ);
+
+            if (effectController != null)
+                effectController.OnHitSFX_FloorPattern();
+
             indicator.ShowAttack();
 
             yield return new WaitForSeconds(attackShowDuration);
@@ -329,6 +347,9 @@ namespace _01.Scenes.PhaseValidation
             if (circleIndicator != null)
                 circleIndicator.Show(targetWorld);
 
+            if (effectController != null)
+                effectController.OnTelegraphSFX_FloorPattern();
+
             // 컨테이너 낙하 시작 - 로컬 XZ를 목표 지점으로, Y는 idle(대기) 높이에서 시작
             Transform parent = container.transform.parent;
             Vector3 targetLocal = parent != null ? parent.InverseTransformPoint(targetWorld) : targetWorld;
@@ -353,6 +374,12 @@ namespace _01.Scenes.PhaseValidation
 
             int damage = container.CalculateDamage(GetAttackPower());
             container.StartFalling(floorLocalY, damage);
+
+            if (effectController != null)
+            {
+                effectController.PlayFloorPatternVfx(targetWorld, Quaternion.identity);
+                effectController.OnHitSFX_FloorPattern();
+            }
 
             // 낙하 시간(3초) 동안 대기 - 원형 예고와 동일 시간
             yield return new WaitForSeconds(3f);
@@ -389,6 +416,9 @@ namespace _01.Scenes.PhaseValidation
                 int damage = Mathf.RoundToInt(GetAttackPower() * floorPatternMultiplier);
                 playerStatus.TakeDamage(damage);
                 Debug.Log($"[BossFloorPatternController] 바닥패턴 적중 | damage={damage}");
+
+                if (effectController != null)
+                    effectController.PlayFloorPatternVfx(pos, Quaternion.identity);
             }
         }
 

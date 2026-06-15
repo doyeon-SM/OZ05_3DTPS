@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f8345e6ed6ec09c4fb5948c990472b5d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 281685
+  packageName: Cartoon Explosion URP
+  packageVersion: 1.0
+  assetPath: Assets/CartoonVFX9X/CartoonExplosion/Materials/Spark_Sheet_White.mat
+  uploadId: 655508
