@@ -160,7 +160,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
 
         public void OnGrenadeCancelAnimationEnd()
         {
-            ExitGrenadeMode();
+            RestoreGrenadeNormalAfterCancel();
         }
 
         public void OnGrenadeCancleAnimationEnd()
@@ -218,16 +218,18 @@ namespace _00.ChoiHeesu._01.Script.Explosion
 
             input.ConsumeGrenadeInput();
 
-            if (isGrenadeMode || isGrenadeThrowLocked || isCancelingGrenade)
-                return;
-
-            TryEnterGrenadeMode();
+            TryEnterGrenadeMode(true);
         }
 
-        private bool TryEnterGrenadeMode()
+        private bool TryEnterGrenadeMode(bool logBlocked = false)
         {
-            if (!HasGrenadesAvailable())
+            if (!CanEnterGrenadeMode(out string blockReason))
+            {
+                if (logBlocked)
+                    LogGrenadeEntryBlocked(blockReason);
+
                 return false;
+            }
 
             isGrenadeMode = true;
             isHoldingGrenade = false;
@@ -245,6 +247,38 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             SetGrenadeAnimator(true);
             PlayEnterGrenadeTrigger();
             EnterGrenadeNormalState();
+            return true;
+        }
+
+        private bool CanEnterGrenadeMode(out string blockReason)
+        {
+            if (isGrenadeMode)
+            {
+                blockReason = "이미 수류탄 모드입니다.";
+                return false;
+            }
+
+            if (isGrenadeThrowLocked || isCancelingGrenade || isThrowingGrenade || pendingThrow)
+            {
+                blockReason = $"수류탄 상태 플래그가 잠겨 있습니다. locked:{isGrenadeThrowLocked}, canceling:{isCancelingGrenade}, throwing:{isThrowingGrenade}, pending:{pendingThrow}";
+                return false;
+            }
+
+            if (!HasGrenadesAvailable())
+            {
+                blockReason = weaponRuntimeManager == null
+                    ? "WeaponRuntimeManager를 찾지 못했습니다."
+                    : $"남은 수류탄이 없습니다. GrenadeCount:{weaponRuntimeManager.GrenadeCount}";
+                return false;
+            }
+
+            if (animator == null && animationController == null)
+            {
+                blockReason = "Animator 또는 AnimationController 참조가 없습니다.";
+                return false;
+            }
+
+            blockReason = string.Empty;
             return true;
         }
 
@@ -417,6 +451,28 @@ namespace _00.ChoiHeesu._01.Script.Explosion
                 ExitGrenadeMode();
         }
 
+        private void RestoreGrenadeNormalAfterCancel()
+        {
+            isThrowingGrenade = false;
+            isGrenadeThrowLocked = false;
+            pendingThrow = false;
+            isHoldingGrenade = false;
+            isCancelingGrenade = false;
+            hasCachedThrowData = false;
+            HideTrajectory();
+
+            if (!HasGrenadesAvailable())
+            {
+                ExitGrenadeMode();
+                return;
+            }
+
+            SetGrenadeAnimator(true);
+            SetHandGrenadeVisible(true);
+            PlayEnterGrenadeTrigger();
+            EnterGrenadeNormalState();
+        }
+
         private void EnterGrenadeNormalState()
         {
             if (thirdPersonController != null)
@@ -470,6 +526,16 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         {
             if (animationController != null)
                 animationController.SetWeaponChange();
+        }
+
+        private void LogGrenadeEntryBlocked(string blockReason)
+        {
+            Debug.LogError(
+                $"[GrenadeThrowController] G키 수류탄 모드 진입이 차단되었습니다. reason:{blockReason}, " +
+                $"isGrenadeMode:{isGrenadeMode}, isHoldingGrenade:{isHoldingGrenade}, isThrowingGrenade:{isThrowingGrenade}, " +
+                $"isGrenadeThrowLocked:{isGrenadeThrowLocked}, isCancelingGrenade:{isCancelingGrenade}, pendingThrow:{pendingThrow}, " +
+                $"weaponRuntimeManager:{(weaponRuntimeManager != null ? weaponRuntimeManager.name : "null")}",
+                this);
         }
 
         private void PlayOptionalTrigger(string triggerParameter)
@@ -590,7 +656,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
 
         private void HandleCurrentWeaponChanged(WeaponRuntime weaponRuntime)
         {
-            if (isGrenadeMode && !IsWeaponChangeBlocked)
+            if (isGrenadeMode)
                 ExitGrenadeMode(false);
         }
 
