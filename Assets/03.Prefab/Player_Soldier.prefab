@@ -2534,6 +2534,7 @@ GameObject:
   - component: {fileID: 4212851093045489019}
   - component: {fileID: 3571125672217080771}
   - component: {fileID: 4021897693488989462}
+  - component: {fileID: 984020528880807235}
   m_Layer: 7
   m_Name: Combat
   m_TagString: Untagged
@@ -2580,7 +2581,8 @@ MonoBehaviour:
   reloadAfterWeaponChangeDelay: 0.2
   saveTime: -999
   hitscanSystem: {fileID: 4212851093045489019}
-  spreadProvider: {fileID: 0}
+  spreadProvider: {fileID: 4021897693488989462}
+  recoilController: {fileID: 984020528880807235}
   muzzle: {fileID: 4190480682531403155}
   aimRange: 100
   shotRange: 100
@@ -2649,12 +2651,54 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_02.Script.Combat.PlayerSpreadProvider
   thirdPersonController: {fileID: 0}
   characterController: {fileID: 0}
+  weaponController: {fileID: 0}
   speedForMaxMoveSpread: 0
   maxMoveSpreadAngle: 2
   airSpreadAngle: 4
-  normalFireSpreadAngle: 0.5
-  aimHoldSpreadAngle: 0.2
+  normalSpreadAngle: 1.5
+  normalFireSpreadAngle: 1.5
+  aimHoldSpreadAngle: 0.8
   aimingSpreadAngle: 0
+  fireTimeSpreadCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxFireTimeSpread: 3
+--- !u!114 &984020528880807235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7291352240272111982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 225b7913473443d49be3ac0c48d717c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._01.Script.PlayerRecoilController
+  thirdPersonController: {fileID: 1860447976410328513}
+  recoilUpSmoothSpeed: 60
+  maxPendingRecoil: 30
 --- !u!1 &7311193448234864086
 GameObject:
   m_ObjectHideFlags: 0
