@@ -27,7 +27,6 @@ namespace _02.Script.Combat
 
         [Header("Weapon")]
         [SerializeField] private WeaponRuntime currentWeapon;
-        [SerializeField] private WeaponPrefabSetting currentWeaponPrefabSetting;
         [SerializeField] private GameObject gunSocket;
 
         [Header("Current Weapon State")]
@@ -39,6 +38,8 @@ namespace _02.Script.Combat
 
         [Header("Attack System")]
         [SerializeField] private TPS_TwoStepHitscanSystem hitscanSystem;
+        [SerializeField] private WeaponEffectPrinter weaponEffectPrinter;
+        [SerializeField] private WeaponSoundController weaponSoundController;
         [SerializeField] private PlayerSpreadProvider spreadProvider;
         [SerializeField] private PlayerRecoilController recoilController;
         [SerializeField] private Transform muzzle;
@@ -49,8 +50,9 @@ namespace _02.Script.Combat
         [SerializeField] private LayerMask aimMask;
         [SerializeField] private LayerMask shotMask;
         [SerializeField] private LayerMask muzzleBlockMask;
-        [SerializeField] private GameObject hitEffectPrefab;
-        [SerializeField] private float hitEffectLifeTime = 0.2f;
+
+        [SerializeField, HideInInspector] private GameObject hitEffectPrefab;
+        [SerializeField, HideInInspector] private float hitEffectLifeTime = 0.2f;
         
         [Header("Event Channels")]
         [SerializeField] private DoubleIntEventChannel AmmoChangeChannel;
@@ -80,7 +82,12 @@ namespace _02.Script.Combat
 
         public void SetCurrentWeaponPrefabSetting(WeaponPrefabSetting nextWeaponPrefabSetting)
         {
-            currentWeaponPrefabSetting = nextWeaponPrefabSetting;
+            CacheCombatReferences();
+
+            if (weaponEffectPrinter == null)
+                return;
+
+            weaponEffectPrinter.SetCurrentWeaponPrefabSetting(nextWeaponPrefabSetting);
         }
 
         public bool VariableChange;
@@ -140,6 +147,20 @@ namespace _02.Script.Combat
         {
             if (hitscanSystem == null)
                 hitscanSystem = GetComponent<TPS_TwoStepHitscanSystem>();
+
+            if (weaponEffectPrinter == null)
+                weaponEffectPrinter = GetComponent<WeaponEffectPrinter>();
+
+            if (weaponEffectPrinter == null)
+                weaponEffectPrinter = gameObject.AddComponent<WeaponEffectPrinter>();
+
+            weaponEffectPrinter.ApplyHitEffectSettingsIfEmpty(hitEffectPrefab, hitEffectLifeTime);
+
+            if (weaponSoundController == null)
+                weaponSoundController = GetComponent<WeaponSoundController>();
+
+            if (weaponSoundController == null)
+                weaponSoundController = gameObject.AddComponent<WeaponSoundController>();
 
             if (spreadProvider == null)
                 spreadProvider = GetComponentInParent<PlayerSpreadProvider>();
@@ -239,6 +260,7 @@ namespace _02.Script.Combat
                 _reloadCoroutine = null;
             }
 
+            weaponSoundController?.StopAllSounds();
             isfire = false;
             isReloading = false;
             ResetFireTime();
@@ -303,8 +325,7 @@ namespace _02.Script.Combat
                 AimMask = aimMask,
                 ShotMask = shotMask,
                 MuzzleBlockMask = muzzleBlockMask,
-                HitEffectPrefab = hitEffectPrefab,
-                HitEffectLifeTime = Mathf.Max(hitEffectLifeTime, 0.01f),
+                EffectPrinter = weaponEffectPrinter,
                 Damage = Damage,
                 SpreadAngle = GetCurrentSpreadAngle(currentWeapon.data)
             };
@@ -514,22 +535,11 @@ namespace _02.Script.Combat
             if (fired)
             {
                 LastAimDirection = hitscanSystem.AimDirection;
-                PlayCurrentWeaponMuzzleEffect();
+                weaponSoundController?.PlayShot(weaponData);
                 ApplyRecoil(weaponData);
             }
 
             return fired;
-        }
-
-        private void PlayCurrentWeaponMuzzleEffect()
-        {
-            if (currentWeaponPrefabSetting == null && muzzle != null)
-                currentWeaponPrefabSetting = muzzle.GetComponentInParent<WeaponPrefabSetting>(true);
-
-            if (currentWeaponPrefabSetting == null)
-                return;
-
-            currentWeaponPrefabSetting.PlayMuzzleEffect();
         }
 
         private void ApplyRecoil(WeaponData weaponData)
@@ -706,10 +716,12 @@ namespace _02.Script.Combat
             LogWeaponState(LogReloadStart);
 
             float reloadTime = Mathf.Max(reloadWeapon.data.ReloadTime, 0f);
+            weaponSoundController?.PlayReload(reloadWeapon.data, reloadTime);
             yield return new WaitForSeconds(reloadTime);
 
             if (CurrentWeapon != reloadWeapon)
             {
+                weaponSoundController?.StopReload();
                 isReloading = false;
                 SetReloadingAnimation(isReloading);
                 _reloadCoroutine = null;

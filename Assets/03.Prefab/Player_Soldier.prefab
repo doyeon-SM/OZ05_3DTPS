@@ -633,14 +633,14 @@ Transform:
   m_GameObject: {fileID: 918747333141965350}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.877, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 1.0317647, z: 0}
+  m_LocalScale: {x: 1.1764706, y: 1.1764706, z: 1.1764706}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1918059807624376948}
   - {fileID: 851907676161209430}
   - {fileID: 6631004072240298982}
-  m_Father: {fileID: 4396053498136997635}
+  m_Father: {fileID: 2542007875471310758}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1028471905032458424
 GameObject:
@@ -1716,7 +1716,6 @@ Transform:
   - {fileID: 8525724962174263532}
   - {fileID: 2542007875471310758}
   - {fileID: 5233979370370125538}
-  - {fileID: 3502513753175416860}
   - {fileID: 918507995315047571}
   - {fileID: 4829323689372399575}
   - {fileID: 439574656533397933}
@@ -2652,6 +2651,7 @@ MonoBehaviour:
   reloadAfterWeaponChangeDelay: 0.2
   saveTime: -999
   hitscanSystem: {fileID: 4212851093045489019}
+  weaponEffectPrinter: {fileID: 0}
   spreadProvider: {fileID: 4021897693488989462}
   recoilController: {fileID: 984020528880807235}
   muzzle: {fileID: 4190480682531403155}
@@ -3576,6 +3576,7 @@ Transform:
   - {fileID: 2109106593606943004}
   - {fileID: 3653939080914243951}
   - {fileID: 1542854252917262488}
+  - {fileID: 3502513753175416860}
   m_Father: {fileID: 4396053498136997635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8738288042689079330

@@ -13,8 +13,7 @@ namespace _02.Script.Combat
         public LayerMask AimMask;
         public LayerMask ShotMask;
         public LayerMask MuzzleBlockMask;
-        public GameObject HitEffectPrefab;
-        public float HitEffectLifeTime;
+        public WeaponEffectPrinter EffectPrinter;
         public int Damage;
         public float SpreadAngle;
     }
@@ -143,11 +142,6 @@ namespace _02.Script.Combat
                 damageable.TakeDamage(request.Damage);
             }
 
-            if (request.HitEffectPrefab != null)
-            {
-                GameObject hitEffect = Instantiate(request.HitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                Destroy(hitEffect, request.HitEffectLifeTime);
-            }
         }
 
         private void DrawDebugRays(AimResult aim, ShotResult shot, HitscanFireRequest request)
@@ -201,6 +195,7 @@ namespace _02.Script.Combat
 
             AimDirection = shotResult.direction;
             DrawDebugRays(aimResult, shotResult, request);
+            request.EffectPrinter?.PrintFireEffects(request.Muzzle, shotResult, true);
 
             if (shotResult.didHit)
             {
@@ -228,6 +223,7 @@ namespace _02.Script.Combat
                 ShotResult shotResult = FireRayFromMuzzle(request, shotDirection, castDistance);
 
                 DrawDebugRays(aimResult, shotResult, request);
+                request.EffectPrinter?.PrintFireEffects(request.Muzzle, shotResult, i == 0);
 
                 if (shotResult.didHit)
                 {
