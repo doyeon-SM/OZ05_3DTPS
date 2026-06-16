@@ -20,6 +20,7 @@ namespace StarterAssets
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
 		[SerializeField] private bool lookInputBlocked;
+		[SerializeField] private bool attackInputBlocked;
 
 		public bool Interact;
 		public bool Attack;
@@ -209,7 +210,21 @@ namespace StarterAssets
 
 		public void AttackInput(bool newAttackState)
 		{
+			if (attackInputBlocked)
+			{
+				Attack = false;
+				return;
+			}
+
 			Attack = newAttackState;
+		}
+
+		public void SetAttackInputBlocked(bool isBlocked)
+		{
+			attackInputBlocked = isBlocked;
+
+			if (attackInputBlocked)
+				Attack = false;
 		}
 		public void InventoryInput(bool newInventoryState)
         {

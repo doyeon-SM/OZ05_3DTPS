@@ -8,6 +8,9 @@ using UnityEngine.UI;
 /// </summary>
 public class RepairObject : MonoBehaviour, IInteraction
 {
+    [Header("상호작용 UI")]
+    [SerializeField] private string _interactionLabel = "[E] 수리";
+
     [Header("수리할 물건 장소/이름")]
     [SerializeField] private string repairName;
 
@@ -36,6 +39,9 @@ public class RepairObject : MonoBehaviour, IInteraction
 
     public bool   IsRepaired => _isRepaired;
     public string RepairName => repairName;
+
+    // IInteraction
+    public string InteractionLabel => _interactionLabel;
 
     private void Awake()
     {
@@ -87,10 +93,7 @@ public class RepairObject : MonoBehaviour, IInteraction
         _isRepaired = true;
         if (repairSliderUI != null) repairSliderUI.SetActive(false);
         if (ambientVFX != null)     ambientVFX.SetActive(false);
-
         Debug.Log("[RepairObject] 수리 완료!");
-
-        // 완료 이벤트 발행
         OnRepaired?.Invoke();
     }
 }

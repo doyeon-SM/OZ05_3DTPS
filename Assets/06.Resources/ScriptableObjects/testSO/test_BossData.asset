@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a715f6f4f2555498e4467e76099140, type: 3}
+  m_Name: test_BossData
+  m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.BossData
+  prefab: {fileID: 4610476503097255726, guid: 23a1faf8118648049b5b350d964d4207, type: 3}
+  maxHealth: 100
+  attackPower: 10
+  meleeRangeRadius: 5
+  rotationSpeed: 90
+  laserRange: 20

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
@@ -13,11 +13,11 @@ namespace _01.Scenes.PhaseValidation
         // 섹터 매니저에서 구독 — 풀 반환 처리 위임
         public event Action<EnemyStatus> OnDied;
 
-        public int AttackPower => enemyData != null ? enemyData.attackPower : 0;
+        public int AttackPower  => enemyData != null ? enemyData.attackPower  : 0;
         public float RespawnDelay => enemyData != null ? enemyData.respawnDelay : 5f;
-        public EnemyData Data => enemyData;
+        public EnemyData Data   => enemyData;
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             isDead = false;
             ResetHealth();
@@ -35,7 +35,7 @@ namespace _01.Scenes.PhaseValidation
             currentHealth = enemyData != null ? enemyData.maxHealth : 100;
         }
 
-        public void TakeDamage(int value)
+        public virtual void TakeDamage(int value)
         {
             if (isDead) return;
 
@@ -47,17 +47,14 @@ namespace _01.Scenes.PhaseValidation
             }
         }
 
-        private void Die()
+        protected virtual void Die()
         {
             if (isDead) return;
             isDead = true;
 
             Debug.Log($"{gameObject.name}이 죽었습니다.");
 
-            // 드랍 처리 — StageManager에 사망 위치 전달
             StageManager.Instance?.OnEnemyDied(transform.position);
-
-            // 풀 반환 처리 — 섹터에 위임
             OnDied?.Invoke(this);
         }
     }

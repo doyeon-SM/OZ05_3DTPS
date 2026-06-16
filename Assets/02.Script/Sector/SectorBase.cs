@@ -34,19 +34,16 @@ namespace _01.Scenes.PhaseValidation
             Collider col = GetComponent<Collider>();
             col.isTrigger = true;
 
-            if (entryDoor == null) Debug.Log("EntryDoor Null");
-            if (exitDoor == null) Debug.Log("ExitDoor Null");
-
             if (entryDoor != null)
             {
                 entryDoorObject = entryDoor.GetComponent<Door>();
-                entryDoorObject.Interaction();
-                entryDoorObject.SetDoorActive(true);
+                entryDoorObject?.Interaction();
+                entryDoorObject?.SetDoorActive(true);
             }
             if (exitDoor != null)
             {
                 exitDoorObject = exitDoor.GetComponent<Door>();
-                exitDoorObject.SetDoorActive(false);
+                exitDoorObject?.SetDoorActive(false);
             }
 
             OnSectorStart();
@@ -66,22 +63,22 @@ namespace _01.Scenes.PhaseValidation
                     EnemyPoolManager.Instance.ReturnToPool(enemy);
             activeEnemies.Clear();
 
-            if (exitDoor != null && entryDoor != null)
+            // 문이 있는 경우에만 처리
+            if (entryDoorObject != null && exitDoorObject != null)
             {
                 entryDoorObject.SetDoorActive(true);
                 exitDoorObject.SetDoorActive(true);
                 exitDoorObject.Interaction();
             }
-            else
+            else if (entryDoorObject != null)
             {
                 entryDoorObject.SetDoorActive(true);
                 entryDoorObject.Interaction();
             }
+            // 문이 없는 섹터(보스룸 등)는 문 처리 없이 클리어
 
             Debug.Log($"[{gameObject.name}] 섹터 클리어!");
             OnSectorCleared();
-
-            // 클리어 이벤트 발행
             OnCleared?.Invoke();
         }
 
@@ -94,7 +91,7 @@ namespace _01.Scenes.PhaseValidation
 
             isBattleActive = true;
 
-            if (entryDoor != null)
+            if (entryDoorObject != null)
             {
                 entryDoorObject.Interaction();
                 entryDoorObject.SetDoorActive(false);
