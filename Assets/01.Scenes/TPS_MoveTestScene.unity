@@ -2157,6 +2157,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a519f03aee53c45bebfe44df6939bd67, type: 3}
+--- !u!1 &1583305801 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6228590478468505392, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+  m_PrefabInstance: {fileID: 2051028712616902493}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1650663170 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6962664500777956611, guid: 1c86d06ca66946944afe3510595191b9, type: 3}
@@ -2167,6 +2172,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4223488449671717163, guid: ee95ecdc143c946fdac8b8c458b70983, type: 3}
   m_PrefabInstance: {fileID: 2131785904}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1730854352
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1730854353}
+  m_Layer: 0
+  m_Name: HitEffectPoolFolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1730854353
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1730854352}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1862030245}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1740960555
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2301,12 +2337,40 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
   m_PrefabInstance: {fileID: 2051028712616902493}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1583305801}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8dc1883b54d8d294f9b3ae3466ed6e2c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._03.WeaponChangeSystem.WeaponRuntimeManager
+--- !u!4 &1862030245 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 80043138940455782, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+  m_PrefabInstance: {fileID: 2051028712616902493}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1862030246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1583305801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 202e1997fa0dce0428a42a8a58236c43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._01.Script.HitEffectPooling
+  hitEffectPrefab: {fileID: 0}
+  hitEffectLifeTime: 2.5
+  hitEffectSurfaceOffset: 0.08
+  poolFolder: {fileID: 1730854353}
+  poolFolderName: HitEffectPoolFolder
+  initialEffectCreateCount: 50
+  maxEffectCount: 100
+  createAdditionalEffectUntilMax: 1
+  logSkipWhenPoolIsFull: 1
+  clearParticleOnPlay: 1
+  stopParticleOnReturn: 1
 --- !u!4 &1897463750 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6795194872421221103, guid: 55bebc983faddc146a158312f355fb59, type: 3}
@@ -2846,8 +2910,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 80043138940455782, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1730854353}
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6228590478468505392, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1862030246}
   m_SourcePrefab: {fileID: 100100000, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
 --- !u!1001 &5066070733886553106
 PrefabInstance:

@@ -3062,6 +3062,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_02.Script.Combat.WeaponEffectPrinter
   currentWeaponPrefabSetting: {fileID: 0}
+  hitEffectPooling: {fileID: 0}
   hitEffectPrefab: {fileID: 1801918589960200, guid: 03280e26db9a2524c8409f02a2ab4d7d, type: 3}
   hitEffectLifeTime: 2.5
   hitEffectSurfaceOffset: 0.01

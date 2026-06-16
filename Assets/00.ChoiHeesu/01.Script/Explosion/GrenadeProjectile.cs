@@ -20,6 +20,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         [SerializeField] private Collider[] colliders;
         [SerializeField] private GameObject meshRoot;
         [SerializeField] private GameObject explosionEffect;
+        [SerializeField] private GrenadeSound grenadeSound;
 
         private bool hasExploded;
 
@@ -37,6 +38,9 @@ namespace _00.ChoiHeesu._01.Script.Explosion
         {
             if (explosionEffect != null)
                 explosionEffect.SetActive(false);
+
+            if (grenadeSound != null)
+                grenadeSound.PlayFuse(explosionTime);
 
             StartCoroutine(ExplosionRoutine());
         }
@@ -58,6 +62,9 @@ namespace _00.ChoiHeesu._01.Script.Explosion
                 return;
 
             hasExploded = true;
+
+            if (grenadeSound != null)
+                grenadeSound.PlayExplosion(transform.position);
 
             StopRigidbody();
             SetCollidersEnabled(false);
@@ -149,6 +156,9 @@ namespace _00.ChoiHeesu._01.Script.Explosion
 
             if (colliders == null || colliders.Length == 0)
                 colliders = GetComponentsInChildren<Collider>(true);
+
+            if (grenadeSound == null)
+                TryGetComponent(out grenadeSound);
         }
 
         private static void SetLinearVelocity(Rigidbody targetRigidbody, Vector3 velocity)

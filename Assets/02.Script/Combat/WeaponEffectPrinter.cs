@@ -1,3 +1,5 @@
+using _00.ChoiHeesu._01.Script;
+using _00.ChoiHeesu._03.WeaponChangeSystem;
 using _01.Scenes.PhaseValidation;
 using UnityEngine;
 
@@ -9,9 +11,10 @@ namespace _02.Script.Combat
         [SerializeField] private WeaponPrefabSetting currentWeaponPrefabSetting;
 
         [Header("Hit Effect")]
-        [SerializeField] private GameObject hitEffectPrefab;
-        [SerializeField] private float hitEffectLifeTime = 0.2f;
-        [SerializeField] private float hitEffectSurfaceOffset = 0.01f;
+        [SerializeField] private HitEffectPooling hitEffectPooling;
+        [SerializeField, HideInInspector] private GameObject hitEffectPrefab;
+        [SerializeField, HideInInspector] private float hitEffectLifeTime = 0.2f;
+        [SerializeField, HideInInspector] private float hitEffectSurfaceOffset = 0.01f;
 
         [Header("Bullet Trail")]
         [SerializeField] private bool useBulletTrail = true;
@@ -45,11 +48,14 @@ namespace _02.Script.Combat
 
         public void ApplyHitEffectSettingsIfEmpty(GameObject fallbackHitEffectPrefab, float fallbackHitEffectLifeTime)
         {
-            if (hitEffectPrefab != null || fallbackHitEffectPrefab == null)
-                return;
+            if (hitEffectPrefab == null && fallbackHitEffectPrefab != null)
+            {
+                hitEffectPrefab = fallbackHitEffectPrefab;
+                hitEffectLifeTime = Mathf.Max(fallbackHitEffectLifeTime, 0.01f);
+            }
 
-            hitEffectPrefab = fallbackHitEffectPrefab;
-            hitEffectLifeTime = Mathf.Max(fallbackHitEffectLifeTime, 0.01f);
+            if (TryGetHitEffectPooling(out HitEffectPooling pooling))
+                ApplyLegacyHitEffectSettings(pooling);
         }
 
         public void PrintFireEffects(Transform muzzle, ShotResult shotResult, bool playMuzzleEffect)
@@ -76,14 +82,15 @@ namespace _02.Script.Combat
 
         private void PrintHitEffect(RaycastHit hit)
         {
-            if (hitEffectPrefab == null)
+            if (!TryGetHitEffectPooling(out HitEffectPooling pooling))
                 return;
 
+            ApplyLegacyHitEffectSettings(pooling);
+
             Vector3 hitNormal = GetSafeHitNormal(hit);
-            Vector3 spawnPosition = hit.point + hitNormal * Mathf.Max(hitEffectSurfaceOffset, 0f);
+            Vector3 spawnPosition = hit.point + hitNormal * pooling.HitEffectSurfaceOffset;
             Quaternion spawnRotation = Quaternion.FromToRotation(Vector3.up, hitNormal);
-            GameObject hitEffect = Instantiate(hitEffectPrefab, spawnPosition, spawnRotation);
-            Destroy(hitEffect, Mathf.Max(hitEffectLifeTime, 0.01f));
+            pooling.TryPlayHitEffect(spawnPosition, spawnRotation);
         }
 
         private void PrintBulletTrail(ShotResult shotResult)
@@ -161,6 +168,34 @@ namespace _02.Script.Combat
                 return Vector3.up;
 
             return hit.normal.normalized;
+        }
+
+        private bool TryGetHitEffectPooling(out HitEffectPooling pooling)
+        {
+            if (hitEffectPooling != null)
+            {
+                pooling = hitEffectPooling;
+                return true;
+            }
+
+            WeaponRuntimeManager runtimeManager = WeaponRuntimeManager.Instance;
+            if (runtimeManager != null && runtimeManager.TryGetComponent(out hitEffectPooling))
+            {
+                pooling = hitEffectPooling;
+                return true;
+            }
+
+            hitEffectPooling = FindFirstObjectByType<HitEffectPooling>(FindObjectsInactive.Include);
+            pooling = hitEffectPooling;
+            return pooling != null;
+        }
+
+        private void ApplyLegacyHitEffectSettings(HitEffectPooling pooling)
+        {
+            if (pooling == null || hitEffectPrefab == null)
+                return;
+
+            pooling.ConfigureIfEmpty(hitEffectPrefab, hitEffectLifeTime, hitEffectSurfaceOffset);
         }
     }
 }
