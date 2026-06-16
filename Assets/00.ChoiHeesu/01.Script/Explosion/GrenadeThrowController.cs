@@ -173,16 +173,7 @@ namespace _00.ChoiHeesu._01.Script.Explosion
             hasCachedThrowData = false;
             HideTrajectory();
 
-            if (HasGrenadesAvailable())
-            {
-                SetGrenadeAnimator(true);
-                PlayEnterGrenadeTrigger();
-                EnterGrenadeNormalState();
-                SetHandGrenadeVisible(true);
-                return;
-            }
-
-            ExitGrenadeMode(true, "ThrowEndNoGrenades");
+            ExitGrenadeMode(true, HasGrenadesAvailable() ? "ThrowEndReturnWeapon" : "ThrowEndNoGrenades");
         }
 
         public void OnGrenadeCancelAnimationEnd()

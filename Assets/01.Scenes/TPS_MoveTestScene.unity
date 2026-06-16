@@ -2953,10 +2953,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 484550789}
     - target: {fileID: 2793884124337803257, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 484550789}
-    - target: {fileID: 2793884124337803257, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: 'm_fontMaterials.Array.data[0]'
       value: 
       objectReference: {fileID: 484550789}
@@ -2968,22 +2964,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
-    - target: {fileID: 4149559717638697371, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
-      propertyPath: m_fontMaterial
-      value: 
-      objectReference: {fileID: 484550789}
-    - target: {fileID: 4149559717638697371, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 484550789}
-    - target: {fileID: 4149559717638697371, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
-      propertyPath: 'm_fontMaterials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 484550789}
-    - target: {fileID: 4149559717638697371, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
-      propertyPath: 'm_fontSharedMaterials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 484550789}
     - target: {fileID: 4784862372367164034, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: starterAssetsInputs
       value: 
