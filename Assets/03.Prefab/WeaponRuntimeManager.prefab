@@ -98,6 +98,7 @@ MonoBehaviour:
     ammoItemId: arammo
   - weaponClass: 4
     ammoItemId: mgammo
+  grenadeCount: 6
 --- !u!114 &4008324244077734020
 MonoBehaviour:
   m_ObjectHideFlags: 0
