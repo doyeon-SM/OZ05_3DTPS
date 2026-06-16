@@ -18,3 +18,4 @@ MonoBehaviour:
   meleeRangeRadius: 9
   rotationSpeed: 180
   laserRange: 20
+  rewardPrefab: {fileID: 744766547663389368, guid: c52596e3278a19941b06351044c098c8, type: 3}

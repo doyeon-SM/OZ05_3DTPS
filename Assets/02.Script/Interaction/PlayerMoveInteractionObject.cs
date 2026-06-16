@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
 {
@@ -10,7 +10,7 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField] private Transform targetTransform;
 
         [Header("목표 달성 게이팅")]
-        [Tooltip("true이면 StageManager 목표 100% 달성 시에만 상호작용이 허용됩니다.")]
+        [Tooltip("true이면 StageManager의 클리어 상태(클리어 라이트가 켜지는 시점, IsStageClear)일 때만 상호작용이 허용됩니다.")]
         [SerializeField] private bool requireGoalComplete = false;
 
         [Tooltip("목표 미달성 시 표시할 레이블")]
@@ -21,7 +21,7 @@ namespace _01.Scenes.PhaseValidation
         {
             get
             {
-                if (requireGoalComplete && !IsGoalComplete())
+                if (requireGoalComplete && !IsStageClear())
                     return lockedLabel;
                 return _interactionLabel;
             }
@@ -29,8 +29,8 @@ namespace _01.Scenes.PhaseValidation
 
         public void Interaction()
         {
-            // 목표 달성 게이팅
-            if (requireGoalComplete && !IsGoalComplete())
+            // 방어코드: 클리어 게이팅이 켜져 있는데 아직 스테이지가 클리어되지 않았다면 이동을 막는다.
+            if (requireGoalComplete && !IsStageClear())
             {
                 float pct = StageManager.Instance != null ? StageManager.Instance.GoalPercent * 100f : 0f;
                 Debug.Log($"[PlayerMoveInteractionObject] 목표 미달성({pct:F0}%) — 이동 불가.");
@@ -65,9 +65,10 @@ namespace _01.Scenes.PhaseValidation
             Debug.Log($"[PlayerMoveInteractionObject] Player를 {targetTransform.position}으로 이동했습니다.");
         }
 
-        private bool IsGoalComplete()
+        /// <summary>StageManager의 클리어 상태(클리어 라이트 조건과 동일한 IsStageClear)를 확인한다.</summary>
+        private bool IsStageClear()
         {
-            return StageManager.Instance != null && StageManager.Instance.GoalPercent >= 1.0f;
+            return StageManager.Instance != null && StageManager.Instance.IsStageClear;
         }
     }
 }

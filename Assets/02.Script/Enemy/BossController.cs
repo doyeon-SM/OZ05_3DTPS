@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using _01.Scenes.PhaseValidation._26._05._14;
 
@@ -18,6 +18,7 @@ namespace _01.Scenes.PhaseValidation
     public class BossController : MonoBehaviour
     {
         private const string PlayerTag = "Player";
+        private const string BossSpawnName = "BossSpawn";
 
         // ── Animator Trigger 상수 ────────────────────────────
         private const string TriggerFanFront      = "A_attack";
@@ -83,6 +84,9 @@ namespace _01.Scenes.PhaseValidation
         [Tooltip("2페이즈 진입 시 보스 머티리얼에 적용할 baseMap 색상")]
         [SerializeField] private Color phase2BaseColor = Color.red;
 
+        [Tooltip("2페이즈 진입 시 플레이어를 보스 쪽으로 끌어당기는 시간(초)")]
+        [SerializeField] private float phase2PullDuration = 1f;
+
         [Tooltip("2페이즈 진입 시 맵 제한용 벽 오브젝트")]
         [SerializeField] private GameObject wall;
 
@@ -103,8 +107,34 @@ namespace _01.Scenes.PhaseValidation
             TryBindPlayer();
             SyncHitboxesWithBossData();
             StartCoroutine(PatternLoop());
-            if(wall != null)
-                wall.SetActive(false);
+            SetupWall();
+        }
+
+        /// <summary>
+        /// 벽을 BossSpawn 오브젝트를 기준으로 재배치한다.
+        /// BossFloorPatternController가 격자 인디케이터를 BossSpawn 기준으로 재배치하는 것과 동일한 이유로,
+        /// 벽이 보스(회전하는 오브젝트)의 자식이거나 영향을 받는 경우 보스가 회전해도 벽이 같이 돌지 않도록
+        /// BossSpawn으로 재부모화하고 회전을 0으로 고정한다. 위치(오프셋)는 기존 배치를 그대로 유지한다.
+        /// </summary>
+        private void SetupWall()
+        {
+            if (wall == null) return;
+
+            GameObject spawnObj = GameObject.Find(BossSpawnName);
+            if (spawnObj != null)
+            {
+                Transform spawnTransform = spawnObj.transform;
+                Vector3 worldPos = wall.transform.position;
+                wall.transform.SetParent(spawnTransform, true);
+                wall.transform.position = worldPos;
+                wall.transform.rotation = Quaternion.identity;
+            }
+            else
+            {
+                Debug.LogWarning($"[BossController] '{BossSpawnName}' 오브젝트를 찾지 못해 벽 위치를 보정하지 못했습니다.");
+            }
+
+            wall.SetActive(false);
         }
 
         private void SyncHitboxesWithBossData()
@@ -176,7 +206,8 @@ namespace _01.Scenes.PhaseValidation
 
         /// <summary>
         /// HP가 phase2HpThreshold 이하이고 아직 분기패턴을 실행하지 않았다면,
-        /// 분기패턴(무적) 실행 후 즉시 2페이즈로 전환한다. 한 패턴 종료 지점마다 호출된다.
+        /// 무적 → 플레이어 끌어당기기 → 벽 활성화 → 분기패턴(전환패턴) 순으로 실행한 뒤
+        /// 2페이즈로 전환한다. 한 패턴 종료 지점마다 호출된다.
         /// </summary>
         private IEnumerator CheckPhase2Transition()
         {
@@ -189,9 +220,18 @@ namespace _01.Scenes.PhaseValidation
 
             _branchPatternDone = true;
 
+            // 1) 무적
             bossStatus.IsInvincible = true;
             BossHUDManager.Instance?.SetInvincibleVisual(true);
 
+            // 2) 플레이어를 보스 쪽으로 끌어당기기
+            yield return StartCoroutine(PullPlayerTowardsBoss(phase2PullDuration));
+
+            // 3) 벽 활성화 (위치/회전은 SetupWall()에서 BossSpawn 기준으로 이미 보정됨)
+            if (wall != null)
+                wall.SetActive(true);
+
+            // 4) 2페이즈 전환패턴(분기패턴) 시작
             if (floorPatternController != null)
                 yield return StartCoroutine(floorPatternController.PlayBranchPattern());
 
@@ -201,12 +241,48 @@ namespace _01.Scenes.PhaseValidation
             EnterPhase2();
         }
 
+        /// <summary>
+        /// 플레이어를 duration(초) 동안 보스 위치(transform.position)로 끌어당긴다.
+        /// 끌어당기는 동안 ThirdPersonController를 비활성화하여 일반 이동 입력을 차단하고,
+        /// CharacterController가 있다면 Move()로 이동시켜 충돌 처리를 유지한다.
+        /// </summary>
+        private IEnumerator PullPlayerTowardsBoss(float duration)
+        {
+            if (_player == null) yield break;
+            if (duration <= 0f) yield break;
+
+            StarterAssets.ThirdPersonController playerController = _player.GetComponent<StarterAssets.ThirdPersonController>();
+            CharacterController characterController = _player.GetComponent<CharacterController>();
+
+            if (playerController != null)
+                playerController.enabled = false;
+
+            Vector3 startPos = _player.position;
+            Vector3 targetPos = transform.position;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                Vector3 nextPos = Vector3.Lerp(startPos, targetPos, t);
+
+                if (characterController != null)
+                    characterController.Move(nextPos - _player.position);
+                else
+                    _player.position = nextPos;
+
+                yield return null;
+            }
+
+            if (playerController != null)
+                playerController.enabled = true;
+        }
+
         /// <summary>2페이즈 변화 적용: 예고시간 단축, 회전속도 증가, 애니메이션 속도 증가, 머티리얼 색상 변경.</summary>
         private void EnterPhase2()
         {
             _isPhase2 = true;
-            if (wall != null)
-                wall.SetActive(true);
 
             fanTelegraphDuration = phase2TelegraphDuration;
             laserTrackingDuration = phase2TelegraphDuration;

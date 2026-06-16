@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -25,6 +25,9 @@ namespace _01.Scenes.PhaseValidation
         // 달성도 (0.0 ~ 1.0)
         public float GoalPercent => goalPercent;
         private float goalPercent;
+
+        /// <summary>스테이지 전체 목표가 100% 달성되어 클리어 라이트가 켜진 상태인지 여부.</summary>
+        public bool IsStageClear => goalPercent >= 1.0f;
 
         // 달성도 변경 이벤트 (0~100 % float)
         public event Action<float> OnGoalUpdated;
