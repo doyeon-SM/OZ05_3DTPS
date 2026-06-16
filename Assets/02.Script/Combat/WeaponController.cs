@@ -27,6 +27,7 @@ namespace _02.Script.Combat
 
         [Header("Weapon")]
         [SerializeField] private WeaponRuntime currentWeapon;
+        [SerializeField] private WeaponPrefabSetting currentWeaponPrefabSetting;
         [SerializeField] private GameObject gunSocket;
 
         [Header("Current Weapon State")]
@@ -75,6 +76,11 @@ namespace _02.Script.Combat
 
             muzzle = nextMuzzle;
             return true;
+        }
+
+        public void SetCurrentWeaponPrefabSetting(WeaponPrefabSetting nextWeaponPrefabSetting)
+        {
+            currentWeaponPrefabSetting = nextWeaponPrefabSetting;
         }
 
         public bool VariableChange;
@@ -508,10 +514,22 @@ namespace _02.Script.Combat
             if (fired)
             {
                 LastAimDirection = hitscanSystem.AimDirection;
+                PlayCurrentWeaponMuzzleEffect();
                 ApplyRecoil(weaponData);
             }
 
             return fired;
+        }
+
+        private void PlayCurrentWeaponMuzzleEffect()
+        {
+            if (currentWeaponPrefabSetting == null && muzzle != null)
+                currentWeaponPrefabSetting = muzzle.GetComponentInParent<WeaponPrefabSetting>(true);
+
+            if (currentWeaponPrefabSetting == null)
+                return;
+
+            currentWeaponPrefabSetting.PlayMuzzleEffect();
         }
 
         private void ApplyRecoil(WeaponData weaponData)

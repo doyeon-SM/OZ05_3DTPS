@@ -99,6 +99,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             }
 
             ActivateOnly(activeWeaponPrefab);
+            activeWeaponPrefab.StopMuzzleEffect();
             return UpdateWeaponControllerMuzzle(activeWeaponPrefab, weaponId);
         }
 
@@ -297,7 +298,11 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
                 return false;
             }
 
-            return weaponController.SetMuzzle(muzzle);
+            if (!weaponController.SetMuzzle(muzzle))
+                return false;
+
+            weaponController.SetCurrentWeaponPrefabSetting(activeWeaponPrefab);
+            return true;
         }
 
         private string NormalizeId(string weaponId)
