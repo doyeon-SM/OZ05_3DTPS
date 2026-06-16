@@ -64,14 +64,32 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField] private float fanAttackMultiplier = 1.5f;
         [SerializeField] private float laserTickMultiplier = 0.5f;
 
-        [Header("부채꼴 정렬")]
-        [SerializeField] private float fanIndicatorYOffset = -0.85f;
-
-        [Header("레이저 정렬")]
+                [Header("레이저 정렬")]
         [SerializeField] private Vector3 laserLocalRotationEuler = new Vector3(90f, 0f, 0f);
+
+        [Header("2페이즈 설정")]
+        [Tooltip("2페이즈 전환 HP 비율 (0~1). 이 값 이하로 떨어지면 분기패턴 후 2페이즈로 전환된다.")]
+        [SerializeField] private float phase2HpThreshold = 0.5f;
+
+        [Tooltip("2페이즈에서의 공격 예고 시간(초). 부채꼴/레이저/바닥패턴 모두 이 값으로 통일된다.")]
+        [SerializeField] private float phase2TelegraphDuration = 1f;
+
+        [Tooltip("2페이즈 회전속도 배율")]
+        [SerializeField] private float phase2RotationSpeedMultiplier = 1.5f;
+
+        [Tooltip("2페이즈 애니메이션 재생 속도 배율 (예고시간이 절반이 되는 것에 맞춰 기본 2배 권장)")]
+        [SerializeField] private float phase2AnimatorSpeedMultiplier = 2f;
+
+        [Tooltip("2페이즈 진입 시 보스 머티리얼에 적용할 baseMap 색상")]
+        [SerializeField] private Color phase2BaseColor = Color.red;
+
+        [Tooltip("2페이즈 진입 시 맵 제한용 벽 오브젝트")]
+        [SerializeField] private GameObject wall;
 
         private Transform _player;
         private bool _isAttacking;
+        private bool _isPhase2;
+        private bool _branchPatternDone;
 
         private void Awake()
         {
@@ -85,6 +103,8 @@ namespace _01.Scenes.PhaseValidation
             TryBindPlayer();
             SyncHitboxesWithBossData();
             StartCoroutine(PatternLoop());
+            if(wall != null)
+                wall.SetActive(false);
         }
 
         private void SyncHitboxesWithBossData()
@@ -94,9 +114,9 @@ namespace _01.Scenes.PhaseValidation
             if (fanAttackHitbox != null)
             {
                 Transform t = fanAttackHitbox.transform;
-                float scaleXZ = meleeRange / 10f;
-                t.localScale = new Vector3(scaleXZ, t.localScale.y, scaleXZ);
-                t.localPosition = new Vector3(0f, fanIndicatorYOffset, meleeRange / 2f);
+                // 고정 배치: position(0,1,0), scale(2,1,2). 회전만 SetDirection으로 제어.
+                t.localPosition = new Vector3(0f, -0.85f, 0f);
+                t.localScale = new Vector3(2f, 1f, 2f);
 
                 // 셰이더 부채꼴 각도 동기화
                 fanAttackHitbox.SetFanAngle(fanAngle);
@@ -141,12 +161,80 @@ namespace _01.Scenes.PhaseValidation
 
                 yield return new WaitForSeconds(patternInterval);
 
+                yield return StartCoroutine(CheckPhase2Transition());
+
                 // 특수패턴: 바닥패턴
                 if (floorPatternController != null)
                     yield return StartCoroutine(floorPatternController.PlaySpecialPattern());
 
                 _isAttacking = false;
                 yield return new WaitForSeconds(patternInterval);
+
+                yield return StartCoroutine(CheckPhase2Transition());
+            }
+        }
+
+        /// <summary>
+        /// HP가 phase2HpThreshold 이하이고 아직 분기패턴을 실행하지 않았다면,
+        /// 분기패턴(무적) 실행 후 즉시 2페이즈로 전환한다. 한 패턴 종료 지점마다 호출된다.
+        /// </summary>
+        private IEnumerator CheckPhase2Transition()
+        {
+            if (_branchPatternDone || _isPhase2) yield break;
+            if (bossStatus == null) yield break;
+            if (bossStatus.MaxHP <= 0) yield break;
+
+            float hpRatio = (float)bossStatus.CurrentHP / bossStatus.MaxHP;
+            if (hpRatio > phase2HpThreshold) yield break;
+
+            _branchPatternDone = true;
+
+            bossStatus.IsInvincible = true;
+            BossHUDManager.Instance?.SetInvincibleVisual(true);
+
+            if (floorPatternController != null)
+                yield return StartCoroutine(floorPatternController.PlayBranchPattern());
+
+            bossStatus.IsInvincible = false;
+            BossHUDManager.Instance?.SetInvincibleVisual(false);
+
+            EnterPhase2();
+        }
+
+        /// <summary>2페이즈 변화 적용: 예고시간 단축, 회전속도 증가, 애니메이션 속도 증가, 머티리얼 색상 변경.</summary>
+        private void EnterPhase2()
+        {
+            _isPhase2 = true;
+            if (wall != null)
+                wall.SetActive(true);
+
+            fanTelegraphDuration = phase2TelegraphDuration;
+            laserTrackingDuration = phase2TelegraphDuration;
+
+            if (floorPatternController != null)
+                floorPatternController.SetTelegraphDurationOverride(phase2TelegraphDuration);
+
+            if (animator != null)
+                animator.speed = phase2AnimatorSpeedMultiplier;
+
+            ApplyPhase2Material();
+
+            Debug.Log("[BossController] ★ 2페이즈 진입 ★");
+        }
+
+        /// <summary>보스 전체 Renderer의 머티리얼 baseMap 색상을 phase2BaseColor로 변경.</summary>
+        private void ApplyPhase2Material()
+        {
+            Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+            foreach (var rend in renderers)
+            {
+                foreach (var mat in rend.materials)
+                {
+                    if (mat.HasProperty("_BaseColor"))
+                        mat.SetColor("_BaseColor", phase2BaseColor);
+                    else if (mat.HasProperty("_Color"))
+                        mat.SetColor("_Color", phase2BaseColor);
+                }
             }
         }
 
@@ -163,20 +251,9 @@ namespace _01.Scenes.PhaseValidation
 
             if (fanAttackHitbox != null)
             {
-                Transform hitboxTransform = fanAttackHitbox.transform;
-                float meleeRange = GetMeleeRange();
-                float zOffset = meleeRange / 2f;
-
-                hitboxTransform.localRotation = isBackAttack
-                    ? Quaternion.Euler(0f, 180f, 0f)
-                    : Quaternion.identity;
-
-                Vector3 pos = hitboxTransform.localPosition;
-                pos.z = isBackAttack ? -zOffset : zOffset;
-                hitboxTransform.localPosition = pos;
-
-                // 전방(0도)/후방(180도) 방향을 셰이더에도 동기화
-                fanAttackHitbox.SetDirection(isBackAttack ? 180f : 0f);
+                // 보스 중앙 고정 배치이므로 위치 이동은 불필요, 방향만 셰이더로 전달
+                // 셰이더 마스크가 반전되어 있어 전달값을 180도 뒤집어 보정
+                fanAttackHitbox.SetDirection(isBackAttack ? 0f : 180f);
 
                 fanAttackHitbox.ShowTelegraph();
             }
@@ -294,7 +371,12 @@ namespace _01.Scenes.PhaseValidation
         // ── BossData 접근 ───────────────────────────────────
 
         private float GetMeleeRange()    { var d = bossStatus?.BossData; return d != null ? d.meleeRangeRadius : 3f; }
-        private float GetRotationSpeed() { var d = bossStatus?.BossData; return d != null ? d.rotationSpeed    : 90f; }
+        private float GetRotationSpeed()
+        {
+            var d = bossStatus?.BossData;
+            float baseSpeed = d != null ? d.rotationSpeed : 90f;
+            return _isPhase2 ? baseSpeed * phase2RotationSpeedMultiplier : baseSpeed;
+        }
         private float GetLaserRange()    { var d = bossStatus?.BossData; return d != null ? d.laserRange       : 20f; }
         private int   GetAttackPower()   { var d = bossStatus?.BossData; return d != null ? d.attackPower      : 10; }
 

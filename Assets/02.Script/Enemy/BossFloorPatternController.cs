@@ -43,6 +43,17 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField] private float waveStepInterval = 0.2f;
         [SerializeField] private float attackShowDuration = 0.3f;
 
+        // 2페이즈 전환 시 BossController가 호출하여 예고 시간을 단축한다.
+        private float _telegraphDurationOverride = -1f;
+        private float EffectiveLineTelegraphDuration => _telegraphDurationOverride > 0f ? _telegraphDurationOverride : lineTelegraphDuration;
+        private float EffectiveBranchTelegraphDuration => _telegraphDurationOverride > 0f ? _telegraphDurationOverride : branchTelegraphDuration;
+
+        /// <summary>2페이즈 진입 시 BossController가 호출. 줄 예고 시간(lineTelegraphDuration/branchTelegraphDuration)을 지정값으로 덮어쓴다.</summary>
+        public void SetTelegraphDurationOverride(float seconds)
+        {
+            _telegraphDurationOverride = seconds;
+        }
+
         [Header("데미지 배율")]
         [SerializeField] private float floorPatternMultiplier = 1f;
 
@@ -97,7 +108,135 @@ namespace _01.Scenes.PhaseValidation
                 Debug.LogWarning($"[BossFloorPatternController] Animator가 없어 Trigger '{triggerName}'을 발동할 수 없습니다.");
         }
 
+        [Header("분기패턴(2페이즈 전환) 설정")]
+        [Tooltip("분기패턴 한 줄의 데미지 배율 (BossData.attackPower 기준)")]
+        [SerializeField] private float branchPatternMultiplier = 99f;
+
+        [Tooltip("분기패턴 예고 시간(초)")]
+        [SerializeField] private float branchTelegraphDuration = 2f;
+
+        [Tooltip("분기패턴 반복 횟수")]
+        [SerializeField] private int branchPatternRepeatCount = 3;
+
         // ── 외부 진입점 ─────────────────────────────────────
+
+        /// <summary>
+        /// 2페이즈 전환용 분기패턴. 가로/세로가 섞인 9개 줄(위치 중복 없음)을
+        /// 동시 예고(branchTelegraphDuration) 후 즉시 공격, 이를 branchPatternRepeatCount회 반복.
+        /// 호출 측(BossController)에서 무적 처리를 담당한다.
+        /// </summary>
+        public IEnumerator PlayBranchPattern()
+        {
+            for (int repeat = 0; repeat < branchPatternRepeatCount; repeat++)
+            {
+                yield return StartCoroutine(PlayBranchPatternOnce());
+            }
+        }
+
+        private IEnumerator PlayBranchPatternOnce()
+        {
+            // 애니메이션: 분기패턴 전용 트리거가 없으므로 #자 패턴 트리거 재사용
+            SetAttackTrigger(TriggerFloorHash);
+
+            // 0~8 인덱스를 셔플하고, 각 인덱스마다 가로/세로를 랜덤 배정.
+            // 가로 인덱스 풀과 세로 인덱스 풀은 각각 0~8 범위에서 중복 없이 선택된다.
+            List<int> shuffledSlots = ShuffleIndices(GridSize);
+            List<int> rowIndicesPool = ShuffleIndices(GridSize);
+            List<int> colIndicesPool = ShuffleIndices(GridSize);
+
+            int rowCursor = 0;
+            int colCursor = 0;
+
+            var used = new List<BossPatternFloorIndicator>();
+            var usedRects = new List<(Vector3 center, float sizeX, float sizeZ)>();
+
+            for (int n = 0; n < GridSize; n++)
+            {
+                if (n >= floorIndicatorPool.Count)
+                {
+                    Debug.LogWarning("[BossFloorPatternController] 예고 풀이 부족합니다.");
+                    break;
+                }
+
+                bool isRow = shuffledSlots[n] % 2 == 0;
+                int lineIndex;
+                if (isRow)
+                {
+                    lineIndex = rowIndicesPool[rowCursor];
+                    rowCursor++;
+                }
+                else
+                {
+                    lineIndex = colIndicesPool[colCursor];
+                    colCursor++;
+                }
+
+                var rect = isRow ? GetRowRect(lineIndex) : GetColRect(lineIndex);
+                var indicator = floorIndicatorPool[n];
+                indicator.SetRect(rect.center, rect.sizeX, rect.sizeZ);
+                indicator.ShowTelegraph();
+                used.Add(indicator);
+                usedRects.Add(rect);
+            }
+
+            if (effectController != null)
+                effectController.OnTelegraphSFX_FloorPattern();
+
+            yield return new WaitForSeconds(EffectiveBranchTelegraphDuration);
+
+            // 즉시 공격 (예고 시 계산해둔 사각형 그대로 판정)
+            foreach (var rect in usedRects)
+            {
+                ApplyBranchDamage(rect.center, rect.sizeX, rect.sizeZ);
+            }
+
+            if (effectController != null)
+                effectController.OnHitSFX_FloorPattern();
+
+            foreach (var indicator in used) indicator.ShowAttack();
+
+            yield return new WaitForSeconds(attackShowDuration);
+
+            foreach (var indicator in used) indicator.Hide();
+        }
+
+        /// <summary>0~count-1 인덱스를 무작위로 섞은 리스트를 반환 (Fisher-Yates).</summary>
+        private List<int> ShuffleIndices(int count)
+        {
+            var list = new List<int>(count);
+            for (int i = 0; i < count; i++) list.Add(i);
+
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                int temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+            }
+            return list;
+        }
+
+        private void ApplyBranchDamage(Vector3 center, float sizeX, float sizeZ)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag(PlayerTag);
+            if (playerObj == null) return;
+
+            PlayerStatus playerStatus = playerObj.GetComponent<PlayerStatus>()
+                ?? playerObj.GetComponentInParent<PlayerStatus>()
+                ?? playerObj.GetComponentInChildren<PlayerStatus>();
+            if (playerStatus == null) return;
+
+            Vector3 pos = playerObj.transform.position;
+            if (pos.x >= center.x - sizeX * 0.5f && pos.x <= center.x + sizeX * 0.5f &&
+                pos.z >= center.z - sizeZ * 0.5f && pos.z <= center.z + sizeZ * 0.5f)
+            {
+                int damage = Mathf.RoundToInt(GetAttackPower() * branchPatternMultiplier);
+                playerStatus.TakeDamage(damage);
+                Debug.Log($"[BossFloorPatternController] 분기패턴 적중 | damage={damage}");
+                if (effectController != null)
+                    effectController.PlayFloorPatternVfx(pos, Quaternion.identity);
+            }
+        }
 
         public IEnumerator PlaySpecialPattern()
         {
@@ -171,7 +310,7 @@ namespace _01.Scenes.PhaseValidation
             if (effectController != null)
                 effectController.OnTelegraphSFX_FloorPattern();
 
-            yield return new WaitForSeconds(lineTelegraphDuration);
+            yield return new WaitForSeconds(EffectiveLineTelegraphDuration);
 
             foreach (var idx in indices)
             {
@@ -229,7 +368,7 @@ namespace _01.Scenes.PhaseValidation
             if (effectController != null)
                 effectController.OnTelegraphSFX_FloorPattern();
 
-            yield return new WaitForSeconds(lineTelegraphDuration);
+            yield return new WaitForSeconds(EffectiveLineTelegraphDuration);
 
             ApplyFloorDamage(rect.center, rect.sizeX, rect.sizeZ);
 
