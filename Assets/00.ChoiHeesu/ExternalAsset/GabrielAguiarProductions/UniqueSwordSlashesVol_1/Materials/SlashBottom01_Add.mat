@@ -118,6 +118,7 @@ Material:
     - _DistortionAmount: 0
     - _DistortionStrength: 1
     - _DstBlend: 1
+    - _DstBlendAlpha: 1
     - _ErosionFeather: 0
     - _ErosionThreshold: 0
     - _Lerp_Colors: 1
@@ -128,6 +129,7 @@ Material:
     - _QueueOffset: 0
     - _SoftParticles: 20
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _Surface: 1
     - _UV_Fade_Mask_Intensity: 1
     - _ZTest: 4
