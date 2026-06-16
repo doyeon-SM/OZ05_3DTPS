@@ -137,7 +137,11 @@ namespace _01.Scenes.PhaseValidation
         private void PlaySfx(AudioClip clip)
         {
             if (clip == null || _audioSource == null) return;
-            _audioSource.PlayOneShot(clip);
+
+            // 이전에 재생 중인 SFX를 끊고 새 SFX로 즉시 전환 (중첩 재생 방지)
+            _audioSource.Stop();
+            _audioSource.clip = clip;
+            _audioSource.Play();
         }
     }
 }

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: test_BossData
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.BossData
   prefab: {fileID: 4610476503097255726, guid: 23a1faf8118648049b5b350d964d4207, type: 3}
-  maxHealth: 100
+  maxHealth: 2000
   attackPower: 10
-  meleeRangeRadius: 5
-  rotationSpeed: 90
+  meleeRangeRadius: 9
+  rotationSpeed: 180
   laserRange: 20

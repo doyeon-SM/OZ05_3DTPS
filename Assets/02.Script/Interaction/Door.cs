@@ -19,6 +19,15 @@ public class Door : MonoBehaviour, IInteraction
     [Tooltip("문이 이동하는 데 걸리는 시간(초)")]
     [SerializeField] private float slideDuration = 0.5f;
 
+    [Header("SFX")]
+    [Tooltip("열릴 때 재생할 SFX")]
+    [SerializeField] private AudioClip openSFX;
+    [Tooltip("닫힐 때 재생할 SFX (비워두면 열기 SFX 재용)")]
+    [SerializeField] private AudioClip closeSFX;
+    [SerializeField] [Range(0f, 1f)] private float sfxVolume = 1f;
+
+    private AudioSource _audioSource;
+
     private Vector3 _leftClosedPos;
     private Vector3 _rightClosedPos;
 
@@ -34,6 +43,13 @@ public class Door : MonoBehaviour, IInteraction
     {
         if (leftDoorObject  != null) _leftClosedPos  = leftDoorObject.transform.localPosition;
         if (rightDoorObject != null) _rightClosedPos = rightDoorObject.transform.localPosition;
+
+        // AudioSource 자동 추가 (없으면 생성)
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+            _audioSource = gameObject.AddComponent<AudioSource>();
+        _audioSource.playOnAwake = false;
+        _audioSource.spatialBlend = 1f; // 3D 사운드
     }
 
     public void Interaction()
@@ -43,6 +59,13 @@ public class Door : MonoBehaviour, IInteraction
         else                           Close();
     }
 
+    private void PlaySFX(bool isOpening)
+    {
+        AudioClip clip = isOpening ? openSFX : (closeSFX != null ? closeSFX : openSFX);
+        if (clip != null && _audioSource != null)
+            _audioSource.PlayOneShot(clip, sfxVolume);
+    }
+
     private void Open()
     {
         if (_slideCoroutine != null) StopCoroutine(_slideCoroutine);
@@ -50,6 +73,7 @@ public class Door : MonoBehaviour, IInteraction
         Vector3 rightTarget = _rightClosedPos + new Vector3( openOffset, 0f, 0f);
         _slideCoroutine = StartCoroutine(SlideAll(leftTarget, rightTarget));
         _isDoorOpen = true;
+        PlaySFX(true);
     }
 
     private void Close()
@@ -57,6 +81,7 @@ public class Door : MonoBehaviour, IInteraction
         if (_slideCoroutine != null) StopCoroutine(_slideCoroutine);
         _slideCoroutine = StartCoroutine(SlideAll(_leftClosedPos, _rightClosedPos));
         _isDoorOpen = false;
+        PlaySFX(false);
     }
 
     private IEnumerator SlideAll(Vector3 leftTarget, Vector3 rightTarget)
