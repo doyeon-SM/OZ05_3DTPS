@@ -1,4 +1,5 @@
-﻿using StarterAssets;
+using StarterAssets;
+using _00.ChoiHeesu._01.MoveTest.Interact;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +14,8 @@ public class InteractionController : MonoBehaviour
     [Header("참조")]
     [SerializeField] private StarterAssetsInputs _input;
     [SerializeField] private UnityEngine.Camera _mainCamera;
+    [SerializeField] private RaycastInteractor _raycastInteractor;
+
 
     [Header("Raycast 설정")]
     [SerializeField] private float _interactDistance = 5f;
@@ -31,6 +34,8 @@ public class InteractionController : MonoBehaviour
 
         if (_mainCamera == null)
             _mainCamera = UnityEngine.Camera.main;
+
+        CacheRaycastInteractor();
 
         if (_input == null)
             UnityEngine.Debug.LogError("[InteractionController] StarterAssetsInputs가 없습니다.", this);
@@ -109,10 +114,43 @@ public class InteractionController : MonoBehaviour
                 UnityEngine.Debug.Log($"[InteractionController] 상호작용 실행: {(_currentTarget as UnityEngine.MonoBehaviour)?.gameObject.name}");
                 _currentTarget.Interaction();
             }
+            else if (TryInteractWeaponItem())
+            {
+                UnityEngine.Debug.Log("[InteractionController] 무기 오브젝트 상호작용 실행");
+            }
             else
             {
                 UnityEngine.Debug.Log("[InteractionController] [E]키 입력 - 주변에 상호작용 가능한 오브젝트가 없습니다.");
             }
         }
+    }
+
+
+    private void CacheRaycastInteractor()
+    {
+        if (_raycastInteractor != null)
+            return;
+
+        _raycastInteractor = GetComponentInChildren<RaycastInteractor>(true);
+        if (_raycastInteractor != null)
+            return;
+
+        _raycastInteractor = GetComponentInParent<RaycastInteractor>();
+        if (_raycastInteractor != null)
+            return;
+
+        if (transform.root != null)
+            _raycastInteractor = transform.root.GetComponentInChildren<RaycastInteractor>(true);
+    }
+
+    private bool TryInteractWeaponItem()
+    {
+        CacheRaycastInteractor();
+        if (_raycastInteractor == null)
+            return false;
+
+        _raycastInteractor.RefreshCurrentTarget();
+        return _raycastInteractor.CanPickupCurrentItem() &&
+               _raycastInteractor.TryPickupCurrentItem();
     }
 }

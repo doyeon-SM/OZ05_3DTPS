@@ -48,6 +48,35 @@ public class PlayerInventory : MonoBehaviour
         return TryAddItemsInternal(itemId, amount, out addedAmount);
     }
 
+    public bool TryUnlockWeaponFromPickup(WeaponData weaponData, out bool alreadyUnlocked)
+    {
+        alreadyUnlocked = false;
+
+        if (weaponData == null)
+        {
+            Debug.LogWarning("[PlayerInventory] 언락할 WeaponData가 null입니다.");
+            return false;
+        }
+
+        string weaponId = weaponData.WeaponId;
+        if (string.IsNullOrWhiteSpace(weaponId))
+        {
+            Debug.LogWarning($"[PlayerInventory] {weaponData.name}의 WeaponId가 비어 있어 무기를 언락할 수 없습니다.");
+            return false;
+        }
+
+        weaponId = weaponId.Trim();
+
+        if (!CacheWeaponRuntimeManager(true))
+            return false;
+
+        alreadyUnlocked = weaponRuntimeManager.IsWeaponUnlocked(weaponId);
+        if (alreadyUnlocked)
+            return true;
+
+        return weaponRuntimeManager.TryUnlockWeapon(weaponData);
+    }
+
     public void EnqueuePickupMessage(string itemId, int amount)
     {
         if (string.IsNullOrWhiteSpace(itemId) || amount <= 0) return;

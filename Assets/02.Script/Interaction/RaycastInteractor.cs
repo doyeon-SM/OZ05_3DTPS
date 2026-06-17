@@ -16,6 +16,7 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
         [Header("내부 배열 , EventChannel 설정")]
         [SerializeField] private WeaponData[] SelectWeaponData;
         [SerializeField] private SingleStringEventChannel itemIDEventChannel;
+        [SerializeField] private PlayerInventory playerInventory;
 
         [Header("Raycast 설정")]
         [SerializeField] private float interactDistance = 3f;
@@ -31,19 +32,20 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
         private bool missingCameraLogged;
         private bool missingInteractPrintUILogged;
         private bool missingItemIDEventChannelLogged;
+        private bool missingPlayerInventoryLogged;
 
         private void Awake()
         {
             CacheSceneStartReferences();
 
             if (mainCamera == null)
-                ReportMissingReference(nameof(mainCamera), "Raycast를 생성할 Camera가 없습니다. Main Camera 태그 또는 Inspector 연결을 확인하세요.");
+                ReportMissingReference(nameof(mainCamera), "Raycast를 생성할 Camera가 없습니다. Main Camera 태그 또는 Inspector 연결을 확인해주세요.");
 
             if (interactPrintUI == null)
                 ReportMissingReference(nameof(interactPrintUI), "아이템 정보 UI를 출력하려면 InteractPrintUI를 Inspector에 연결해야 합니다.");
 
-            if (itemIDEventChannel == null)
-                ReportMissingReference(nameof(itemIDEventChannel), "픽업한 아이템의 WeaponId를 전달하려면 ItemIDEventChannel을 Inspector에 연결해야 합니다.");
+            if (playerInventory == null && itemIDEventChannel == null)
+                ReportMissingReference(nameof(playerInventory), "무기 언락을 처리할 PlayerInventory 또는 fallback ItemIDEventChannel이 필요합니다.");
         }
 
         private void CacheSceneStartReferences()
@@ -53,6 +55,8 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
 
             if (interactPrintUI == null)
                 interactPrintUI = FindInteractPrintUIInLoadedScenes();
+
+            CachePlayerInventory(false);
         }
 
         private InteractPrintUI FindInteractPrintUIInLoadedScenes()
@@ -91,14 +95,23 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
             if (interactPrintUI == null)
                 ReportMissingReference(nameof(interactPrintUI), "아이템 정보 UI를 출력하려면 InteractPrintUI를 Inspector에 연결해야 합니다.");
 
-            if (itemIDEventChannel == null)
-                ReportMissingReference(nameof(itemIDEventChannel), "픽업한 아이템의 WeaponId를 전달하려면 ItemIDEventChannel을 Inspector에 연결해야 합니다.");
+            if (playerInventory == null)
+                CachePlayerInventory(false);
+
+            if (playerInventory == null && itemIDEventChannel == null)
+                ReportMissingReference(nameof(playerInventory), "무기 언락을 처리할 PlayerInventory 또는 fallback ItemIDEventChannel이 필요합니다.");
         }
 
         private void Update()
         {
             ValidateRequiredReferences();
             DrawDebugRay();
+            CheckWeaponItem();
+        }
+
+        public void RefreshCurrentTarget()
+        {
+            ValidateRequiredReferences();
             CheckWeaponItem();
         }
 
@@ -145,27 +158,28 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
 
         public bool TryPickupCurrentItem()
         {
-            if (!TryGetCurrentWeaponData(out WeaponData weaponData))
+            if (!TryGetCurrentWeaponData(out _))
                 return false;
-
-            if (itemIDEventChannel == null)
-            {
-                ReportMissingReference(nameof(itemIDEventChannel), "아이템 픽업 ID 이벤트를 발행할 수 없습니다.");
-                return false;
-            }
 
             InteractableWeaponItem pickupTarget = currentTarget;
+            if (pickupTarget == null)
+                return false;
 
-            itemIDEventChannel.Raise(weaponData.WeaponId);
-            pickupTarget.Pickup();
+            CachePlayerInventory(false);
+            if (!pickupTarget.TryInteract(playerInventory, itemIDEventChannel))
+                return false;
+
             ClearCurrentTarget();
-
             return true;
         }
 
         public bool CanPickupCurrentItem()
         {
-            return itemIDEventChannel != null && TryGetCurrentWeaponData(out _);
+            if (!TryGetCurrentWeaponData(out _))
+                return false;
+
+            CachePlayerInventory(false);
+            return playerInventory != null || itemIDEventChannel != null;
         }
 
         private bool TryGetCurrentWeaponData(out WeaponData weaponData)
@@ -259,8 +273,53 @@ namespace _00.ChoiHeesu._01.MoveTest.Interact
 
                 missingItemIDEventChannelLogged = true;
             }
+            else if (fieldName == nameof(playerInventory))
+            {
+                if (missingPlayerInventoryLogged)
+                    return;
+
+                missingPlayerInventoryLogged = true;
+            }
 
             Debug.LogError($"[RaycastInteractor] {fieldName}이 null입니다. {message}", this);
+        }
+
+
+        private bool CachePlayerInventory(bool logIfMissing)
+        {
+            if (playerInventory != null)
+                return true;
+
+            if (TryGetComponent(out playerInventory))
+                return true;
+
+            playerInventory = GetComponentInParent<PlayerInventory>();
+            if (playerInventory != null)
+                return true;
+
+            playerInventory = GetComponentInChildren<PlayerInventory>(true);
+            if (playerInventory != null)
+                return true;
+
+            Transform rootTransform = transform.root;
+            if (rootTransform != null)
+            {
+                playerInventory = rootTransform.GetComponentInChildren<PlayerInventory>(true);
+                if (playerInventory != null)
+                    return true;
+            }
+
+            playerInventory = FindFirstObjectByType<PlayerInventory>(FindObjectsInactive.Include);
+            if (playerInventory != null)
+            {
+                missingPlayerInventoryLogged = false;
+                return true;
+            }
+
+            if (logIfMissing)
+                ReportMissingReference(nameof(playerInventory), "무기 언락을 처리할 PlayerInventory를 찾을 수 없습니다.");
+
+            return false;
         }
     }
 }

@@ -175,6 +175,11 @@ namespace StarterAssets
             }
 
             if (_raycastInteractor == null)
+            {
+                _raycastInteractor = GetComponentInChildren<RaycastInteractor>(true);
+            }
+
+            if (_raycastInteractor == null)
                 LogMissingReference(nameof(_raycastInteractor), "픽업 상호작용을 사용하려면 RaycastInteractor 컴포넌트를 같은 오브젝트에 추가하거나 Inspector에 연결해주세요.");
         }
 
@@ -335,7 +340,8 @@ namespace StarterAssets
             if (_raycastInteractor != null && _raycastInteractor.CanPickupCurrentItem())
             {
                 _animationController.SetPickup();
-                _raycastInteractor.TryPickupCurrentItem();
+                if (_raycastInteractor.TryPickupCurrentItem())
+                    _input.Interact = false;
             }
             else
             {

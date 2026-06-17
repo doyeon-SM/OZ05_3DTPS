@@ -1608,6 +1608,7 @@ MonoBehaviour:
   SelectWeaponData:
   - {fileID: 0}
   itemIDEventChannel: {fileID: 11400000, guid: d4b432002e6c452469ccb2c3d8c7a809, type: 2}
+  playerInventory: {fileID: 8645169118902040492}
   interactDistance: 9
   mainCamera: {fileID: 0}
   interactableLayerMask:
@@ -2317,6 +2318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InteractionController
   _input: {fileID: 6720829549027223185}
   _mainCamera: {fileID: 0}
+  _raycastInteractor: {fileID: 0}
   _interactDistance: 7
   _interactableLayer:
     serializedVersion: 2

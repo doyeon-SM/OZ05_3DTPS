@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 000
+  m_text: 123
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d098a383d53251d42a5251504dcbde8a, type: 2}
   m_sharedMaterial: {fileID: 58805413431652645, guid: d098a383d53251d42a5251504dcbde8a, type: 2}
@@ -804,13 +804,13 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 740683054879166864, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
+      propertyPath: AmmoImage
+      value: 
+      objectReference: {fileID: 3210641522136320057}
+    - target: {fileID: 740683054879166864, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
       propertyPath: WeaponAmmoText
       value: 
       objectReference: {fileID: 2793884124337803257}
-    - target: {fileID: 740683054879166864, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
-      propertyPath: AmmoImage
-      value:
-      objectReference: {fileID: 3210641522136320057}
     - target: {fileID: 740683054879166864, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
       propertyPath: WeaponAmmoEvent
       value: 

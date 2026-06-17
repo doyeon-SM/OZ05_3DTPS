@@ -91,15 +91,15 @@ MonoBehaviour:
     ShotDelayTime: 0.4
   - data: {fileID: 11400000, guid: c86a6dd2a2f67594aa31d8d07f5023a2, type: 2}
     currentAmmo: 0
-    UnLocked: 1
+    UnLocked: 0
     ShotDelayTime: 0.2
   - data: {fileID: 11400000, guid: ca25d78a3d7210e42ada85396a560e2c, type: 2}
     currentAmmo: 0
-    UnLocked: 1
+    UnLocked: 0
     ShotDelayTime: 0.075
   - data: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
     currentAmmo: 0
-    UnLocked: 1
+    UnLocked: 0
     ShotDelayTime: 0.08571429
   - data: {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
     currentAmmo: 0
