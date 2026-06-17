@@ -98240,7 +98240,7 @@ PrefabInstance:
     - target: {fileID: 2793884124337803257, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+      objectReference: {fileID: 58805413431652645, guid: d098a383d53251d42a5251504dcbde8a, type: 2}
     - target: {fileID: 3279436576390061588, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_Name
       value: Canvas

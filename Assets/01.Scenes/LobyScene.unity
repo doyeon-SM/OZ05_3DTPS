@@ -691,7 +691,7 @@ PrefabInstance:
     - target: {fileID: 2793884124337803257, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+      objectReference: {fileID: 58805413431652645, guid: d098a383d53251d42a5251504dcbde8a, type: 2}
     - target: {fileID: 3279436576390061588, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_Name
       value: Canvas
@@ -819,6 +819,11 @@ PrefabInstance:
 --- !u!224 &389050057 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6574207439137474028, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+  m_PrefabInstance: {fileID: 389050056}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &389050058 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7006852054750178012, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
   m_PrefabInstance: {fileID: 389050056}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &433182720 stripped
@@ -1978,6 +1983,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9430be9ad0f8439f8cfa1e7dc853151f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.UI.UIController
+  optionsMenuPrefab: {fileID: 3499462977723681775, guid: c1cbccf4bb6733a488feb62d26e45fd7, type: 3}
+  optionsMenuParent: {fileID: 389050058}
 --- !u!4 &1743157667
 Transform:
   m_ObjectHideFlags: 0

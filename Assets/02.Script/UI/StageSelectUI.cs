@@ -44,8 +44,11 @@ public class StageSelectUI : MonoBehaviour
         }
 
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        closeStageButton.onClick.AddListener(CloseUI);
-        closePopupButton.onClick.AddListener(ClosePopup);
+        // 닫기 버튼은 CloseUI/ClosePopup을 직접 호출하지 않고 UIController.Pop()을 통해 닫는다.
+        // → Pop()이 등록된 onClose(CloseUI/ClosePopup)를 그대로 실행해주면서, 스택도 함께 정리되고
+        //    스택 기준 커서 처리(HideCursor)도 일관되게 트리거된다.
+        closeStageButton.onClick.AddListener(() => UIController.Instance?.Pop());
+        closePopupButton.onClick.AddListener(() => UIController.Instance?.Pop());
 
         stageListPanel.SetActive(false);
         stageInfoPopup.SetActive(false);
