@@ -1,5 +1,6 @@
 using _00.ChoiHeesu._03.WeaponChangeSystem;
 using _02.Script.Combat;
+using System;
 using StarterAssets;
 using TMPro;
 using UnityEngine;
@@ -23,6 +24,17 @@ namespace ProjectSpedex
         [SerializeField] private bool startClosed = true;
         [SerializeField] private bool closeOnButtonClicked = true;
         [SerializeField] private float selectionDeadZone = 0f;
+
+        [Header("Center Element")]
+        [SerializeField] private string centerWeaponId = "Weapon_Pistol";
+        [SerializeField] private bool skipCenterWeaponInDirectionalElements = true;
+        [SerializeField] private string[] directionalWeaponIdsWithCenter =
+        {
+            "Weapon_SMG",
+            "Weapon_SG",
+            "Weapon_AR",
+            "Weapon_MG"
+        };
 
         [Header("Locked Button Color")]
         [FormerlySerializedAs("unLockedDisabledColor")]
@@ -212,7 +224,10 @@ namespace ProjectSpedex
             SetLookInputBlocked(isActive);
 
             if (isActive)
+            {
                 RefreshRadialMenu();
+                radialMenu?.ResetSelectionToCenter();
+            }
         }
 
         private void SetLookInputBlocked(bool isBlocked)
@@ -230,12 +245,120 @@ namespace ProjectSpedex
 
             WeaponRuntime[] weaponRuntimes = weaponRuntimeManager.WeaponRuntimes;
 
+            RefreshCenterElement(weaponRuntimes);
+
             for (int i = 0; i < radialMenu.elements.Count; i++)
             {
                 RadialMenuElement element = radialMenu.elements[i];
-                WeaponRuntime runtime = i < weaponRuntimes.Length ? weaponRuntimes[i] : null;
+                WeaponRuntime runtime = GetDirectionalRuntime(i, weaponRuntimes);
                 RefreshElement(i, element, runtime);
             }
+        }
+
+        private void RefreshCenterElement(WeaponRuntime[] weaponRuntimes)
+        {
+            if (radialMenu == null || radialMenu.CenterElement == null)
+                return;
+
+            WeaponRuntime centerRuntime = FindRuntimeByWeaponId(centerWeaponId, weaponRuntimes);
+            if (centerRuntime == null && string.Equals(centerWeaponId, "Weapon_Pistol", StringComparison.OrdinalIgnoreCase))
+                centerRuntime = FindRuntimeByWeaponClass(WeaponClass.Pistol, weaponRuntimes);
+
+            RefreshElement(-1, radialMenu.CenterElement, centerRuntime);
+        }
+
+        private WeaponRuntime GetDirectionalRuntime(int directionalIndex, WeaponRuntime[] weaponRuntimes)
+        {
+            if (weaponRuntimes == null)
+                return null;
+
+            if (TryGetDirectionalRuntimeByConfiguredId(directionalIndex, weaponRuntimes, out WeaponRuntime configuredRuntime))
+                return configuredRuntime;
+
+            if (!ShouldSkipCenterWeaponInDirectionalElements())
+                return directionalIndex < weaponRuntimes.Length ? weaponRuntimes[directionalIndex] : null;
+
+            int nonCenterIndex = 0;
+            for (int i = 0; i < weaponRuntimes.Length; i++)
+            {
+                WeaponRuntime runtime = weaponRuntimes[i];
+                if (IsCenterWeaponRuntime(runtime))
+                    continue;
+
+                if (nonCenterIndex == directionalIndex)
+                    return runtime;
+
+                nonCenterIndex++;
+            }
+
+            return null;
+        }
+
+        private bool TryGetDirectionalRuntimeByConfiguredId(int directionalIndex, WeaponRuntime[] weaponRuntimes, out WeaponRuntime runtime)
+        {
+            runtime = null;
+
+            if (radialMenu == null || radialMenu.CenterElement == null)
+                return false;
+
+            if (directionalWeaponIdsWithCenter == null ||
+                directionalIndex < 0 ||
+                directionalIndex >= directionalWeaponIdsWithCenter.Length)
+                return false;
+
+            runtime = FindRuntimeByWeaponId(directionalWeaponIdsWithCenter[directionalIndex], weaponRuntimes);
+            return runtime != null;
+        }
+
+        private bool ShouldSkipCenterWeaponInDirectionalElements()
+        {
+            return skipCenterWeaponInDirectionalElements &&
+                   radialMenu != null &&
+                   radialMenu.CenterElement != null &&
+                   !string.IsNullOrWhiteSpace(centerWeaponId);
+        }
+
+        private bool IsCenterWeaponRuntime(WeaponRuntime runtime)
+        {
+            return runtime != null &&
+                   runtime.data != null &&
+                   string.Equals(runtime.data.WeaponId, centerWeaponId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private WeaponRuntime FindRuntimeByWeaponId(string weaponId, WeaponRuntime[] weaponRuntimes)
+        {
+            if (string.IsNullOrWhiteSpace(weaponId) || weaponRuntimes == null)
+                return null;
+
+            for (int i = 0; i < weaponRuntimes.Length; i++)
+            {
+                WeaponRuntime runtime = weaponRuntimes[i];
+                if (runtime == null || runtime.data == null)
+                    continue;
+
+                if (string.Equals(runtime.data.WeaponId, weaponId, StringComparison.OrdinalIgnoreCase))
+                    return runtime;
+            }
+
+            return null;
+        }
+
+        private WeaponRuntime FindRuntimeByWeaponClass(WeaponClass weaponClass, WeaponRuntime[] weaponRuntimes)
+        {
+            if (weaponRuntimes == null)
+                return null;
+
+            for (int i = 0; i < weaponRuntimes.Length; i++)
+            {
+                WeaponRuntime runtime = weaponRuntimes[i];
+                if (runtime == null || runtime.data == null)
+                    continue;
+
+                if (runtime.data.WeaponType == weaponClass)
+                    return runtime;
+            }
+
+            return null;
         }
 
         private bool CanRefresh()
@@ -411,7 +534,7 @@ namespace ProjectSpedex
             if (radialMenuRoot == null || !radialMenuRoot.activeSelf)
                 return;
 
-            if (IsPointerInDeadZone())
+            if (!HasCenterSelection() && IsPointerInDeadZone())
             {
                 CloseRadialMenu();
                 return;
@@ -431,11 +554,25 @@ namespace ProjectSpedex
             return selectionDeadZone > 0f && radialMenu != null && radialMenu.CurrentPointerDistance <= selectionDeadZone;
         }
 
+        private bool HasCenterSelection()
+        {
+            return radialMenu != null && radialMenu.CenterElement != null;
+        }
+
         private bool TryGetCurrentSelectedElement(out RadialMenuElement selectedElement)
         {
             selectedElement = null;
 
-            if (radialMenu == null || radialMenu.elements == null)
+            if (radialMenu == null)
+                return false;
+
+            if (radialMenu.CurrentSelectedElement != null)
+            {
+                selectedElement = radialMenu.CurrentSelectedElement;
+                return true;
+            }
+
+            if (radialMenu.elements == null)
                 return false;
 
             int selectedIndex = radialMenu.index;

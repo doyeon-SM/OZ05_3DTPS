@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 2556653350489899742}
   - component: {fileID: 974679616606173377}
   m_Layer: 5
-  m_Name: SelectText
+  m_Name: CenterText_Pistol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -180,12 +180,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6832081901935261891}
+  m_Father: {fileID: 220705547856249856}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -22.5}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: 0, y: -30}
+  m_SizeDelta: {x: 160, y: 28}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2556653350489899742
 CanvasRenderer:
@@ -209,7 +209,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 5060036680781048058}
   - component: {fileID: 7768500527645436777}
   m_Layer: 5
-  m_Name: SelectIcon
+  m_Name: CenterIcon_Pistol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -254,17 +254,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 498386326451976200}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: -1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6832081901935261891}
+  m_Father: {fileID: 220705547856249856}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.2, y: 7.6}
-  m_SizeDelta: {x: 40, y: 40}
+  m_AnchoredPosition: {x: 0, y: 12}
+  m_SizeDelta: {x: 44, y: 44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5060036680781048058
 CanvasRenderer:
@@ -288,7 +288,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.23113209, b: 0.23113209, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1300,6 +1300,8 @@ MonoBehaviour:
   button: {fileID: 632009371537036460}
   label: SG
   Icon: {fileID: 4335145057964502057}
+  UnLockIcon: {fileID: 0}
+  LockIcon: {fileID: 0}
   AmmoText: {fileID: 5623048405949133043}
   ItemID: 
   angleMin: 0
@@ -1814,6 +1816,8 @@ MonoBehaviour:
   button: {fileID: 3088342691211416431}
   label: MG
   Icon: {fileID: 7439525750424633875}
+  UnLockIcon: {fileID: 0}
+  LockIcon: {fileID: 0}
   AmmoText: {fileID: 5800886444069363082}
   ItemID: 
   angleMin: 0
@@ -1871,25 +1875,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectSpedex.RadialMenuRouter
   weaponRuntimeManager: {fileID: 0}
+  weaponSwitcher: {fileID: 0}
   radialMenu: {fileID: 2698453679841856570}
   starterAssetsInputs: {fileID: 0}
+  thirdPersonController: {fileID: 0}
+  starterAssetsInputsObjectName: Player_Soldier
   radialMenuRoot: {fileID: 5888946732352693993}
-  playerInput: {fileID: 0}
-  weaponSelectActionName: WeaponSelect
   startClosed: 1
   closeOnButtonClicked: 1
   selectionDeadZone: 0.5
-  selectedWeaponIDEventChannel: {fileID: 11400000, guid: e6825b342fccf8c4592fc7c04e3de0f7, type: 2}
-  onWeaponSelected:
-    m_PersistentCalls:
-      m_Calls: []
-  unLockedDisabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  unLockedElementColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
+  centerWeaponId: Weapon_Pistol
+  skipCenterWeaponInDirectionalElements: 1
+  directionalWeaponIdsWithCenter:
+  - Weapon_SMG
+  - Weapon_SG
+  - Weapon_AR
+  - Weapon_MG
+  lockedDisabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  lockedTextColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
+  lockedIconColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   pressedColor: {r: 0.18485224, g: 0.5849056, b: 0.22094724, a: 1}
   selectHasAmmoColor: {r: 1, g: 1, b: 1, a: 1}
   notAmmoSelectedColor: {r: 1, g: 0.3443396, b: 0.3443396, a: 1}
-  interactableElementColor: {r: 0, g: 0, b: 0, a: 1}
+  unLockTextColor: {r: 0, g: 0, b: 0, a: 1}
+  unLockIconColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &4417134138563722135
 GameObject:
   m_ObjectHideFlags: 0
@@ -2214,8 +2224,6 @@ RectTransform:
   - {fileID: 2077307720614105793}
   - {fileID: 1642900786907777758}
   - {fileID: 7354334648974306118}
-  - {fileID: 5304885117022880210}
-  - {fileID: 1632032638044573420}
   m_Father: {fileID: 1346595949470502554}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2241,13 +2249,13 @@ MonoBehaviour:
   useLazySelection: 1
   useSelectionFollower: 1
   selectionFollowerContainer: {fileID: 1642900786907777758}
-  textLabel: {fileID: 974679616606173377}
-  IconLabel: {fileID: 7768500527645436777}
   elements:
   - {fileID: 38651653712479731}
   - {fileID: 2772272531704683889}
   - {fileID: 4637054528782162086}
   - {fileID: 5889228977085313186}
+  centerElement: {fileID: 8734641600803111108}
+  centerSelectionRadius: 60
   globalOffset: 0
   rotateElementsByAngle: 0
   currentAngle: 0
@@ -2264,6 +2272,69 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1 &6008560723541196775
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 845746587115374612}
+  - component: {fileID: 8734641600803111108}
+  m_Layer: 5
+  m_Name: CenterElement_Pistol
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &845746587115374612
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6008560723541196775}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 220705547856249856}
+  m_Father: {fileID: 7354334648974306118}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8734641600803111108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6008560723541196775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34f99d89876501d49aebd7f81ba952fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectSpedex.RadialMenuElement
+  rt: {fileID: 0}
+  parentRM: {fileID: 0}
+  button: {fileID: 1456365710960376915}
+  label: Pistol
+  Icon: {fileID: 7768500527645436777}
+  UnLockIcon: {fileID: 0}
+  LockIcon: {fileID: 0}
+  AmmoText: {fileID: 0}
+  ItemID: Weapon_Pistol
+  angleMin: 0
+  angleMax: 0
+  angleOffset: 0
+  active: 0
+  assignedIndex: 0
 --- !u!1 &6054864135099927890
 GameObject:
   m_ObjectHideFlags: 0
@@ -2389,6 +2460,7 @@ RectTransform:
   - {fileID: 2029829144791112245}
   - {fileID: 843955778961543924}
   - {fileID: 7683740174576093860}
+  - {fileID: 845746587115374612}
   m_Father: {fileID: 6832081901935261891}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2564,6 +2636,128 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7960901976602044824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 220705547856249856}
+  - component: {fileID: 8889403904149223962}
+  - component: {fileID: 3499018525785378522}
+  - component: {fileID: 1456365710960376915}
+  m_Layer: 5
+  m_Name: Button
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &220705547856249856
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7960901976602044824}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1632032638044573420}
+  - {fileID: 5304885117022880210}
+  m_Father: {fileID: 845746587115374612}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 92, y: 92}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8889403904149223962
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7960901976602044824}
+  m_CullTransparentMesh: 1
+--- !u!114 &3499018525785378522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7960901976602044824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1456365710960376915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7960901976602044824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 0
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 3499018525785378522}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &8600655587135133815
 GameObject:
   m_ObjectHideFlags: 0
@@ -2712,6 +2906,8 @@ MonoBehaviour:
   button: {fileID: 6010855533449924598}
   label: SMG
   Icon: {fileID: 8314768718890405930}
+  UnLockIcon: {fileID: 0}
+  LockIcon: {fileID: 0}
   AmmoText: {fileID: 3886240511234187361}
   ItemID: 
   angleMin: 0
@@ -2925,6 +3121,8 @@ MonoBehaviour:
   button: {fileID: 5989799310150694467}
   label: AR
   Icon: {fileID: 7812218631011101408}
+  UnLockIcon: {fileID: 0}
+  LockIcon: {fileID: 0}
   AmmoText: {fileID: 1802241038536927601}
   ItemID: 
   angleMin: 0

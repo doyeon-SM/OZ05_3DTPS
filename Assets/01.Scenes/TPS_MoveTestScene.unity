@@ -2961,6 +2961,28 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1365562243895822499, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_text
+      value: 'Ammo
+
+        500'
+      objectReference: {fileID: 0}
+    - target: {fileID: 1365562243895822499, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 1365562243895822499, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 1365562243895822499, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 1365562243895822499, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4284045657
+      objectReference: {fileID: 0}
     - target: {fileID: 2793884124337803257, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_fontMaterial
       value: 
@@ -2977,6 +2999,32 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 3351661490193477096, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: centerSelectionRadius
+      value: 105
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476323126122103219, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_text
+      value: 'Ammo
+
+        500'
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476323126122103219, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476323126122103219, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476323126122103219, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 4476323126122103219, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4284045657
+      objectReference: {fileID: 0}
     - target: {fileID: 4784862372367164034, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: starterAssetsInputs
       value: 
@@ -2985,6 +3033,28 @@ PrefabInstance:
       propertyPath: weaponRuntimeManager
       value: 
       objectReference: {fileID: 1862030243}
+    - target: {fileID: 5041990573677596961, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_text
+      value: 'Ammo
+
+        500'
+      objectReference: {fileID: 0}
+    - target: {fileID: 5041990573677596961, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 5041990573677596961, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 5041990573677596961, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 5041990573677596961, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4284045657
+      objectReference: {fileID: 0}
     - target: {fileID: 6051065000655540706, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -3080,6 +3150,28 @@ PrefabInstance:
     - target: {fileID: 6574207439137474028, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6589127383186766936, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_text
+      value: 'Ammo
+
+        500'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6589127383186766936, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 6589127383186766936, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 6589127383186766936, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0.3490566
+      objectReference: {fileID: 0}
+    - target: {fileID: 6589127383186766936, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4284045657
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

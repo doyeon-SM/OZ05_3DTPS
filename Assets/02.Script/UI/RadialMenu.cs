@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-
-using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -10,218 +8,249 @@ using UnityEngine.InputSystem;
 namespace ProjectSpedex
 {
     [AddComponentMenu("Radial Menu Framework/RMF Core Script")]
-    public class RadialMenu : MonoBehaviour {
-    
-        [HideInInspector]
-        public RectTransform rt;
-        //public RectTransform baseCircleRT;
-        //public Image selectionFollowerImage;
-    
+    public class RadialMenu : MonoBehaviour
+    {
+        [HideInInspector] public RectTransform rt;
+
         [Tooltip("게임패드 또는 조이스틱으로 사용할 수 있도록 방사형 메뉴를 조정합니다.")]
         public bool useGamepad = false;
-    
+
         [SerializeField]
         [Tooltip("이 값보다 작은 게임패드 스틱 입력은 무시됩니다.")]
         private float gamepadDeadZone = 0.2f;
-    
-        [Tooltip("Lazy Selection을 사용하면 마우스나 조이스틱을 요소 방향으로 가리키기만 해도 선택됩니다. 요소 위에 정확히 마우스를 올릴 필요가 없습니다.")]
+
+        [Tooltip("마우스나 조이스틱을 요소 방향으로 가리키기만 해도 선택되도록 합니다.")]
         public bool useLazySelection = true;
-    
-    
-        [Tooltip("true로 설정하면 지정한 그래픽 포인터가 마우스 방향을 향합니다. Selection Follower의 컨테이너를 지정해야 합니다.")]
+
+        [Tooltip("true로 설정하면 지정한 그래픽 포인터가 선택 방향을 향합니다.")]
         public bool useSelectionFollower = true;
-    
-        [Tooltip("Selection Follower를 사용할 경우, 이 값은 Selection Follower 컨테이너의 RectTransform을 가리켜야 합니다.")]
+
+        [Tooltip("Selection Follower를 사용할 경우 연결할 RectTransform입니다.")]
         public RectTransform selectionFollowerContainer;
-    
-        [Tooltip("방사형 요소에 마우스를 올렸을 때 표시할 Text 오브젝트입니다. 라벨을 사용하지 않으려면 비워두세요.")]
-        public Text textLabel;
-        
-        [Tooltip("방사형 요소에 마우스를 올렸을 때 표시할 Image 오브젝트입니다. 라벨을 사용하지 않으려면 비워두세요.")]
-        public Image IconLabel;
-    
-        [Tooltip("방사형 메뉴 요소 목록입니다. 순서가 중요하며, 목록의 첫 번째 요소가 가장 먼저 생성됩니다.")]
+
+        [Tooltip("외곽 방향 선택에 사용할 방사형 메뉴 요소 목록입니다.")]
         public List<RadialMenuElement> elements = new List<RadialMenuElement>();
-    
-    
-        [Tooltip("모든 요소에 적용되는 전체 각도 오프셋을 제어합니다. 예를 들어 45로 설정하면 모든 요소가 +45도 이동합니다. 일반적으로 45, 90, 180이 사용하기 좋습니다.")]
+
+        [Header("Center Element")]
+        [SerializeField]
+        [Tooltip("중앙에서 선택할 요소입니다. 기본 무기인 Pistol처럼 방향 입력 없이 선택할 슬롯을 연결합니다.")]
+        private RadialMenuElement centerElement;
+
+        [SerializeField]
+        [Min(0f)]
+        [Tooltip("포인터가 메뉴 중심에서 이 거리 안에 있으면 중앙 요소를 선택합니다.")]
+        private float centerSelectionRadius = 80f;
+
+        [Tooltip("모든 외곽 요소에 적용되는 전체 각도 오프셋입니다.")]
         public float globalOffset = 0f;
 
-        [Tooltip("true로 설정하면 각 요소 Transform을 각도에 맞게 회전합니다. 직접 배치한 무기 선택 UI처럼 화면에 일정하게 보여야 하는 UI라면 false로 두세요.")]
+        [Tooltip("true로 설정하면 각 요소 Transform을 각도에 맞게 회전합니다.")]
         public bool rotateElementsByAngle = false;
-    
-    
-        [HideInInspector]
-        public float currentAngle = 0f; //방사형 메뉴 중심을 기준으로 한 현재 각도입니다.
-    
-    
-        [HideInInspector]
-        public int index = 0; //현재 가리키고 있는 요소의 인덱스입니다.
+
+        [HideInInspector] public float currentAngle = 0f;
+        [HideInInspector] public int index = 0;
 
         public float CurrentPointerDistance { get; private set; }
-    
-        private int elementCount;
-    
-        private float angleOffset; //기본 오프셋입니다. 예를 들어 요소가 4개라면 오프셋은 360/4 = 90입니다.
-    
-        private int previousActiveIndex = 0; //Lazy Selection에서 어떤 버튼의 하이라이트를 해제할지 판단하는 데 사용됩니다.
-    
-        private PointerEventData pointer;
+        public RadialMenuElement CenterElement => centerElement;
+        public bool HasCenterElement => centerElement != null;
+        public RadialMenuElement CurrentSelectedElement { get; private set; }
+        public bool IsCenterSelected { get; private set; }
 
+        private int elementCount;
+        private float angleOffset;
+        private PointerEventData pointer;
         private Canvas parentCanvas;
         private Vector2 virtualPointerPosition;
         private Vector2 lastRawMousePosition;
         private bool hasVirtualPointerPosition;
-    
-        void Awake() {
-    
+
+        private void Awake()
+        {
             pointer = new PointerEventData(EventSystem.current);
-    
             rt = GetComponent<RectTransform>();
             parentCanvas = GetComponentInParent<Canvas>();
-    
-            if (rt == null)
-                Debug.LogError("Radial Menu: 방사형 메뉴 " + gameObject.name + "의 RectTransform을 찾을 수 없습니다. 이 오브젝트가 Canvas의 자식인지 확인하세요.");
-            if (parentCanvas == null)
-                Debug.LogError("Radial Menu: " + gameObject.name + "에서 부모 Canvas를 찾을 수 없습니다. 방사형 메뉴가 Canvas 아래에 있는지 확인하세요.");
-    
-            if (useSelectionFollower && selectionFollowerContainer == null)
-                Debug.LogError("Radial Menu: " + gameObject.name + "에서 Selection Follower가 활성화되어 있지만 Selection Follower 컨테이너가 할당되지 않았습니다.");
-            if ( IconLabel == null )
-                Debug.LogError("Radial Menu: " + gameObject.name + "에서 SelectIcon이 할당되지 않았습니다.");
-            if ( textLabel == null )
-                Debug.LogError("Radial Menu: " + gameObject.name + "에서 SelectText이 할당되지 않았습니다.");
-            
-            
-            elementCount = elements.Count;
 
-            if (elementCount <= 0) {
-                Debug.LogError("Radial Menu: " + gameObject.name + "에 등록된 요소가 없습니다. Elements 목록에 RadialMenuElement를 추가해주세요.");
+            if (rt == null)
+                Debug.LogError("Radial Menu: " + gameObject.name + "의 RectTransform을 찾을 수 없습니다. 이 오브젝트가 Canvas의 자식인지 확인하세요.", this);
+
+            if (parentCanvas == null)
+                Debug.LogError("Radial Menu: " + gameObject.name + "에서 부모 Canvas를 찾을 수 없습니다. 방사형 메뉴가 Canvas 아래에 있는지 확인하세요.", this);
+
+            if (useSelectionFollower && selectionFollowerContainer == null)
+                Debug.LogError("Radial Menu: " + gameObject.name + "에서 Selection Follower가 활성화되어 있지만 Selection Follower 컨테이너가 할당되지 않았습니다.", this);
+
+            if (elements == null)
+                elements = new List<RadialMenuElement>();
+
+            elementCount = elements.Count;
+            if (elementCount <= 0 && centerElement == null)
+            {
+                Debug.LogError("Radial Menu: " + gameObject.name + "에 등록된 요소가 없습니다. Elements 또는 Center Element를 연결해주세요.", this);
                 enabled = false;
                 return;
             }
-    
-            angleOffset = (360f / (float)elementCount);
-    
-            //요소들을 순회하며 초기 설정을 적용합니다.
-            for (int i = 0; i < elementCount; i++) {
-                if (elements[i] == null) {
-                    Debug.LogError("Radial Menu: 방사형 메뉴 " + gameObject.name + "의 요소 " + i.ToString() + "이 null입니다!");
+
+            angleOffset = elementCount > 0 ? 360f / elementCount : 0f;
+
+            for (int i = 0; i < elementCount; i++)
+            {
+                if (elements[i] == null)
+                {
+                    Debug.LogError("Radial Menu: " + gameObject.name + "의 Elements[" + i + "]가 null입니다.", this);
                     continue;
                 }
+
                 elements[i].parentRM = this;
-    
                 elements[i].setAllAngles((angleOffset * i) + globalOffset, angleOffset);
-    
                 elements[i].assignedIndex = i;
-    
             }
-    
-        }
-    
-    
-        void Start() {
-    
-    
-            if (useGamepad) {
-                EventSystem.current.SetSelectedGameObject(gameObject, null); //시작할 때 이 오브젝트를 활성 오브젝트로 설정합니다. 다른 스크립트에서 수동으로 설정하려면 이 줄을 주석 처리하세요.
-                if (useSelectionFollower && selectionFollowerContainer != null)
-                    SetSelectionFollowerRotation(-globalOffset); //Selection Follower가 첫 번째 요소를 가리키도록 합니다.
+
+            if (centerElement != null)
+            {
+                centerElement.parentRM = this;
+                centerElement.assignedIndex = -1;
+                centerElement.setAllAngles(0f, 0f);
             }
-    
         }
-    
-        //매 프레임 한 번씩 호출됩니다.
-        void Update() {
-    
+
+        private void Start()
+        {
+            if (!useGamepad)
+                return;
+
+            if (EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(gameObject, null);
+
+            if (useSelectionFollower && selectionFollowerContainer != null)
+                SetSelectionFollowerRotation(-globalOffset);
+        }
+
+        private void Update()
+        {
             Vector2 gamepadDirection = GetGamepadDirection();
             bool joystickMoved = gamepadDirection != Vector2.zero;
-    
-    
             float rawAngle;
             bool hasDirectionInput = true;
-            
-            if (!useGamepad) {
+
+            if (!useGamepad)
+            {
                 Vector2 pointerPosition = GetPointerPosition();
                 if (pointer != null)
                     pointer.position = pointerPosition;
+
                 hasDirectionInput = TryGetPointerLocalDirection(pointerPosition, out Vector2 pointerDirection);
                 rawAngle = hasDirectionInput ? Mathf.Atan2(pointerDirection.y, pointerDirection.x) * Mathf.Rad2Deg : 0f;
             }
             else
-                rawAngle = Mathf.Atan2(gamepadDirection.y, gamepadDirection.x) * Mathf.Rad2Deg;
-    
-            //게임패드를 사용하지 않으면 항상 각도를 갱신합니다. 게임패드를 사용하는 경우 조이스틱이 움직였을 때만 갱신합니다.
-            if (!useGamepad && hasDirectionInput)
-                currentAngle = normalizeAngle(-rawAngle + 90 - globalOffset + (angleOffset / 2f));
-            else if (joystickMoved)
-                currentAngle = normalizeAngle(-rawAngle + 90 - globalOffset + (angleOffset / 2f));
-    
-            //Lazy Selection을 처리합니다. 현재 각도를 확인해 요소 인덱스와 매칭한 뒤 해당 요소를 하이라이트합니다.
-            if (angleOffset != 0 && useLazySelection) {
-    
-                //현재 가리키고 있는 요소의 인덱스입니다.
-                index = Mathf.Clamp((int)(currentAngle / angleOffset), 0, elementCount - 1);
-    
-                if (elements[index] != null) {
-    
-                    //해당 요소를 선택합니다.
-                    selectButton(index);
-    
-                }
-    
+            {
+                CurrentPointerDistance = joystickMoved ? gamepadDirection.magnitude : 0f;
+                rawAngle = joystickMoved ? Mathf.Atan2(gamepadDirection.y, gamepadDirection.x) * Mathf.Rad2Deg : 0f;
             }
-    
-            //Selection Follower를 사용 중이라면 위치 방향을 갱신합니다.
-            if (useSelectionFollower && selectionFollowerContainer != null) {
-                if (!useGamepad || joystickMoved)
-                    SetSelectionFollowerRotation(rawAngle + 270);
-               
-    
-            } 
-    
+
+            bool shouldSelectCenter = ShouldSelectCenter(joystickMoved);
+            if (useLazySelection && shouldSelectCenter)
+            {
+                SelectCenterElement();
+            }
+            else
+            {
+                UpdateDirectionalSelection(rawAngle, hasDirectionInput, joystickMoved);
+            }
+
+            UpdateSelectionFollower(rawAngle, shouldSelectCenter, joystickMoved);
         }
-    
-    
-        //지정한 인덱스의 버튼을 선택합니다.
-        private void selectButton(int i) {
-    
-              if (elements[i].active == false) {
-    
-                elements[i].highlightThisElement(pointer); //이 요소를 선택합니다.
-    
-                if (previousActiveIndex != i) 
-                    elements[previousActiveIndex].unHighlightThisElement(pointer); //이전에 선택된 요소를 선택 해제합니다.
-                
-    
-              }
-    
-              previousActiveIndex = i;
-    
+
+        private void UpdateDirectionalSelection(float rawAngle, bool hasDirectionInput, bool joystickMoved)
+        {
+            if (!useGamepad && hasDirectionInput)
+                currentAngle = normalizeAngle(-rawAngle + 90f - globalOffset + (angleOffset / 2f));
+            else if (joystickMoved)
+                currentAngle = normalizeAngle(-rawAngle + 90f - globalOffset + (angleOffset / 2f));
+
+            if (angleOffset == 0f || !useLazySelection || elementCount <= 0)
+                return;
+
+            index = Mathf.Clamp((int)(currentAngle / angleOffset), 0, elementCount - 1);
+            if (elements[index] != null)
+                SelectElement(elements[index], index);
         }
-    
-        //각도를 0에서 360 사이로 유지합니다.
-        private float normalizeAngle(float angle) {
-    
-            angle = angle % 360f;
-    
-            if (angle < 0)
-                angle += 360;
-    
+
+        private void UpdateSelectionFollower(float rawAngle, bool shouldSelectCenter, bool joystickMoved)
+        {
+            if (!useSelectionFollower || selectionFollowerContainer == null)
+                return;
+
+            SetSelectionFollowerVisible(!shouldSelectCenter);
+
+            if (!shouldSelectCenter && (!useGamepad || joystickMoved))
+                SetSelectionFollowerRotation(rawAngle + 270f);
+        }
+
+        private bool ShouldSelectCenter(bool joystickMoved)
+        {
+            if (centerElement == null)
+                return false;
+
+            if (useGamepad)
+                return !joystickMoved;
+
+            return CurrentPointerDistance <= Mathf.Max(0f, centerSelectionRadius);
+        }
+
+        private void SelectCenterElement()
+        {
+            SelectElement(centerElement, -1);
+        }
+
+        private void SelectElement(RadialMenuElement element, int directionalIndex)
+        {
+            if (element == null)
+                return;
+
+            if (CurrentSelectedElement != null && CurrentSelectedElement != element)
+                CurrentSelectedElement.unHighlightThisElement(pointer);
+
+            if (!element.active)
+                element.highlightThisElement(pointer);
+
+            CurrentSelectedElement = element;
+            IsCenterSelected = element == centerElement;
+            index = directionalIndex >= 0 ? directionalIndex : -1;
+        }
+
+        public void ResetSelectionToCenter()
+        {
+            if (centerElement == null)
+                return;
+
+            virtualPointerPosition = GetRadialMenuScreenCenter();
+            hasVirtualPointerPosition = true;
+            CurrentPointerDistance = 0f;
+            SelectCenterElement();
+
+            if (useSelectionFollower && selectionFollowerContainer != null)
+                SetSelectionFollowerVisible(false);
+        }
+
+        private float normalizeAngle(float angle)
+        {
+            angle %= 360f;
+            if (angle < 0f)
+                angle += 360f;
+
             return angle;
-    
         }
 
-        private bool TryGetPointerLocalDirection(Vector2 screenPosition, out Vector2 direction) {
-
+        private bool TryGetPointerLocalDirection(Vector2 screenPosition, out Vector2 direction)
+        {
             direction = Vector2.zero;
 
             if (rt == null)
                 return false;
 
             Camera eventCamera = GetCanvasEventCamera();
-
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rt, screenPosition, eventCamera, out Vector2 localPointerPosition)) {
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rt, screenPosition, eventCamera, out Vector2 localPointerPosition))
+            {
                 CurrentPointerDistance = 0f;
                 return false;
             }
@@ -229,11 +258,10 @@ namespace ProjectSpedex
             direction = localPointerPosition - rt.rect.center;
             CurrentPointerDistance = direction.magnitude;
             return direction.sqrMagnitude > 0.0001f;
-
         }
 
-        private Camera GetCanvasEventCamera() {
-
+        private Camera GetCanvasEventCamera()
+        {
             if (parentCanvas == null || parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
                 return null;
 
@@ -241,23 +269,22 @@ namespace ProjectSpedex
                 return parentCanvas.worldCamera;
 
             return Camera.main;
-
         }
 
-        private Vector2 GetRadialMenuScreenCenter() {
-
+        private Vector2 GetRadialMenuScreenCenter()
+        {
             if (rt == null)
                 return new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
 
             Camera eventCamera = GetCanvasEventCamera();
             Vector3 worldCenter = rt.TransformPoint(rt.rect.center);
             return RectTransformUtility.WorldToScreenPoint(eventCamera, worldCenter);
-
         }
 
-        private Vector2 GetLockedCursorPointerPosition(Vector2 fallbackPosition) {
-
-            if (!hasVirtualPointerPosition) {
+        private Vector2 GetLockedCursorPointerPosition(Vector2 fallbackPosition)
+        {
+            if (!hasVirtualPointerPosition)
+            {
                 virtualPointerPosition = fallbackPosition;
 
                 if (virtualPointerPosition == Vector2.zero)
@@ -266,37 +293,45 @@ namespace ProjectSpedex
                 hasVirtualPointerPosition = true;
             }
 
-    #if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null) {
+#if ENABLE_INPUT_SYSTEM
+            if (Mouse.current != null)
+            {
                 Vector2 mouseDelta = Mouse.current.delta.ReadValue();
                 virtualPointerPosition += mouseDelta;
             }
-    #endif
+#endif
 
-    #if ENABLE_LEGACY_INPUT_MANAGER
+#if ENABLE_LEGACY_INPUT_MANAGER
             virtualPointerPosition += new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-    #endif
+#endif
 
             virtualPointerPosition.x = Mathf.Clamp(virtualPointerPosition.x, 0f, Screen.width);
             virtualPointerPosition.y = Mathf.Clamp(virtualPointerPosition.y, 0f, Screen.height);
-
             return virtualPointerPosition;
-
         }
 
-        private void SetSelectionFollowerRotation(float zRotation) {
-
+        private void SetSelectionFollowerRotation(float zRotation)
+        {
             if (selectionFollowerContainer == null)
                 return;
 
             selectionFollowerContainer.localRotation = Quaternion.Euler(0f, 0f, zRotation);
-
         }
-    
-        private Vector2 GetPointerPosition() {
-    
-    #if ENABLE_INPUT_SYSTEM
-            if (Mouse.current != null) {
+
+        private void SetSelectionFollowerVisible(bool isVisible)
+        {
+            if (selectionFollowerContainer == null)
+                return;
+
+            if (selectionFollowerContainer.gameObject.activeSelf != isVisible)
+                selectionFollowerContainer.gameObject.SetActive(isVisible);
+        }
+
+        private Vector2 GetPointerPosition()
+        {
+#if ENABLE_INPUT_SYSTEM
+            if (Mouse.current != null)
+            {
                 Vector2 mousePosition = Mouse.current.position.ReadValue();
                 Vector2 mouseDelta = Mouse.current.delta.ReadValue();
 
@@ -313,12 +348,12 @@ namespace ProjectSpedex
                 hasVirtualPointerPosition = true;
                 return mousePosition;
             }
-    
+
             if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
                 return Touchscreen.current.primaryTouch.position.ReadValue();
-    #endif
-    
-    #if ENABLE_LEGACY_INPUT_MANAGER
+#endif
+
+#if ENABLE_LEGACY_INPUT_MANAGER
             Vector2 legacyMousePosition = Input.mousePosition;
 
             if (Cursor.lockState == CursorLockMode.Locked)
@@ -327,33 +362,29 @@ namespace ProjectSpedex
             virtualPointerPosition = legacyMousePosition;
             hasVirtualPointerPosition = true;
             return legacyMousePosition;
-    #else
+#else
             return rt != null ? rt.position : Vector3.zero;
-    #endif
-    
+#endif
         }
-    
-        private Vector2 GetGamepadDirection() {
-    
+
+        private Vector2 GetGamepadDirection()
+        {
             Vector2 direction = Vector2.zero;
-    
-    #if ENABLE_INPUT_SYSTEM
+
+#if ENABLE_INPUT_SYSTEM
             if (Gamepad.current != null)
                 direction = Gamepad.current.leftStick.ReadValue();
-    #endif
-    
-    #if ENABLE_LEGACY_INPUT_MANAGER
+#endif
+
+#if ENABLE_LEGACY_INPUT_MANAGER
             if (direction == Vector2.zero)
                 direction = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-    #endif
-    
+#endif
+
             if (direction.sqrMagnitude < gamepadDeadZone * gamepadDeadZone)
                 return Vector2.zero;
-    
-            return direction;
-    
-        }
-    
-    }
 
+            return direction;
+        }
+    }
 }
