@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
 {
@@ -21,18 +21,8 @@ namespace _01.Scenes.PhaseValidation
                 return;
             }
 
-            // 씬 시작 시 필요한 적 풀 미리 생성
-            foreach (var placement in sectorData.enemyPlacements)
-            {
-                if (placement.enemyData != null)
-                    EnemyPoolManager.Instance.PrewarmPool(placement.enemyData, 1);
-            }
-        }
-
-        protected override void StartBattle()
-        {
-            if (sectorData == null) return;
-
+            // 적을 씬 시작 시점에 미리 소환해두고(화면에 보이는 상태), AI는 꺼둔다(추적 off).
+            // 입장문을 열고 영역에 들어와 StartBattle()이 호출되어야 AI가 켜진다.
             remainingEnemyCount = sectorData.enemyPlacements.Length;
 
             foreach (var placement in sectorData.enemyPlacements)
@@ -50,9 +40,24 @@ namespace _01.Scenes.PhaseValidation
 
                 activeEnemies.Add(enemy);
                 enemy.OnDied += OnEnemyDied;
+                enemy.SetAIActive(false);
             }
 
-            Debug.Log($"[{sectorData.sectorName}] 전투 시작 — 적 {remainingEnemyCount}마리 소환");
+            Debug.Log($"[{sectorData.sectorName}] 적 {remainingEnemyCount}마리 미리 소환 완료 (대기 상태)");
+        }
+
+        protected override void StartBattle()
+        {
+            if (sectorData == null) return;
+
+            // 이미 미리 소환되어 대기 중인 적들의 AI를 켠다(추적 시작).
+            foreach (var enemy in activeEnemies)
+            {
+                if (enemy != null)
+                    enemy.SetAIActive(true);
+            }
+
+            Debug.Log($"[{sectorData.sectorName}] 전투 시작 — 적 {remainingEnemyCount}마리 활성화");
         }
 
         private void OnEnemyDied(EnemyStatus enemy)

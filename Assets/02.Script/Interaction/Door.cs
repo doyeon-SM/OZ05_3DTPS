@@ -54,9 +54,17 @@ public class Door : MonoBehaviour, IInteraction
 
     public void Interaction()
     {
+        // 비활성 상태(SetDoorActive(false))면 어떤 동작도 하지 않는다.
+        // (이전에는 비활성 + 닫힘 상태에서 Interaction()이 Close()를 redundant하게 재실행해버리는 문제가 있었음)
+        if (!_isActive)
+        {
+            Debug.Log("[Door] 비활성 상태 — 상호작용 무시");
+            return;
+        }
+
         Debug.Log("[Door] 상호작용 실행 - 현재 상태: " + (_isDoorOpen ? "열림" : "닫힘"));
-        if (!_isDoorOpen && _isActive) Open();
-        else                           Close();
+        if (!_isDoorOpen) Open();
+        else              Close();
     }
 
     private void PlaySFX(bool isOpening)

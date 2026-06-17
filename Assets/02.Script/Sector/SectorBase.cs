@@ -37,7 +37,8 @@ namespace _01.Scenes.PhaseValidation
             if (entryDoor != null)
             {
                 entryDoorObject = entryDoor.GetComponent<Door>();
-                entryDoorObject?.Interaction();
+                // 입장문은 닫힌 상태로 시작한다(Door 기본값 _isDoorOpen=false).
+                // 플레이어가 직접 상호작용해서 열어야 한다 — 강제로 열어두지 않는다.
                 entryDoorObject?.SetDoorActive(true);
             }
             if (exitDoor != null)
