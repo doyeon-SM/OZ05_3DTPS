@@ -1048,6 +1048,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9430be9ad0f8439f8cfa1e7dc853151f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.UI.UIController
+  optionsMenuPrefab: {fileID: 3499462977723681775, guid: c1cbccf4bb6733a488feb62d26e45fd7, type: 3}
+  optionsMenuParentName: OptionUIRoot
 --- !u!4 &1743157667
 Transform:
   m_ObjectHideFlags: 0
