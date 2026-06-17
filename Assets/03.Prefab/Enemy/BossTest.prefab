@@ -884,6 +884,8 @@ MonoBehaviour:
   containerDamageMultiplier: 1.2
   idleLocalPosition: {x: 0, y: 11, z: 0}
   interactionLabel: "[E] \uCEE8\uD14C\uC774\uB108 \uD68C\uC218"
+  smgAmmoReward: 50
+  shotgunAmmoReward: 5
 --- !u!1 &5445288260152341870
 GameObject:
   m_ObjectHideFlags: 0
@@ -2769,7 +2771,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 122648, guid: 11530f2b0a0cd2442949827ecbb622f2, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 436056, guid: 11530f2b0a0cd2442949827ecbb622f2, type: 3}
       propertyPath: m_LocalPosition.x
