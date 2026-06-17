@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
@@ -7,6 +7,14 @@ namespace _01.Scenes.PhaseValidation
     /// 보스 전용 Status — EnemyStatus를 상속하여 TakeDamage/Die override.
     /// BossData SO에서 maxHealth/attackPower를 초기화합니다.
     /// HP 변경 시 OnHPChanged 이벤트를 발행하여 BossHUDManager가 구독합니다.
+    ///
+    /// [무적]
+    ///  - IsInvincible이 true인 동안 TakeDamage()는 즉시 무시됩니다.
+    ///  - 분기패턴(2페이즈 전환 패턴) 진행 중 BossController가 이 플래그를 제어합니다.
+    ///
+    /// [보상]
+    ///  - 보스 처치 시 StageManager의 확률 기반 랜덤 드랍(OnEnemyDied)을 사용하지 않고,
+    ///    BossData.rewardPrefab을 보스 사망 위치에 고정으로 1개 소환합니다.
     /// </summary>
     public class BossStatus : EnemyStatus
     {
@@ -23,11 +31,15 @@ namespace _01.Scenes.PhaseValidation
         public int CurrentHP { get; private set; }
         public BossData BossData => bossData;
 
+        /// <summary>true인 동안 TakeDamage가 무시됩니다 (분기패턴 등 무적 구간용).</summary>
+        public bool IsInvincible { get; set; }
+
         private bool _isDead;
 
         protected override void OnEnable()
         {
             _isDead = false;
+            IsInvincible = false;
             if (bossData != null) InitFromBossData();
         }
 
@@ -50,10 +62,12 @@ namespace _01.Scenes.PhaseValidation
 
         /// <summary>
         /// override — 데미지 수신, OnHPChanged 발행, 사망 처리.
+        /// IsInvincible이 true이면 데미지를 무시합니다.
         /// </summary>
         public override void TakeDamage(int value)
         {
             if (_isDead) return;
+            if (IsInvincible) return;
 
             CurrentHP = Mathf.Max(CurrentHP - value, 0);
             OnHPChanged?.Invoke(CurrentHP, MaxHP);
@@ -73,10 +87,25 @@ namespace _01.Scenes.PhaseValidation
             Debug.Log("================================================================");
 
             BossHUDManager.Instance?.Hide();
+            SpawnRewardObject();
             OnBossDied?.Invoke();
-            StageManager.Instance?.OnEnemyDied(transform.position);
 
             Destroy(gameObject);
+        }
+
+        /// <summary>
+        /// BossData.rewardPrefab을 보스 사망 위치에 고정으로 1개 소환한다.
+        /// StageManager의 확률 기반 랜덤 드랍은 더 이상 사용하지 않는다.
+        /// </summary>
+        private void SpawnRewardObject()
+        {
+            if (bossData == null || bossData.rewardPrefab == null)
+            {
+                Debug.LogWarning("[BossStatus] BossData.rewardPrefab이 설정되지 않았습니다. 보상이 소환되지 않습니다.");
+                return;
+            }
+
+            Instantiate(bossData.rewardPrefab, transform.position, Quaternion.identity);
         }
     }
 }

@@ -41,10 +41,14 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField] private Color emptyColor   = new Color(0.25f, 0.25f, 0.25f);
         [SerializeField] private Color segmentGapColor = new Color(0f, 0f, 0f, 0.8f);
 
+        [Tooltip("분기패턴(무적) 진행 중 채워진 세그먼트에 적용할 색상")]
+        [SerializeField] private Color invincibleColor = new Color(0.2f, 0.5f, 0.95f);
+
         // 생성된 세그먼트 Image 배열
         private Image[] _segments;
         private int _maxHP;
         private int _currentHP;
+        private bool _isInvincible;
 
         private void Awake()
         {
@@ -86,6 +90,16 @@ namespace _01.Scenes.PhaseValidation
         {
             _currentHP = current;
             _maxHP     = max;
+            RefreshSegments();
+        }
+
+        /// <summary>
+        /// 보스의 무적(분기패턴) 상태를 HUD에 반영합니다.
+        /// BossController가 분기패턴 시작/종료 시점에 호출합니다.
+        /// </summary>
+        public void SetInvincibleVisual(bool isInvincible)
+        {
+            _isInvincible = isInvincible;
             RefreshSegments();
         }
 
@@ -147,7 +161,7 @@ namespace _01.Scenes.PhaseValidation
                     fill = (_currentHP - segMin) / hpPerSegment;       // 부분적으로 채워진 칸
 
                 _segments[i].fillAmount = fill;
-                _segments[i].color      = fill > 0f ? fullColor : emptyColor;
+                _segments[i].color      = fill > 0f ? (_isInvincible ? invincibleColor : fullColor) : emptyColor;
             }
         }
     }

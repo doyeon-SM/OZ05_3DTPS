@@ -1,39 +1,42 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using _01.Scenes.PhaseValidation._26._05._14;
 
 namespace _01.Scenes.PhaseValidation
 {
     /// <summary>
-    /// 보스 기본 패턴 컨트롤러 (프로토타입 - 큐브, 애니메이션 미적용).
+    /// 보스 기본 패턴 컨트롤러.
     ///
-    /// [패턴 흐름]
-    ///  대기 → 거리 판단
-    ///   ├ 근거리(meleeRangeRadius 이내): 부채꼴 공격 (전방/후방 랜덤)
-    ///   └ 원거리(범위 밖): 추적 레이저 공격
-    ///  → 패턴 종료 → 0.5초 대기 → 반복
-    ///
-    /// [부채꼴 공격]
-    ///  - 보스가 플레이어를 바라보도록 즉시 회전(고정) 후 2초 예고 → 즉시 1회 데미지 판정(OverlapSphere + 각도)
-    ///  - 후방 공격은 동일 오브젝트를 180도 회전시켜 재사용
-    ///
-    /// [레이저 공격]
-    ///  - 2초간 raycast로 플레이어 추적 회전 (예고 표시, 판정 없음)
-    ///  - 추적 종료 후 0.3초 대기 (회전 정지, 표시 유지)
-    ///  - 이후 1초간 고정, 0.2초 간격 5회 틱 데미지
-    ///
-    /// [데미지 배율]
-    ///  - BossData.attackPower 기준으로 패턴별 배율 적용
+    /// [애니메이션 Trigger]
+    ///  - A_attack  : 부채꼴 전방
+    ///  - B_attack  : 부채꼴 후방
+    ///  - C_attack  : 레이저
+    ///  - SA_attack : 바닥패턴 #자
+    ///  - SB_attack : 바닥패턴 파도
+    ///  - SC_attack : 바닥패턴 컨테이너
     /// </summary>
     public class BossController : MonoBehaviour
     {
         private const string PlayerTag = "Player";
+        private const string BossSpawnName = "BossSpawn";
+
+        // ── Animator Trigger 상수 ────────────────────────────
+        private const string TriggerFanFront      = "A_attack";
+        private const string TriggerFanBack       = "B_attack";
+        private const string TriggerLaser         = "C_attack";
+        private const string TriggerFloorHash     = "SA_attack";
+        private const string TriggerFloorWave     = "SB_attack";
+        private const string TriggerFloorContainer = "SC_attack";
 
         [Header("보스 데이터")]
         [SerializeField] private BossStatus bossStatus;
 
         [Tooltip("공격 VFX/SFX 처리 컴포넌트 (비워두면 자동으로 GetComponent 시도)")]
         [SerializeField] private BossEffectController effectController;
+
+        [Header("애니메이션")]
+        [Tooltip("보스 Animator (비워두면 자동으로 GetComponent 시도)")]
+        [SerializeField] private Animator animator;
 
         [Header("판정 자식 오브젝트")]
         [Tooltip("부채꼴 공격 표시/판정용 자식 오브젝트 (보스 정면 기준 배치, Plane)")]
@@ -46,48 +49,57 @@ namespace _01.Scenes.PhaseValidation
         [SerializeField] private BossFloorPatternController floorPatternController;
 
         [Header("부채꼴 공격 설정")]
-        [Tooltip("부채꼴 판정 각도 (전체 각도, 정면 기준 좌우 절반씩)")]
         [SerializeField] private float fanAngle = 90f;
-
-        [Tooltip("부채꼴 공격 예고 시간(초)")]
         [SerializeField] private float fanTelegraphDuration = 2f;
-
-        [Tooltip("부채꼴 공격 표시 유지 시간(초) - 데미지 판정 직후")]
         [SerializeField] private float fanAttackShowDuration = 0.3f;
 
         [Header("레이저 공격 설정")]
-        [Tooltip("레이저 추적(예고) 시간(초)")]
         [SerializeField] private float laserTrackingDuration = 2f;
-
-        [Tooltip("레이저 추적 종료 후 발사 전 대기 시간(초)")]
         [SerializeField] private float laserPreFireDelay = 0.3f;
-
-        [Tooltip("레이저 발사(고정) 시간(초)")]
         [SerializeField] private float laserFireDuration = 1f;
 
         [Header("패턴 간격")]
-        [Tooltip("패턴 종료 후 다음 패턴까지 대기 시간(초)")]
         [SerializeField] private float patternInterval = 0.5f;
 
-        [Header("다음 배율")]
+        [Header("데미지 배율")]
         [SerializeField] private float fanAttackMultiplier = 1.5f;
         [SerializeField] private float laserTickMultiplier = 0.5f;
 
-        [Header("부채꼴 정렬")]
-        [Tooltip("FanAttackIndicator의 로컬 Y 오프셋 (바닥 높이 보정용, 크기 동기화 시에도 유지됩니다).")]
-        [SerializeField] private float fanIndicatorYOffset = -0.85f;
-
-        [Header("레이저 정렬")]
-        [Tooltip("레이저 자식 오브젝트의 고정 로컬 회전(Euler). Capsule Collider Direction이 Y-Axis인 경우 X=90을 권장합니다 (Y축 캡슐을 눕혀 보스 정면(Z축)으로 향하게 함).")]
+                [Header("레이저 정렬")]
         [SerializeField] private Vector3 laserLocalRotationEuler = new Vector3(90f, 0f, 0f);
+
+        [Header("2페이즈 설정")]
+        [Tooltip("2페이즈 전환 HP 비율 (0~1). 이 값 이하로 떨어지면 분기패턴 후 2페이즈로 전환된다.")]
+        [SerializeField] private float phase2HpThreshold = 0.5f;
+
+        [Tooltip("2페이즈에서의 공격 예고 시간(초). 부채꼴/레이저/바닥패턴 모두 이 값으로 통일된다.")]
+        [SerializeField] private float phase2TelegraphDuration = 1f;
+
+        [Tooltip("2페이즈 회전속도 배율")]
+        [SerializeField] private float phase2RotationSpeedMultiplier = 1.5f;
+
+        [Tooltip("2페이즈 애니메이션 재생 속도 배율 (예고시간이 절반이 되는 것에 맞춰 기본 2배 권장)")]
+        [SerializeField] private float phase2AnimatorSpeedMultiplier = 2f;
+
+        [Tooltip("2페이즈 진입 시 보스 머티리얼에 적용할 baseMap 색상")]
+        [SerializeField] private Color phase2BaseColor = Color.red;
+
+        [Tooltip("2페이즈 진입 시 플레이어를 보스 쪽으로 끌어당기는 시간(초)")]
+        [SerializeField] private float phase2PullDuration = 1f;
+
+        [Tooltip("2페이즈 진입 시 맵 제한용 벽 오브젝트")]
+        [SerializeField] private GameObject wall;
 
         private Transform _player;
         private bool _isAttacking;
+        private bool _isPhase2;
+        private bool _branchPatternDone;
 
         private void Awake()
         {
-            if (bossStatus == null) bossStatus = GetComponent<BossStatus>();
+            if (bossStatus == null)       bossStatus       = GetComponent<BossStatus>();
             if (effectController == null) effectController = GetComponent<BossEffectController>();
+            if (animator == null)         animator         = GetComponent<Animator>();
         }
 
         private void Start()
@@ -95,31 +107,50 @@ namespace _01.Scenes.PhaseValidation
             TryBindPlayer();
             SyncHitboxesWithBossData();
             StartCoroutine(PatternLoop());
+            SetupWall();
         }
 
         /// <summary>
-        /// BossData의 meleeRangeRadius / laserRange 값에 맞춰
-        /// FanAttackIndicator(Plane), LaserHitbox(Capsule)의 크기·위치를 보스 원점 기준으로 재계산합니다.
-        ///
-        /// - FanAttackIndicator: 보스 원점이 부채꼴의 중심(꼭짓점). Plane 기본 크기 10m → scale = meleeRangeRadius / 5 (반경 기준).
-        /// - LaserHitbox: 보스 원점이 캡슐의 시작점(뒤쪽 끝), 정면으로 laserRange만큼 뻗음.
-        ///   Capsule 기본 height = 2 → scale.y = laserRange / 2, localPosition.z = laserRange / 2.
+        /// 벽을 BossSpawn 오브젝트를 기준으로 재배치한다.
+        /// BossFloorPatternController가 격자 인디케이터를 BossSpawn 기준으로 재배치하는 것과 동일한 이유로,
+        /// 벽이 보스(회전하는 오브젝트)의 자식이거나 영향을 받는 경우 보스가 회전해도 벽이 같이 돌지 않도록
+        /// BossSpawn으로 재부모화하고 회전을 0으로 고정한다. 위치(오프셋)는 기존 배치를 그대로 유지한다.
         /// </summary>
+        private void SetupWall()
+        {
+            if (wall == null) return;
+
+            GameObject spawnObj = GameObject.Find(BossSpawnName);
+            if (spawnObj != null)
+            {
+                Transform spawnTransform = spawnObj.transform;
+                Vector3 worldPos = wall.transform.position;
+                wall.transform.SetParent(spawnTransform, true);
+                wall.transform.position = worldPos;
+                wall.transform.rotation = Quaternion.identity;
+            }
+            else
+            {
+                Debug.LogWarning($"[BossController] '{BossSpawnName}' 오브젝트를 찾지 못해 벽 위치를 보정하지 못했습니다.");
+            }
+
+            wall.SetActive(false);
+        }
+
         private void SyncHitboxesWithBossData()
         {
             float meleeRange = GetMeleeRange();
-            float laserRange = GetLaserRange();
 
             if (fanAttackHitbox != null)
             {
                 Transform t = fanAttackHitbox.transform;
-                // Plane 기본 크기 10m -> scale = meleeRange / 10 (한 변의 길이 = meleeRange)
-                float scaleXZ = meleeRange / 10f;
-                t.localScale = new Vector3(scaleXZ, t.localScale.y, scaleXZ);
-                // Plane의 한 변이 보스 원점에 닿고 정면으로 meleeRange만큼 펼쳐지도록 중심을 z = meleeRange/2로 이동
-                t.localPosition = new Vector3(0f, fanIndicatorYOffset, meleeRange / 2f);
-            }
+                // 고정 배치: position(0,1,0), scale(2,1,2). 회전만 SetDirection으로 제어.
+                t.localPosition = new Vector3(0f, -0.85f, 0f);
+                t.localScale = new Vector3(2f, 1f, 2f);
 
+                // 셰이더 부채꼴 각도 동기화
+                fanAttackHitbox.SetFanAngle(fanAngle);
+            }
         }
 
         private void TryBindPlayer()
@@ -128,20 +159,25 @@ namespace _01.Scenes.PhaseValidation
             if (go != null) _player = go.transform;
         }
 
+        // ── 애니메이션 헬퍼 ─────────────────────────────────
+
+        private void SetAttackTrigger(string triggerName)
+        {
+            if (animator != null)
+                animator.SetTrigger(triggerName);
+        }
+
         // ── 패턴 루프 ────────────────────────────────────────
 
         private IEnumerator PatternLoop()
         {
-            while (true)
+            bool loop = true;
+            while (loop)
             {
                 if (_player == null)
                 {
                     TryBindPlayer();
-                    if (_player == null)
-                    {
-                        yield return null;
-                        continue;
-                    }
+                    if (_player == null) { yield return null; continue; }
                 }
 
                 _isAttacking = true;
@@ -149,24 +185,132 @@ namespace _01.Scenes.PhaseValidation
                 // 기본패턴: 거리 기반 부채꼴/레이저
                 float dist = GetHorizontalDistance(transform.position, _player.position);
                 if (dist <= GetMeleeRange())
-                {
                     yield return StartCoroutine(DoFanAttack());
-                }
                 else
-                {
                     yield return StartCoroutine(DoLaserAttack());
-                }
 
                 yield return new WaitForSeconds(patternInterval);
 
-                // 특수패턴: 바닥패턴(#자/파도/컨테이너)
+                yield return StartCoroutine(CheckPhase2Transition());
+
+                // 특수패턴: 바닥패턴
                 if (floorPatternController != null)
-                {
                     yield return StartCoroutine(floorPatternController.PlaySpecialPattern());
-                }
 
                 _isAttacking = false;
                 yield return new WaitForSeconds(patternInterval);
+
+                yield return StartCoroutine(CheckPhase2Transition());
+            }
+        }
+
+        /// <summary>
+        /// HP가 phase2HpThreshold 이하이고 아직 분기패턴을 실행하지 않았다면,
+        /// 무적 → 플레이어 끌어당기기 → 벽 활성화 → 분기패턴(전환패턴) 순으로 실행한 뒤
+        /// 2페이즈로 전환한다. 한 패턴 종료 지점마다 호출된다.
+        /// </summary>
+        private IEnumerator CheckPhase2Transition()
+        {
+            if (_branchPatternDone || _isPhase2) yield break;
+            if (bossStatus == null) yield break;
+            if (bossStatus.MaxHP <= 0) yield break;
+
+            float hpRatio = (float)bossStatus.CurrentHP / bossStatus.MaxHP;
+            if (hpRatio > phase2HpThreshold) yield break;
+
+            _branchPatternDone = true;
+
+            // 1) 무적
+            bossStatus.IsInvincible = true;
+            BossHUDManager.Instance?.SetInvincibleVisual(true);
+
+            // 2) 플레이어를 보스 쪽으로 끌어당기기
+            yield return StartCoroutine(PullPlayerTowardsBoss(phase2PullDuration));
+
+            // 3) 벽 활성화 (위치/회전은 SetupWall()에서 BossSpawn 기준으로 이미 보정됨)
+            if (wall != null)
+                wall.SetActive(true);
+
+            // 4) 2페이즈 전환패턴(분기패턴) 시작
+            if (floorPatternController != null)
+                yield return StartCoroutine(floorPatternController.PlayBranchPattern());
+
+            bossStatus.IsInvincible = false;
+            BossHUDManager.Instance?.SetInvincibleVisual(false);
+
+            EnterPhase2();
+        }
+
+        /// <summary>
+        /// 플레이어를 duration(초) 동안 보스 위치(transform.position)로 끌어당긴다.
+        /// 끌어당기는 동안 ThirdPersonController를 비활성화하여 일반 이동 입력을 차단하고,
+        /// CharacterController가 있다면 Move()로 이동시켜 충돌 처리를 유지한다.
+        /// </summary>
+        private IEnumerator PullPlayerTowardsBoss(float duration)
+        {
+            if (_player == null) yield break;
+            if (duration <= 0f) yield break;
+
+            StarterAssets.ThirdPersonController playerController = _player.GetComponent<StarterAssets.ThirdPersonController>();
+            CharacterController characterController = _player.GetComponent<CharacterController>();
+
+            if (playerController != null)
+                playerController.enabled = false;
+
+            Vector3 startPos = _player.position;
+            Vector3 targetPos = transform.position;
+
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                Vector3 nextPos = Vector3.Lerp(startPos, targetPos, t);
+
+                if (characterController != null)
+                    characterController.Move(nextPos - _player.position);
+                else
+                    _player.position = nextPos;
+
+                yield return null;
+            }
+
+            if (playerController != null)
+                playerController.enabled = true;
+        }
+
+        /// <summary>2페이즈 변화 적용: 예고시간 단축, 회전속도 증가, 애니메이션 속도 증가, 머티리얼 색상 변경.</summary>
+        private void EnterPhase2()
+        {
+            _isPhase2 = true;
+
+            fanTelegraphDuration = phase2TelegraphDuration;
+            laserTrackingDuration = phase2TelegraphDuration;
+
+            if (floorPatternController != null)
+                floorPatternController.SetTelegraphDurationOverride(phase2TelegraphDuration);
+
+            if (animator != null)
+                animator.speed = phase2AnimatorSpeedMultiplier;
+
+            ApplyPhase2Material();
+
+            Debug.Log("[BossController] ★ 2페이즈 진입 ★");
+        }
+
+        /// <summary>보스 전체 Renderer의 머티리얼 baseMap 색상을 phase2BaseColor로 변경.</summary>
+        private void ApplyPhase2Material()
+        {
+            Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+            foreach (var rend in renderers)
+            {
+                foreach (var mat in rend.materials)
+                {
+                    if (mat.HasProperty("_BaseColor"))
+                        mat.SetColor("_BaseColor", phase2BaseColor);
+                    else if (mat.HasProperty("_Color"))
+                        mat.SetColor("_Color", phase2BaseColor);
+                }
             }
         }
 
@@ -176,23 +320,16 @@ namespace _01.Scenes.PhaseValidation
         {
             bool isBackAttack = Random.value < 0.5f;
 
-            // 플레이어를 바라보도록 즉시 회전 후 고정 (예고 시작 시 회전 정지)
+            // 애니메이션: 전방 A_attack / 후방 B_attack
+            SetAttackTrigger(isBackAttack ? TriggerFanBack : TriggerFanFront);
+
             FacePlayerInstant();
 
             if (fanAttackHitbox != null)
             {
-                Transform hitboxTransform = fanAttackHitbox.transform;
-                float meleeRange = GetMeleeRange();
-                float zOffset = meleeRange / 2f;
-
-                // 전방 기준 배치된 오브젝트를 후방 공격 시 180도 회전 + 반대편(z 반전)으로 이동
-                hitboxTransform.localRotation = isBackAttack
-                    ? Quaternion.Euler(0f, 180f, 0f)
-                    : Quaternion.identity;
-
-                Vector3 pos = hitboxTransform.localPosition;
-                pos.z = isBackAttack ? -zOffset : zOffset;
-                hitboxTransform.localPosition = pos;
+                // 보스 중앙 고정 배치이므로 위치 이동은 불필요, 방향만 셰이더로 전달
+                // 셰이더 마스크가 반전되어 있어 전달값을 180도 뒤집어 보정
+                fanAttackHitbox.SetDirection(isBackAttack ? 0f : 180f);
 
                 fanAttackHitbox.ShowTelegraph();
             }
@@ -202,7 +339,6 @@ namespace _01.Scenes.PhaseValidation
 
             yield return new WaitForSeconds(fanTelegraphDuration);
 
-            // 즉시 1회 데미지 판정
             Vector3 attackForward = isBackAttack ? -transform.forward : transform.forward;
             ApplyFanDamage(attackForward);
 
@@ -246,33 +382,29 @@ namespace _01.Scenes.PhaseValidation
             }
         }
 
-        // ── 원거리 레이저 공격 ───────────────────────────────
+        // ── 레이저 공격 ─────────────────────────────────────
 
         private IEnumerator DoLaserAttack()
         {
+            // 애니메이션: C_attack
+            SetAttackTrigger(TriggerLaser);
+
             if (laserHitbox != null)
-            {
                 laserHitbox.ShowTelegraph();
-            }
 
             if (effectController != null)
                 effectController.OnTelegraphSFX_Laser();
 
-            // 추적(예고) 단계 - 보스가 플레이어를 향해 회전
             float elapsed = 0f;
             while (elapsed < laserTrackingDuration)
             {
-                if (_player != null)
-                    RotateTowardsPlayer();
-
+                if (_player != null) RotateTowardsPlayer();
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
-            // 추적 종료 - 회전 정지, 표시 유지한 채 대기
             yield return new WaitForSeconds(laserPreFireDelay);
 
-            // 고정 후 발사
             int tickDamage = Mathf.RoundToInt(GetAttackPower() * laserTickMultiplier);
             if (laserHitbox != null)
                 laserHitbox.StartAttack(tickDamage);
@@ -288,7 +420,6 @@ namespace _01.Scenes.PhaseValidation
 
         // ── 회전 ────────────────────────────────────────────
 
-        /// <summary>레이저 추적 단계 - BossData.rotationSpeed 기준으로 플레이어를 향해 점진 회전.</summary>
         private void RotateTowardsPlayer()
         {
             Vector3 dir = _player.position - transform.position;
@@ -296,55 +427,34 @@ namespace _01.Scenes.PhaseValidation
             if (dir.sqrMagnitude < 0.0001f) return;
 
             Quaternion targetRot = Quaternion.LookRotation(dir);
-            float speed = GetRotationSpeed();
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, speed * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, GetRotationSpeed() * Time.deltaTime);
         }
 
-        /// <summary>부채꼴 공격 예고 시작 시 - 플레이어를 즉시 바라보도록 회전(고정).</summary>
         private void FacePlayerInstant()
         {
             if (_player == null) return;
-
             Vector3 dir = _player.position - transform.position;
             dir.y = 0f;
             if (dir.sqrMagnitude < 0.0001f) return;
-
             transform.rotation = Quaternion.LookRotation(dir);
         }
 
-        /// <summary>두 위치 간 수평(XZ) 거리.</summary>
         private float GetHorizontalDistance(Vector3 a, Vector3 b)
         {
-            Vector3 diff = a - b;
-            diff.y = 0f;
-            return diff.magnitude;
+            Vector3 diff = a - b; diff.y = 0f; return diff.magnitude;
         }
 
         // ── BossData 접근 ───────────────────────────────────
 
-        private float GetMeleeRange()
-        {
-            BossData data = bossStatus != null ? bossStatus.BossData : null;
-            return data != null ? data.meleeRangeRadius : 3f;
-        }
-
+        private float GetMeleeRange()    { var d = bossStatus?.BossData; return d != null ? d.meleeRangeRadius : 3f; }
         private float GetRotationSpeed()
         {
-            BossData data = bossStatus != null ? bossStatus.BossData : null;
-            return data != null ? data.rotationSpeed : 90f;
+            var d = bossStatus?.BossData;
+            float baseSpeed = d != null ? d.rotationSpeed : 90f;
+            return _isPhase2 ? baseSpeed * phase2RotationSpeedMultiplier : baseSpeed;
         }
-
-        private float GetLaserRange()
-        {
-            BossData data = bossStatus != null ? bossStatus.BossData : null;
-            return data != null ? data.laserRange : 20f;
-        }
-
-        private int GetAttackPower()
-        {
-            BossData data = bossStatus != null ? bossStatus.BossData : null;
-            return data != null ? data.attackPower : 10;
-        }
+        private float GetLaserRange()    { var d = bossStatus?.BossData; return d != null ? d.laserRange       : 20f; }
+        private int   GetAttackPower()   { var d = bossStatus?.BossData; return d != null ? d.attackPower      : 10; }
 
         // ── Gizmo ────────────────────────────────────────────
 
@@ -353,19 +463,15 @@ namespace _01.Scenes.PhaseValidation
             float meleeRange = GetMeleeRange();
             float laserRange = GetLaserRange();
 
-            // 근접 판정 범위 (원)
             Gizmos.color = new Color(1f, 0.2f, 0.2f, 0.4f);
             Gizmos.DrawWireSphere(transform.position, meleeRange);
 
-            // 부채꼴 판정 각도 (전방/후방)
-            DrawFanGizmo(transform.forward, meleeRange, new Color(1f, 0.5f, 0f, 0.8f));
+            DrawFanGizmo( transform.forward, meleeRange, new Color(1f, 0.5f, 0f, 0.8f));
             DrawFanGizmo(-transform.forward, meleeRange, new Color(0f, 0.6f, 1f, 0.8f));
 
-            // 레이저 사거리 (정면 직선)
             Gizmos.color = new Color(1f, 0f, 0f, 0.8f);
             Gizmos.DrawLine(transform.position, transform.position + transform.forward * laserRange);
 
-            // 플레이어 추적 라인
             if (_player != null)
             {
                 Gizmos.color = Color.yellow;
@@ -373,31 +479,25 @@ namespace _01.Scenes.PhaseValidation
             }
         }
 
-        /// <summary>부채꼴(fanAngle) 판정 영역을 와이어로 표시.</summary>
         private void DrawFanGizmo(Vector3 forward, float range, Color color)
         {
             Gizmos.color = color;
             float halfAngle = fanAngle * 0.5f;
 
-            Quaternion leftRot = Quaternion.AngleAxis(-halfAngle, Vector3.up);
-            Quaternion rightRot = Quaternion.AngleAxis(halfAngle, Vector3.up);
+            Vector3 leftDir  = Quaternion.AngleAxis(-halfAngle, Vector3.up) * forward;
+            Vector3 rightDir = Quaternion.AngleAxis( halfAngle, Vector3.up) * forward;
+            Vector3 origin   = transform.position;
 
-            Vector3 leftDir = leftRot * forward;
-            Vector3 rightDir = rightRot * forward;
-
-            Vector3 origin = transform.position;
-            Gizmos.DrawLine(origin, origin + leftDir * range);
+            Gizmos.DrawLine(origin, origin + leftDir  * range);
             Gizmos.DrawLine(origin, origin + rightDir * range);
-            Gizmos.DrawLine(origin, origin + forward * range);
+            Gizmos.DrawLine(origin, origin + forward  * range);
 
-            // 부채꼴 외곽 호
             const int segments = 12;
             Vector3 prevPoint = origin + leftDir * range;
             for (int i = 1; i <= segments; i++)
             {
                 float t = (float)i / segments;
-                Quaternion rot = Quaternion.AngleAxis(-halfAngle + fanAngle * t, Vector3.up);
-                Vector3 point = origin + (rot * forward) * range;
+                Vector3 point = origin + (Quaternion.AngleAxis(-halfAngle + fanAngle * t, Vector3.up) * forward) * range;
                 Gizmos.DrawLine(prevPoint, point);
                 prevPoint = point;
             }

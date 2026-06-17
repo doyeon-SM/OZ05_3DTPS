@@ -398,6 +398,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 3261867509446556739, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 7048549839887141121, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
+    - target: {fileID: 3261867510325893612, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 7048549839887141121, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
     - target: {fileID: 3544394511719980864, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -680,10 +688,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2793884124337803257, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 3279436576390061588, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 4149559717638697371, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 4784862372367164034, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: weaponSwitcher
       value: 
@@ -2107,7 +2123,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7324533606547337336, guid: 879632de2dd15f949b4fa3addbe2e447, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -6.0772114
+      value: -4.0772095
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

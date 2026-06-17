@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4077895911449202}
   - component: {fileID: 33501631120908438}
   - component: {fileID: 23197430006222998}
-  - component: {fileID: 64722341742955790}
+  - component: {fileID: 7697468707105629480}
   m_Layer: 0
   m_Name: "\u0421eiling_Cross_A"
   m_TagString: Untagged
@@ -91,8 +91,8 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &64722341742955790
-MeshCollider:
+--- !u!65 &7697468707105629480
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -109,7 +109,6 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: f0573cb57ffedb04698e2c40646a3fe4, type: 3}
+  serializedVersion: 3
+  m_Size: {x: 2, y: 0.36705533, z: 2.0000007}
+  m_Center: {x: -1.0000002, y: -0.016472235, z: -1.0000001}

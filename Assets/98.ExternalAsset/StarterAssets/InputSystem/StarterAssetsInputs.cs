@@ -58,6 +58,12 @@ namespace StarterAssets
 #endif
 
 #if ENABLE_INPUT_SYSTEM
+		private void Start()
+		{
+			SetCursorState(cursorLocked);
+		}
+
+		
 		private void Awake()
 		{
 			CacheWeaponSelectAction();

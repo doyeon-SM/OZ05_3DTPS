@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
 {
@@ -21,5 +21,9 @@ namespace _01.Scenes.PhaseValidation
 
         [Tooltip("레이저 사거리(m)")]
         public float laserRange = 20f;
+
+        [Header("보상")]
+        [Tooltip("보스 처치 시 보스 사망 위치에 고정으로 소환할 보상 오브젝트. 보스는 더 이상 StageManager의 확률 기반 랜덤 드랍을 사용하지 않고 이 오브젝트 하나만 소환한다.")]
+        public GameObject rewardPrefab;
     }
 }

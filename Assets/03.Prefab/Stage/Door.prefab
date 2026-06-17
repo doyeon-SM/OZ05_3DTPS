@@ -191,6 +191,9 @@ MonoBehaviour:
   rightDoorObject: {fileID: 1366765491161500375}
   openOffset: 1
   slideDuration: 0.5
+  openSFX: {fileID: 8300000, guid: 1df97258c1ad0ba4581d8d3bee70dc42, type: 3}
+  closeSFX: {fileID: 8300000, guid: 1df97258c1ad0ba4581d8d3bee70dc42, type: 3}
+  sfxVolume: 0.5
 --- !u!65 &5400094568869373551
 BoxCollider:
   m_ObjectHideFlags: 0

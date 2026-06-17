@@ -47,6 +47,17 @@ namespace _01.Scenes.PhaseValidation
         private int _tickDamage;
         private bool _hasHitPlayer;
 
+        [Header("상호작용 보상 (탄약)")]
+        [Tooltip("상호작용 시 지급할 SMG 탄약 수량")]
+        [SerializeField] private int smgAmmoReward = 50;
+        [Tooltip("상호작용 시 지급할 샷건 탄약 수량")]
+        [SerializeField] private int shotgunAmmoReward = 5;
+
+        private const string SmgAmmoItemId = "smgammo";
+        private const string ShotgunAmmoItemId = "sgammo";
+
+        private PlayerInventory _playerInventory;
+
         /// <summary>
         /// 낙하를 시작한다. 호출 전 transform.localPosition의 X,Z는 목표 지점으로,
         /// Y는 낙하 시작 높이(기존 idle Y)로 설정되어 있어야 한다.
@@ -101,10 +112,39 @@ namespace _01.Scenes.PhaseValidation
 
         public void Interaction()
         {
+            GrantAmmoReward();
+
             _isFalling = false;
             gameObject.SetActive(false);
             transform.localPosition = idleLocalPosition;
             Debug.Log("[BossPatternContainer] 상호작용 - 컨테이너 비활성화 및 위치 초기화");
+        }
+
+        /// <summary>상호작용 보상으로 SMG/샷건 탄약을 플레이어 인벤토리에 지급한다.</summary>
+        private void GrantAmmoReward()
+        {
+            if (!CachePlayerInventory())
+            {
+                Debug.LogWarning("[BossPatternContainer] PlayerInventory를 찾을 수 없어 탄약 보상을 지급하지 못했습니다.");
+                return;
+            }
+
+            if (_playerInventory.TryAddItemsFromPickup(SmgAmmoItemId, smgAmmoReward, out int addedSmg))
+                _playerInventory.EnqueuePickupMessage(SmgAmmoItemId, addedSmg);
+            else
+                Debug.LogWarning($"[BossPatternContainer] SMG 탄약 지급 실패 | itemId={SmgAmmoItemId}");
+
+            if (_playerInventory.TryAddItemsFromPickup(ShotgunAmmoItemId, shotgunAmmoReward, out int addedSg))
+                _playerInventory.EnqueuePickupMessage(ShotgunAmmoItemId, addedSg);
+            else
+                Debug.LogWarning($"[BossPatternContainer] 샷건 탄약 지급 실패 | itemId={ShotgunAmmoItemId}");
+        }
+
+        private bool CachePlayerInventory()
+        {
+            if (_playerInventory != null) return true;
+            _playerInventory = FindFirstObjectByType<PlayerInventory>(FindObjectsInactive.Include);
+            return _playerInventory != null;
         }
     }
 }
