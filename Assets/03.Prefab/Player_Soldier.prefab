@@ -2256,6 +2256,7 @@ MonoBehaviour:
   cursorInputForLook: 1
   lookInputBlocked: 0
   attackInputBlocked: 0
+  gameplayInputBlocked: 0
   Interact: 0
   Attack: 0
   Inventory: 0
@@ -2291,6 +2292,7 @@ MonoBehaviour:
   maxHP: 100
   currentHP: 0
   HPChangeChannel: {fileID: 11400000, guid: e9a282dbd9ffd8b45945d00a4e21d732, type: 2}
+  gameOverUI: {fileID: 0}
 --- !u!114 &1129587840661099956
 MonoBehaviour:
   m_ObjectHideFlags: 0

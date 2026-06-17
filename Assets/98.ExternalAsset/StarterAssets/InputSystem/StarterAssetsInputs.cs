@@ -21,6 +21,7 @@ namespace StarterAssets
 		public bool cursorInputForLook = true;
 		[SerializeField] private bool lookInputBlocked;
 		[SerializeField] private bool attackInputBlocked;
+		[SerializeField] private bool gameplayInputBlocked;
 
 		public bool Interact;
 		public bool Attack;
@@ -175,12 +176,18 @@ namespace StarterAssets
 
 		public void MoveInput(Vector2 newMoveDirection)
 		{
+			if (gameplayInputBlocked)
+			{
+				move = Vector2.zero;
+				return;
+			}
+
 			move = newMoveDirection;
 		} 
 
 		public void LookInput(Vector2 newLookDirection)
 		{
-			if (lookInputBlocked)
+			if (gameplayInputBlocked || lookInputBlocked)
 			{
 				look = Vector2.zero;
 				return;
@@ -199,11 +206,23 @@ namespace StarterAssets
 
 		public void JumpInput(bool newJumpState)
 		{
+			if (gameplayInputBlocked)
+			{
+				jump = false;
+				return;
+			}
+
 			jump = newJumpState;
 		}
 
 		public void SprintInput(bool newSprintState)
 		{
+			if (gameplayInputBlocked)
+			{
+				sprint = false;
+				return;
+			}
+
 			sprint = newSprintState;
 		}
 
@@ -211,12 +230,18 @@ namespace StarterAssets
 		
 		public void InteractInput(bool newInteractState)
 		{
+			if (gameplayInputBlocked)
+			{
+				Interact = false;
+				return;
+			}
+
 			Interact = newInteractState;
 		}
 
 		public void AttackInput(bool newAttackState)
 		{
-			if (attackInputBlocked)
+			if (gameplayInputBlocked || attackInputBlocked)
 			{
 				Attack = false;
 				return;
@@ -232,18 +257,71 @@ namespace StarterAssets
 			if (attackInputBlocked)
 				Attack = false;
 		}
+
+		public void SetGameplayInputBlocked(bool isBlocked)
+		{
+			gameplayInputBlocked = isBlocked;
+			lookInputBlocked = isBlocked;
+			attackInputBlocked = isBlocked;
+
+			if (gameplayInputBlocked)
+				ClearGameplayInputState();
+		}
+
+		public void ClearGameplayInputState()
+		{
+			move = Vector2.zero;
+			look = Vector2.zero;
+			jump = false;
+			sprint = false;
+			Interact = false;
+			Attack = false;
+			Inventory = false;
+			Map = false;
+			WeaponSelect = false;
+			WeaponSelectPressed = false;
+			WeaponSelectReleased = false;
+			Roll = false;
+			Grenade = false;
+			GrenadePressed = false;
+			GrenadeReleased = false;
+			Reload = false;
+			UIClose = false;
+			ClearAimInputState();
+		}
+
 		public void InventoryInput(bool newInventoryState)
         {
+			if (gameplayInputBlocked)
+			{
+				Inventory = false;
+				return;
+			}
+
 			Inventory = newInventoryState;
         }
 
 		public void MapInput(bool newMapState)
 		{
+			if (gameplayInputBlocked)
+			{
+				Map = false;
+				return;
+			}
+
 			Map = newMapState;
 		}
 
 		public void WeaponSelectInput(bool newWeaponSelectState)
 		{
+			if (gameplayInputBlocked)
+			{
+				WeaponSelect = false;
+				WeaponSelectPressed = false;
+				WeaponSelectReleased = false;
+				return;
+			}
+
 			WeaponSelectPressed = newWeaponSelectState && !WeaponSelect;
 			WeaponSelectReleased = !newWeaponSelectState && WeaponSelect;
 			WeaponSelect = newWeaponSelectState;
@@ -251,11 +329,23 @@ namespace StarterAssets
 
 		public void UICloseInput(bool newUICloseState)
 		{
+			if (gameplayInputBlocked)
+			{
+				UIClose = false;
+				return;
+			}
+
 			UIClose = newUICloseState;
 		}
 
 		public void AimHoldInput(bool newAimHoldState)
 		{
+			if (gameplayInputBlocked)
+			{
+				ClearAimInputState();
+				return;
+			}
+
 			if (newAimHoldState && ADSClick)
 				return;
 
@@ -269,6 +359,12 @@ namespace StarterAssets
 
 		public void ADSClickInput()
 		{
+			if (gameplayInputBlocked)
+			{
+				ClearAimInputState();
+				return;
+			}
+
 			// TODO : 구현 완료시 지울것
 			Debug.Log("[StarterAssetsInputs] ADSClick 입력", this);
 			SetADSClickState(!ADSClick);
@@ -276,6 +372,12 @@ namespace StarterAssets
 
 		public void SetADSClickState(bool newADSClickState)
 		{
+			if (gameplayInputBlocked)
+			{
+				ClearAimInputState();
+				return;
+			}
+
 			if (newADSClickState && AimHold)
 				AimHoldInput(false);
 
@@ -426,6 +528,12 @@ namespace StarterAssets
 
 		public void RollInput(bool newRollState)
 		{
+			if (gameplayInputBlocked)
+			{
+				Roll = false;
+				return;
+			}
+
 			Roll = newRollState;
 			//Debug용 임시 ( 기능 추가시 지울것 )
 			Debug.Log("Roll 키 입력 들어옴.");
@@ -433,6 +541,14 @@ namespace StarterAssets
 
 		public void GrenadeInput(bool newGrenadeState)
 		{
+			if (gameplayInputBlocked)
+			{
+				Grenade = false;
+				GrenadePressed = false;
+				GrenadeReleased = false;
+				return;
+			}
+
 			if (newGrenadeState)
 				GrenadePressed = !Grenade;
 			else
@@ -444,6 +560,12 @@ namespace StarterAssets
 
 		public void ReloadInput(bool newReloadState)
 		{
+			if (gameplayInputBlocked)
+			{
+				Reload = false;
+				return;
+			}
+
 			Reload = newReloadState;
 		}
 
