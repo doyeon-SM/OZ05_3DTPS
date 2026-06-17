@@ -337,20 +337,16 @@ namespace StarterAssets
             if (_input == null || !_input.Interact)
                 return;
 
-            if (_raycastInteractor != null && _raycastInteractor.CanPickupCurrentItem())
+            if (_raycastInteractor != null &&
+                _raycastInteractor.CanPickupCurrentItem() &&
+                _raycastInteractor.TryPickupCurrentItem())
             {
                 _animationController.SetPickup();
-                if (_raycastInteractor.TryPickupCurrentItem())
-                    _input.Interact = false;
-            }
-            else
-            {
-                _animationController.SetInteractive();
+                _input.Interact = false;
             }
 
-            // Interact 플래그 소비는 InteractionController에서 전담
-            // ThirdPersonController에서 소비하면 실행 순서에 따라 InteractionController가
-            // 이미 false가 된 플래그를 읽어 빌드에서 Interact()가 작동하지 않음
+            // 일반 IInteraction 입력 소비는 InteractionController에서 전담한다.
+            // 무기 픽업을 여기서 먼저 성공 처리한 경우에만 중복 실행을 막기 위해 소비한다.
         }
 
         private void HandleAttack()
