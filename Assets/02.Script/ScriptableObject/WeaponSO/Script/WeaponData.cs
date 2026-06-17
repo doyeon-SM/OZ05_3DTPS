@@ -27,6 +27,8 @@ public class WeaponData : ScriptableObject
     public int MagazineSize;
     public int BulletCost = 1;
     public bool UseAmmo;
+    [Tooltip("체크하면 재장전 시 플레이어가 보유한 총알은 소모하지 않고, 총기 탄창만 사용합니다.")]
+    public bool InfiniteAmmo;
 
     [Header("Attack Pattern")]
     public float basicSpreadAngle = 0f;

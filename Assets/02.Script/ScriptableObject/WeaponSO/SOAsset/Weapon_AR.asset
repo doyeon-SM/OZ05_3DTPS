@@ -28,6 +28,7 @@ MonoBehaviour:
   MagazineSize: 30
   BulletCost: 1
   UseAmmo: 1
+  InfiniteAmmo: 0
   basicSpreadAngle: 2
   recoil: 2.5
   crossHairstylePrefab: {fileID: 358551951872314273, guid: f1ba6584d01fe3942aabd0b9beb9326a, type: 3}

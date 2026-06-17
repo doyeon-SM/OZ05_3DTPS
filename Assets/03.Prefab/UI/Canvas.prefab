@@ -808,6 +808,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2793884124337803257}
     - target: {fileID: 740683054879166864, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
+      propertyPath: AmmoImage
+      value:
+      objectReference: {fileID: 3210641522136320057}
+    - target: {fileID: 740683054879166864, guid: 5f7875baaab160c439e8b5d5b7512b1e, type: 3}
       propertyPath: WeaponAmmoEvent
       value: 
       objectReference: {fileID: 11400000, guid: cad162df12890ba49aba2a491a977f2b, type: 2}

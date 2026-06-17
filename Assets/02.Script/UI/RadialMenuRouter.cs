@@ -296,7 +296,6 @@ namespace ProjectSpedex
             }
 
             WeaponData weaponData = runtime.data;
-            bool hasAmmo = HasSelectableAmmo(runtime);
             bool isUnlocked = runtime.UnLocked;
             Sprite printIcon = isUnlocked ? weaponData.UnLockIcon : weaponData.LockIcon;
             Color textColor = isUnlocked ? unLockTextColor : lockedTextColor;
@@ -310,7 +309,8 @@ namespace ProjectSpedex
             SetElementText(element, weaponData.WeaponName, textColor);
             SetElementAmmoText(element, GetAmmoPrint(weaponData), textColor);
             SetElementVisualColor(element, iconColor);
-            SetElementInteractable(element, isUnlocked, hasAmmo);
+            // 보유 탄약이 없어도 무기는 선택할 수 있어야 하므로 잠금 상태만 제한합니다.
+            SetElementInteractable(element, isUnlocked, true);
         }
 
         private void SetElementIcon(RadialMenuElement element, Sprite icon)
@@ -479,20 +479,6 @@ namespace ProjectSpedex
         {
             if (closeOnButtonClicked)
                 CloseRadialMenu();
-        }
-
-        private bool HasSelectableAmmo(WeaponRuntime runtime)
-        {
-            if (runtime == null || runtime.data == null)
-                return false;
-
-            if (!runtime.data.UseAmmo)
-                return true;
-
-            if (weaponRuntimeManager == null)
-                return false;
-
-            return weaponRuntimeManager.TryGetWeaponAmmo(runtime.data.WeaponType, out int ammo) && ammo > 0;
         }
 
         private bool IsWeaponChangeBlocked()

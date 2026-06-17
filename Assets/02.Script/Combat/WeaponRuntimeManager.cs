@@ -22,7 +22,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             }
 
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (Application.isPlaying)
+                DontDestroyOnLoad(gameObject);
+
             return true;
         }
 
@@ -118,6 +120,16 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         public WeaponRuntime[] WeaponRuntimes => weaponRuntimes;
         public WeaponController WeaponController => weaponController;
         public IReadOnlyDictionary<string, int> WeaponAmmoByItemId => weaponAmmoByItemId;
+        public bool IsCurrentWeaponInfiniteAmmo
+        {
+            get
+            {
+                if (!EnsureInitialized())
+                    return false;
+
+                return IsInfiniteAmmo(GetCurrentOrDefaultRuntime());
+            }
+        }
         public int GrenadeCount => grenadeCount;
         public bool HasGrenades => grenadeCount > 0;
 
@@ -513,6 +525,14 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
             int neededAmmo = maxAmmo - runtime.currentAmmo;
             int bulletCost = Mathf.Max(weaponData.BulletCost, 1);
+
+            if (weaponData.InfiniteAmmo)
+            {
+                reloadAmount = neededAmmo;
+                consumedAmmo = 0;
+                return reloadAmount > 0;
+            }
+
             int availableWeaponAmmo = GetWeaponAmmoValue(weaponData.WeaponType);
             int reloadableAmmo = availableWeaponAmmo / bulletCost;
 
@@ -536,7 +556,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             int availableWeaponAmmo = GetWeaponAmmoValue(weaponData.WeaponType);
 
             runtime.Reload(reloadAmount);
-            SetWeaponAmmoValue(weaponData.WeaponType, availableWeaponAmmo - consumedAmmo);
+            if (!weaponData.InfiniteAmmo)
+                SetWeaponAmmoValue(weaponData.WeaponType, availableWeaponAmmo - consumedAmmo);
+
             RaiseCurrentWeaponAmmoIfChangedWeapon(weaponData.WeaponType);
             return true;
         }
@@ -809,6 +831,11 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             }
 
             return false;
+        }
+
+        private bool IsInfiniteAmmo(WeaponRuntime runtime)
+        {
+            return runtime != null && runtime.data != null && runtime.data.InfiniteAmmo;
         }
 
         private string NormalizeId(string id)

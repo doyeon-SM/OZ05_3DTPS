@@ -12,6 +12,7 @@ namespace _02.Script.UI
         [SerializeField] private Slider slider;
         [SerializeField] private TextMeshProUGUI AmmoText;
         [SerializeField] private TextMeshProUGUI WeaponAmmoText;
+        [SerializeField] private Image AmmoImage;
         [SerializeField] private TextMeshProUGUI GrenadeCountText;
         [SerializeField] private WeaponRuntimeManager weaponRuntimeManager;
 
@@ -20,10 +21,13 @@ namespace _02.Script.UI
         private bool missingSliderLogged;
         private bool missingAmmoTextLogged;
         private bool missingWeaponAmmoTextLogged;
+        private bool missingAmmoImageLogged;
         private bool missingWeaponRuntimeManagerLogged;
 
         private void OnEnable()
         {
+            CacheAmmoImage();
+
             if (AmmoChanged != null)
                 AmmoChanged.Register(OnAmmoChanged);
             else
@@ -35,6 +39,8 @@ namespace _02.Script.UI
                 ReportMissingReference(nameof(WeaponAmmoEvent), ref missingWeaponAmmoEventLogged);
 
             CacheWeaponRuntimeManager();
+            RefreshWeaponAmmoVisibility();
+
             if (weaponRuntimeManager != null)
             {
                 weaponRuntimeManager.OnGrenadeCountChanged += OnGrenadeCountChanged;
@@ -72,10 +78,16 @@ namespace _02.Script.UI
             }
 
             AmmoText.text = $"{currentAmmo} / {maxAmmo}";
+            RefreshWeaponAmmoVisibility();
         }
 
         private void OnWeaponAmmoChanged(int weaponAmmo)
         {
+            RefreshWeaponAmmoVisibility();
+
+            if (IsCurrentWeaponInfiniteAmmo())
+                return;
+
             if (WeaponAmmoText == null)
             {
                 ReportMissingReference(nameof(WeaponAmmoText), ref missingWeaponAmmoTextLogged);
@@ -105,6 +117,55 @@ namespace _02.Script.UI
 
             if (weaponRuntimeManager == null && GrenadeCountText != null)
                 ReportMissingReference(nameof(weaponRuntimeManager), ref missingWeaponRuntimeManagerLogged);
+        }
+
+        private void CacheAmmoImage()
+        {
+            if (AmmoImage != null)
+                return;
+
+            Transform ammoImageTransform = transform.Find("AmmoImage");
+            if (ammoImageTransform == null)
+                return;
+
+            if (ammoImageTransform.TryGetComponent(out Image foundImage))
+                AmmoImage = foundImage;
+        }
+
+        private void RefreshWeaponAmmoVisibility()
+        {
+            SetWeaponAmmoVisible(!IsCurrentWeaponInfiniteAmmo());
+        }
+
+        private bool IsCurrentWeaponInfiniteAmmo()
+        {
+            CacheWeaponRuntimeManager();
+            return weaponRuntimeManager != null && weaponRuntimeManager.IsCurrentWeaponInfiniteAmmo;
+        }
+
+        private void SetWeaponAmmoVisible(bool isVisible)
+        {
+            CacheAmmoImage();
+
+            if (AmmoImage != null)
+            {
+                if (AmmoImage.gameObject.activeSelf != isVisible)
+                    AmmoImage.gameObject.SetActive(isVisible);
+            }
+            else if (!isVisible)
+            {
+                ReportMissingReference(nameof(AmmoImage), ref missingAmmoImageLogged);
+            }
+
+            if (WeaponAmmoText != null)
+            {
+                if (WeaponAmmoText.gameObject.activeSelf != isVisible)
+                    WeaponAmmoText.gameObject.SetActive(isVisible);
+            }
+            else if (!isVisible)
+            {
+                ReportMissingReference(nameof(WeaponAmmoText), ref missingWeaponAmmoTextLogged);
+            }
         }
 
         private void ReportMissingReference(string fieldName, ref bool alreadyLogged)
