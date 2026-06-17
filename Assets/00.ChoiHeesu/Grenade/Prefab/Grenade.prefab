@@ -173,7 +173,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   timerClip: {fileID: 8300000, guid: aecaa69bce2fa4145a2e77428a9fcf7f, type: 3}
-  timerVolume: 0.85
+  timerVolume: 1
   timerRepeatCount: 10
   timerStartDelay: 0.15
   timerEndPadding: 0.02
