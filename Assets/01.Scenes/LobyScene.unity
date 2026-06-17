@@ -591,6 +591,9 @@ PrefabInstance:
     - {fileID: 8509501129356205688, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
     - {fileID: 3198018136568631216, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3198018136673501464, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1290091807}
     - targetCorrespondingSourceObject: {fileID: 8529227943993365605, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1494730584}
@@ -819,6 +822,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Interactive_Weapon_AR
       objectReference: {fileID: 0}
+    - target: {fileID: 1860231693286767140, guid: dc924ae1d4ced314f9c4399db43552b5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3789695834399475223, guid: dc924ae1d4ced314f9c4399db43552b5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.2555742
@@ -864,6 +871,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc924ae1d4ced314f9c4399db43552b5, type: 3}
+--- !u!4 &816798981 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3198018136673501464, guid: 81c71b9da00451b4da51657e307b823f, type: 3}
+  m_PrefabInstance: {fileID: 232774915}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &822143813
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -875,6 +887,10 @@ PrefabInstance:
     - target: {fileID: 744766547663389368, guid: c52596e3278a19941b06351044c098c8, type: 3}
       propertyPath: m_Name
       value: Interactive_Weapon_SG
+      objectReference: {fileID: 0}
+    - target: {fileID: 744766547663389368, guid: c52596e3278a19941b06351044c098c8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6473259135983458353, guid: c52596e3278a19941b06351044c098c8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1031,6 +1047,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1290091806
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1290091807}
+  - component: {fileID: 1290091808}
+  m_Layer: 0
+  m_Name: BoxCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1290091807
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290091806}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 7.27, z: -18.05}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 816798981}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1290091808
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1290091806}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 9.3, y: 5.15, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1404774578
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1042,6 +1111,10 @@ PrefabInstance:
     - target: {fileID: 4568082518253997696, guid: 0aed863adcadd9e41a297d67b22b50b0, type: 3}
       propertyPath: m_Name
       value: Interactive_Weapon_MG
+      objectReference: {fileID: 0}
+    - target: {fileID: 4568082518253997696, guid: 0aed863adcadd9e41a297d67b22b50b0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7175989489272341980, guid: 0aed863adcadd9e41a297d67b22b50b0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1201,6 +1274,10 @@ PrefabInstance:
     - target: {fileID: 2357792451694060365, guid: 49b6e08f91edf5a4499541c1e6b76b8b, type: 3}
       propertyPath: m_Name
       value: Interactive_Weapon_SMG
+      objectReference: {fileID: 0}
+    - target: {fileID: 2357792451694060365, guid: 49b6e08f91edf5a4499541c1e6b76b8b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2914060710784625087, guid: 49b6e08f91edf5a4499541c1e6b76b8b, type: 3}
       propertyPath: m_LocalPosition.x
