@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using StarterAssets;
@@ -45,7 +45,8 @@ namespace _01.Scenes.PhaseValidation.UI
             Instance = this;
 
             if (confirmButton != null)
-                confirmButton.onClick.AddListener(OnConfirmButtonClicked);
+                // CloseUI류와 동일하게, 직접 호출 대신 UIController.Pop()을 통해 onClose(OnConfirmButtonClicked)를 실행한다.
+                confirmButton.onClick.AddListener(() => UIController.Instance?.Pop());
 
             if (clearPanel != null)
                 clearPanel.SetActive(false);

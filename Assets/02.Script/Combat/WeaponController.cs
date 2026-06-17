@@ -157,7 +157,7 @@ namespace _02.Script.Combat
             weaponEffectPrinter.ApplyHitEffectSettingsIfEmpty(hitEffectPrefab, hitEffectLifeTime);
 
             if (weaponSoundController == null)
-                weaponSoundController = GetComponent<WeaponSoundController>();
+                weaponSoundController = FindWeaponSoundController();
 
             if (weaponSoundController == null)
                 weaponSoundController = gameObject.AddComponent<WeaponSoundController>();
@@ -176,6 +176,42 @@ namespace _02.Script.Combat
 
             if (muzzleBlockRadius <= 0f)
                 muzzleBlockRadius = 0.5f;
+        }
+
+        private WeaponSoundController FindWeaponSoundController()
+        {
+            if (TryGetComponent(out WeaponSoundController soundController))
+                return soundController;
+
+            soundController = FindWeaponSoundControllerInSiblingAudio();
+            if (soundController != null)
+                return soundController;
+
+            soundController = GetComponentInChildren<WeaponSoundController>(true);
+            if (soundController != null)
+                return soundController;
+
+            soundController = GetComponentInParent<WeaponSoundController>(true);
+            if (soundController != null)
+                return soundController;
+
+            Transform parent = transform.parent;
+            return parent != null ? parent.GetComponentInChildren<WeaponSoundController>(true) : null;
+        }
+
+        private WeaponSoundController FindWeaponSoundControllerInSiblingAudio()
+        {
+            Transform current = transform;
+            while (current.parent != null)
+            {
+                Transform audioTransform = current.parent.Find("Audio");
+                if (audioTransform != null && audioTransform.TryGetComponent(out WeaponSoundController soundController))
+                    return soundController;
+
+                current = current.parent;
+            }
+
+            return null;
         }
 
         public bool SetCurrentWeaponRuntime(WeaponRuntime nextWeaponRuntime)

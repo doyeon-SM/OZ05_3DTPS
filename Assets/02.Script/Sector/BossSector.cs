@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using _01.Scenes.PhaseValidation.UI;
 
 namespace _01.Scenes.PhaseValidation
@@ -110,6 +110,11 @@ namespace _01.Scenes.PhaseValidation
             // BossStatus.Die()에서 Destroy(gameObject) 전에 이벤트가 발행되므로
             // 이 시점에는 transform이 아직 유효함 — 사망 위치를 먼저 캡처한다.
             Vector3 deathPosition = _bossInstance != null ? _bossInstance.transform.position : transform.position;
+
+            // 보스가 죽는 즉시 스테이지 클리어로 기록한다.
+            // (stageId는 StageInfoSO.sceneName과 동일한 규칙인 현재 씬 이름을 사용한다.
+            //  실제 파일 저장은 게임 종료 시 SaveManager가 일괄 처리한다.)
+            SaveManager.Instance.SetStageCleared(gameObject.scene.name, true);
 
             if (_bossInstance != null)
             {
