@@ -73,7 +73,7 @@ AudioSource:
   m_GameObject: {fileID: 171916053725797453}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 8416326176364267625, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 6418180475301049370, guid: ef05be445e3284c9c93fe860c0837942, type: 2}
   m_PlayOnAwake: 0
@@ -328,7 +328,7 @@ AudioSource:
   m_GameObject: {fileID: 342569493494229981}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 8416326176364267625, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 6418180475301049370, guid: 8b35f83fdcc30434e8d37b43903e1c5f, type: 2}
   m_PlayOnAwake: 0
@@ -620,6 +620,7 @@ GameObject:
   - component: {fileID: 9201820190396223072}
   - component: {fileID: 547569070598166731}
   - component: {fileID: 4817897671218031826}
+  - component: {fileID: 3527387328274297083}
   m_Layer: 7
   m_Name: Audio
   m_TagString: Untagged
@@ -657,7 +658,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._01.Script.WeaponSoundController
   shotAudioSource: {fileID: 547569070598166731}
-  shotTailAudioSource: {fileID: 0}
+  shotTailAudioSource: {fileID: 3527387328274297083}
   reloadAudioSource: {fileID: 4817897671218031826}
   shotVolume: 1
   shotTailVolume: 0.75
@@ -673,58 +674,108 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6d0da461d6070b84ba775ea5ceb9c46f, type: 3}
   - {fileID: 8300000, guid: e3038066c2204b441ac0317df879d904, type: 3}
   - {fileID: 8300000, guid: 7c6c8875d52656444ae208f7b7656271, type: 3}
-  - {fileID: 8300000, guid: 88ba7680f9aeee14483813acdc7fbc58, type: 3}
-  - {fileID: 8300000, guid: 60c00cf537da0044daef307f9ee3e9ba, type: 3}
-  - {fileID: 8300000, guid: 4909bd363be71bf4a8c1f39afda47a21, type: 3}
   pistolInsertMagazineClips:
   - {fileID: 8300000, guid: 9d9e756267241c74aad3e4c1466f2895, type: 3}
   - {fileID: 8300000, guid: 4cb5d9909e072d1429ffdc546ec6e27d, type: 3}
   - {fileID: 8300000, guid: 69e6e947541c829488795ca05c689d6f, type: 3}
-  - {fileID: 8300000, guid: 11dfa8ffbbbfee2429aa997ac8af4870, type: 3}
-  - {fileID: 8300000, guid: 3bbec2b19a2c10248ad75cbffbff8369, type: 3}
   pistolReloadFinishClips:
   - {fileID: 8300000, guid: 6bec3da2e36db904ab24d995df4d8a51, type: 3}
   - {fileID: 8300000, guid: 51f38e6afa0178644a9166042dc58548, type: 3}
   - {fileID: 8300000, guid: 6d133e6d7ea64444383ab39e95f52e8f, type: 3}
-  - {fileID: 8300000, guid: 0032d3f4d79712043b26e0265464c8f6, type: 3}
-  - {fileID: 8300000, guid: d8accab0786d578419c0be44b6ee4d03, type: 3}
-  - {fileID: 8300000, guid: 9e4354bc382032243be466410fdc3fc7, type: 3}
   removeMagazineNormalizedTime: 0.08
   insertMagazineNormalizedTime: 0.48
   finishReloadNormalizedTime: 0.82
   minimumReloadSequenceDuration: 0.1
-  smgFirstShotClip: {fileID: 0}
-  smgShotClips: []
-  smgTailOnlyClip: {fileID: 0}
+  smgFirstShotClip: {fileID: 8300000, guid: 99afa3135516ed143a361a70f126c26a, type: 3}
+  smgShotClips:
+  - {fileID: 8300000, guid: 56a6141d3fd147f4e9860371923dad61, type: 3}
+  - {fileID: 8300000, guid: 475321c5dccd5954a875c85bd924cdc2, type: 3}
+  - {fileID: 8300000, guid: 489a82510ad7f784aaf9a71df6b84434, type: 3}
+  - {fileID: 8300000, guid: 589aecb8702af804aa6e42dfde0d9dc9, type: 3}
+  - {fileID: 8300000, guid: c4d1b5e3dfecec34ba82ce5e9835a1a0, type: 3}
+  - {fileID: 8300000, guid: d6ef7e183545415499d74c8866db6627, type: 3}
+  - {fileID: 8300000, guid: 32e0d3ec1ad23d44889061bd7cd7e312, type: 3}
+  - {fileID: 8300000, guid: 114e845ea0a34bc4081f861e36bfb97c, type: 3}
+  - {fileID: 8300000, guid: 948847a85c381ba488062a92780f0f63, type: 3}
+  smgTailOnlyClip: {fileID: 8300000, guid: 83a3b37033928704dae26eac6b738cb1, type: 3}
   smgFirstShotResetTime: 0.18
   smgShotSequenceResetMultiplier: 1.5
-  smgMagazineUnloadClips: []
-  smgMagazineLoadClips: []
-  smgReloadFinishClips: []
+  smgMagazineUnloadClips:
+  - {fileID: 8300000, guid: 09d12272bc7fb61478048fcf352ecf71, type: 3}
+  - {fileID: 8300000, guid: e6ba5c32bfc6ece459b75ef87d6cedc3, type: 3}
+  - {fileID: 8300000, guid: c8a59e8444a392141bc7c70d3f001a27, type: 3}
+  smgMagazineLoadClips:
+  - {fileID: 8300000, guid: f40da3328fb9aae48b167f096e5447cc, type: 3}
+  - {fileID: 8300000, guid: a4d3bfd68629fdf44bf966a4e178d0a0, type: 3}
+  - {fileID: 8300000, guid: 0516d53827725c144a34d43058bc3f8a, type: 3}
+  - {fileID: 8300000, guid: bd239de1ae9285344895870056a031a9, type: 3}
+  smgReloadFinishClips:
+  - {fileID: 8300000, guid: 3582e19a0fa44044888b40a983d150ab, type: 3}
+  - {fileID: 8300000, guid: 154da7e71d72aec4abe5bfd66afed2dd, type: 3}
+  - {fileID: 8300000, guid: 5fabe29d6a749a340af78df0d2c497e9, type: 3}
+  - {fileID: 8300000, guid: 43434247388f28542818d02f44dcb24e, type: 3}
   smgMagazineUnloadNormalizedTime: 0.08
   smgMagazineLoadNormalizedTime: 0.48
   smgFinishReloadNormalizedTime: 0.82
-  sgShotClips: []
-  sgMagazineUnloadClips: []
-  sgMagazineLoadClips: []
-  sgReloadFinishClips: []
+  sgShotClips:
+  - {fileID: 8300000, guid: 588cfdbccda7f66419de73fa605b0c67, type: 3}
+  - {fileID: 8300000, guid: 7c530392cf080ce448c52f0bbdee2c16, type: 3}
+  - {fileID: 8300000, guid: 89f3e33374919a34fb22fac934b1214d, type: 3}
+  - {fileID: 8300000, guid: 2eb9e4b25d9cfee4b90ed21cd40a246b, type: 3}
+  sgMagazineUnloadClips:
+  - {fileID: 8300000, guid: 88ba7680f9aeee14483813acdc7fbc58, type: 3}
+  - {fileID: 8300000, guid: 60c00cf537da0044daef307f9ee3e9ba, type: 3}
+  - {fileID: 8300000, guid: 4909bd363be71bf4a8c1f39afda47a21, type: 3}
+  sgMagazineLoadClips:
+  - {fileID: 8300000, guid: 11dfa8ffbbbfee2429aa997ac8af4870, type: 3}
+  - {fileID: 8300000, guid: 3bbec2b19a2c10248ad75cbffbff8369, type: 3}
+  sgReloadFinishClips:
+  - {fileID: 8300000, guid: 0032d3f4d79712043b26e0265464c8f6, type: 3}
+  - {fileID: 8300000, guid: d8accab0786d578419c0be44b6ee4d03, type: 3}
+  - {fileID: 8300000, guid: 9e4354bc382032243be466410fdc3fc7, type: 3}
   sgMagazineUnloadNormalizedTime: 0.08
   sgMagazineLoadNormalizedTime: 0.48
   sgFinishReloadNormalizedTime: 0.82
-  arShotClips: []
-  arMagazineUnloadClips: []
-  arMagazineLoadClips: []
-  arReloadFinishClips: []
+  arShotClips:
+  - {fileID: 8300000, guid: e8688c48ff5f835419919229ab9c13ce, type: 3}
+  - {fileID: 8300000, guid: 00ea2873c58cce04fbe22364e6e66eaf, type: 3}
+  - {fileID: 8300000, guid: cd1b930f2cda8d84099c5cd0fe4f2165, type: 3}
+  - {fileID: 8300000, guid: 0b70c142a1aeb7346b6688249a688c92, type: 3}
+  arMagazineUnloadClips:
+  - {fileID: 8300000, guid: 055f97c69f7e5d345961d611b0cf3894, type: 3}
+  - {fileID: 8300000, guid: 1c3fa250fd017204488cc8bd50fe8132, type: 3}
+  - {fileID: 8300000, guid: dc983589be86a6646bbde20fe5a7b03d, type: 3}
+  - {fileID: 8300000, guid: 7e262c4b9e7f0704ea573ab9e076dcc2, type: 3}
+  - {fileID: 8300000, guid: 9d350470299065241827c55f14fdcee5, type: 3}
+  arMagazineLoadClips:
+  - {fileID: 8300000, guid: 28e59959882d179459abeea840b645df, type: 3}
+  - {fileID: 8300000, guid: 292234d6420465348ab4e5f09e90725c, type: 3}
+  - {fileID: 8300000, guid: 4a439069eaa43cc4ca18e2021aa7fdd6, type: 3}
+  - {fileID: 8300000, guid: e9120eb8188900449ac162b5aebaaf2c, type: 3}
+  arReloadFinishClips:
+  - {fileID: 8300000, guid: 43b68fa6e6581cc4d8534f5afcc5f859, type: 3}
+  - {fileID: 8300000, guid: 54f86bf0769a63342a672d7f3096fb37, type: 3}
+  - {fileID: 8300000, guid: 6bacba6d8f6cdc54087725b346a583c2, type: 3}
+  - {fileID: 8300000, guid: 5fa71ebb053161340947863d1c6e8e78, type: 3}
   arMagazineUnloadNormalizedTime: 0.08
   arMagazineLoadNormalizedTime: 0.48
   arFinishReloadNormalizedTime: 0.82
-  mgFirstShotClip: {fileID: 0}
-  mgShotClips: []
-  mgTailOnlyClip: {fileID: 0}
+  mgFirstShotClip: {fileID: 8300000, guid: 77673e18aecbf6f47be9bad7fc06db79, type: 3}
+  mgShotClips:
+  - {fileID: 8300000, guid: 04de8701e548c8742b36fe92ec42a690, type: 3}
+  - {fileID: 8300000, guid: c9efa2a01b84cc045a56e0620679ca1c, type: 3}
+  - {fileID: 8300000, guid: cd83d3a46db692847a9a3fd77adc947b, type: 3}
+  - {fileID: 8300000, guid: c153244b35eecdb4b89dd8611280e978, type: 3}
+  - {fileID: 8300000, guid: fbcbfbc2a4b6b6640a09224ecf3376ab, type: 3}
+  - {fileID: 8300000, guid: b4e2a6bba4ebea74e91807ecf6a6773c, type: 3}
+  - {fileID: 8300000, guid: f61ff8c0b0d8c7e42b55373f6551cb2c, type: 3}
+  - {fileID: 8300000, guid: a0afb16b2ec6fbf439303e6914302789, type: 3}
+  mgTailOnlyClip: {fileID: 8300000, guid: 11835084d8e3cb44eab5c4b3ed7beee5, type: 3}
   mgFirstShotResetTime: 0.18
   mgShotSequenceResetMultiplier: 1.5
-  mgReloadClips: []
-  autoAssignClipsInEditor: 1
+  mgReloadClips:
+  - {fileID: 8300000, guid: 0bef3291ff40e444fa0c313c06ee6dc8, type: 3}
+  - {fileID: 8300000, guid: d69d5d89658869e4c989b56ba54b19f7, type: 3}
 --- !u!82 &547569070598166731
 AudioSource:
   m_ObjectHideFlags: 0
@@ -734,7 +785,7 @@ AudioSource:
   m_GameObject: {fileID: 918747333141965350}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 1298087349065730752, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
@@ -831,7 +882,104 @@ AudioSource:
   m_GameObject: {fileID: 918747333141965350}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 1298087349065730752, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.35
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &3527387328274297083
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 918747333141965350}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 1298087349065730752, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
@@ -2934,7 +3082,7 @@ MonoBehaviour:
   saveTime: -999
   hitscanSystem: {fileID: 4212851093045489019}
   weaponEffectPrinter: {fileID: 452276715657241862}
-  weaponSoundController: {fileID: 0}
+  weaponSoundController: {fileID: 9201820190396223072}
   spreadProvider: {fileID: 4021897693488989462}
   recoilController: {fileID: 984020528880807235}
   muzzle: {fileID: 4190480682531403155}

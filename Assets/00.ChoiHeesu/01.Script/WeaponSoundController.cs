@@ -1,17 +1,11 @@
 using System.Collections;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace _00.ChoiHeesu._01.Script
 {
     [DisallowMultipleComponent]
     public class WeaponSoundController : MonoBehaviour
     {
-        private const string ClipFolder = "Assets/00.ChoiHeesu/SFX/Guns_Weapons/Guns";
-
         [Header("Audio Source")]
         [SerializeField] private AudioSource shotAudioSource;
         [SerializeField] private AudioSource shotTailAudioSource;
@@ -80,11 +74,6 @@ namespace _00.ChoiHeesu._01.Script
         [Header("MG Reload")]
         [SerializeField] private AudioClip[] mgReloadClips;
 
-#if UNITY_EDITOR
-        [Header("Editor Auto Fill")]
-        [SerializeField] private bool autoAssignClipsInEditor = true;
-#endif
-
         private Coroutine reloadCoroutine;
         private int lastPistolShotIndex = -1;
         private int lastPistolRemoveMagazineIndex = -1;
@@ -110,19 +99,11 @@ namespace _00.ChoiHeesu._01.Script
         private void Awake()
         {
             CacheAudioSources();
-
-#if UNITY_EDITOR
-            AutoAssignClipsIfNeeded();
-#endif
         }
 
         private void Reset()
         {
             CacheAudioSources();
-
-#if UNITY_EDITOR
-            AutoAssignClipsIfNeeded();
-#endif
         }
 
         private void OnDisable()
@@ -694,100 +675,5 @@ namespace _00.ChoiHeesu._01.Script
             return count;
         }
 
-        private bool HasAnyClip(AudioClip[] clips)
-        {
-            return GetValidClipCount(clips) > 0;
-        }
-
-#if UNITY_EDITOR
-        private void AutoAssignClipsIfNeeded()
-        {
-            if (!autoAssignClipsInEditor)
-                return;
-
-            pistolShotClips = EnsureClips(pistolShotClips, "gun_pistol_shot_01", "gun_pistol_shot_02", "gun_pistol_shot_03", "gun_pistol_shot_04", "gun_pistol_shot_05");
-            pistolRemoveMagazineClips = EnsureClips(pistolRemoveMagazineClips, "gun_pistol_remove_mag_01", "gun_pistol_remove_mag_02", "gun_pistol_remove_mag_03");
-            pistolInsertMagazineClips = EnsureClips(pistolInsertMagazineClips, "gun_pistol_insert_mag_01", "gun_pistol_insert_mag_02", "gun_pistol_insert_mag_03");
-            pistolReloadFinishClips = EnsureClips(pistolReloadFinishClips, "gun_pistol_slide_fast_01", "gun_pistol_slide_fast_02", "gun_pistol_slide_fast_03");
-
-            if (smgFirstShotClip == null)
-                smgFirstShotClip = LoadClip("gun_submachine_auto_shot_00_first_01");
-
-            smgShotClips = EnsureClips(smgShotClips, "gun_submachine_auto_shot_01", "gun_submachine_auto_shot_02", "gun_submachine_auto_shot_03", "gun_submachine_auto_shot_04", "gun_submachine_auto_shot_05", "gun_submachine_auto_shot_06", "gun_submachine_auto_shot_07", "gun_submachine_auto_shot_08", "gun_submachine_auto_shot_09");
-
-            if (smgTailOnlyClip == null)
-                smgTailOnlyClip = LoadClip("gun_submachine_auto_shot_00_tail_only_01");
-
-            smgMagazineUnloadClips = EnsureClips(smgMagazineUnloadClips, "gun_submachine_auto_magazine_unload_01", "gun_submachine_auto_magazine_unload_02", "gun_submachine_auto_magazine_unload_03");
-            smgMagazineLoadClips = EnsureClips(smgMagazineLoadClips, "gun_submachine_auto_magazine_load_01", "gun_submachine_auto_magazine_load_02", "gun_submachine_auto_magazine_load_03", "gun_submachine_auto_magazine_load_04");
-            smgReloadFinishClips = EnsureClips(smgReloadFinishClips, "gun_submachine_auto_cock_01", "gun_submachine_auto_cock_02", "gun_submachine_auto_cock_03", "gun_submachine_auto_cock_04");
-
-            sgShotClips = EnsureClips(sgShotClips, "gun_shotgun_shot_01", "gun_shotgun_shot_02", "gun_shotgun_shot_03", "gun_shotgun_shot_04");
-            sgMagazineUnloadClips = EnsureClips(sgMagazineUnloadClips, "gun_pistol_remove_mag_04", "gun_pistol_remove_mag_05", "gun_pistol_remove_mag_06");
-            sgMagazineLoadClips = EnsureClips(sgMagazineLoadClips, "gun_pistol_insert_mag_04", "gun_pistol_insert_mag_05");
-            sgReloadFinishClips = EnsureClips(sgReloadFinishClips, "gun_pistol_slide_fast_04", "gun_pistol_slide_fast_05", "gun_pistol_slide_fast_06");
-
-            arShotClips = EnsureClips(arShotClips, "gun_rifle_shot_01", "gun_rifle_shot_02", "gun_rifle_shot_03", "gun_rifle_shot_04");
-            arMagazineUnloadClips = EnsureClips(arMagazineUnloadClips, "gun_rifle_magazine_unload_01", "gun_rifle_magazine_unload_02", "gun_rifle_magazine_unload_03", "gun_rifle_magazine_unload_04", "gun_rifle_magazine_unload_05");
-            arMagazineLoadClips = EnsureClips(arMagazineLoadClips, "gun_rifle_magazine_load_01", "gun_rifle_magazine_load_02", "gun_rifle_magazine_load_03", "gun_rifle_magazine_load_04");
-            arReloadFinishClips = EnsureClips(arReloadFinishClips, "gun_rifle_cock_01", "gun_rifle_cock_02", "gun_rifle_cock_03", "gun_rifle_cock_04");
-
-            if (mgFirstShotClip == null)
-                mgFirstShotClip = LoadClip("gun_machinegun_auto_heavy_shot_00_first_01");
-
-            mgShotClips = EnsureClips(mgShotClips, "gun_machinegun_auto_heavy_shot_01", "gun_machinegun_auto_heavy_shot_02", "gun_machinegun_auto_heavy_shot_03", "gun_machinegun_auto_heavy_shot_04", "gun_machinegun_auto_heavy_shot_05", "gun_machinegun_auto_heavy_shot_06", "gun_machinegun_auto_heavy_shot_07", "gun_machinegun_auto_heavy_shot_08");
-
-            if (mgTailOnlyClip == null)
-                mgTailOnlyClip = LoadClip("gun_machinegun_auto_heavy_shot_00_tail_only_01");
-
-            mgReloadClips = EnsureClips(mgReloadClips, "gun_machinegun_auto_heavy_reload_01", "gun_machinegun_auto_heavy_reload_02");
-        }
-
-        private AudioClip[] EnsureClips(AudioClip[] currentClips, params string[] clipNames)
-        {
-            if (HasExactClips(currentClips, clipNames))
-                return currentClips;
-
-            return LoadClips(clipNames);
-        }
-
-        private bool HasExactClips(AudioClip[] clips, string[] clipNames)
-        {
-            if (clips == null || clipNames == null)
-                return false;
-
-            if (clips.Length != clipNames.Length)
-                return false;
-
-            for (int i = 0; i < clipNames.Length; i++)
-            {
-                if (clips[i] == null)
-                    return false;
-
-                if (clips[i].name != clipNames[i])
-                    return false;
-            }
-
-            return true;
-        }
-
-        private AudioClip LoadClip(string clipName)
-        {
-            string assetPath = $"{ClipFolder}/{clipName}.wav";
-            return AssetDatabase.LoadAssetAtPath<AudioClip>(assetPath);
-        }
-
-        private AudioClip[] LoadClips(params string[] clipNames)
-        {
-            AudioClip[] clips = new AudioClip[clipNames.Length];
-
-            for (int i = 0; i < clipNames.Length; i++)
-            {
-                clips[i] = LoadClip(clipNames[i]);
-            }
-
-            return clips;
-        }
-#endif
     }
 }
