@@ -15,6 +15,7 @@ public class InteractionController : MonoBehaviour
     [SerializeField] private StarterAssetsInputs _input;
     [SerializeField] private UnityEngine.Camera _mainCamera;
     [SerializeField] private RaycastInteractor _raycastInteractor;
+    [SerializeField] private AnimationController _animationController;
 
 
     [Header("Raycast 설정")]
@@ -36,6 +37,7 @@ public class InteractionController : MonoBehaviour
             _mainCamera = UnityEngine.Camera.main;
 
         CacheRaycastInteractor();
+        CacheAnimationController();
 
         if (_input == null)
             UnityEngine.Debug.LogError("[InteractionController] StarterAssetsInputs가 없습니다.", this);
@@ -113,9 +115,11 @@ public class InteractionController : MonoBehaviour
             {
                 UnityEngine.Debug.Log($"[InteractionController] 상호작용 실행: {(_currentTarget as UnityEngine.MonoBehaviour)?.gameObject.name}");
                 _currentTarget.Interaction();
+                _animationController?.SetInteractive();
             }
             else if (TryInteractWeaponItem())
             {
+                _animationController?.SetPickup();
                 UnityEngine.Debug.Log("[InteractionController] 무기 오브젝트 상호작용 실행");
             }
             else
@@ -141,6 +145,23 @@ public class InteractionController : MonoBehaviour
 
         if (transform.root != null)
             _raycastInteractor = transform.root.GetComponentInChildren<RaycastInteractor>(true);
+    }
+
+    private void CacheAnimationController()
+    {
+        if (_animationController != null)
+            return;
+
+        _animationController = GetComponent<AnimationController>();
+        if (_animationController != null)
+            return;
+
+        _animationController = GetComponentInParent<AnimationController>();
+        if (_animationController != null)
+            return;
+
+        if (transform.root != null)
+            _animationController = transform.root.GetComponentInChildren<AnimationController>(true);
     }
 
     private bool TryInteractWeaponItem()

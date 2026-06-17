@@ -2469,6 +2469,7 @@ MonoBehaviour:
   _input: {fileID: 6720829549027223185}
   _mainCamera: {fileID: 0}
   _raycastInteractor: {fileID: 0}
+  _animationController: {fileID: 0}
   _interactDistance: 7
   _interactableLayer:
     serializedVersion: 2
