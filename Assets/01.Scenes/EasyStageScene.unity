@@ -69486,7 +69486,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 301410664}
   bossName: BOSS
   bossExitObjectPrefab: {fileID: 8451433748330853422, guid: 6fcc17ed04e3d4c4895487d375d612ff, type: 3}
-  exitObjectSpawnOffset: {x: 0, y: -1, z: 4}
+  exitObjectSpawnOffset: {x: -8, y: -1, z: 0}
 --- !u!65 &1457150525
 BoxCollider:
   m_ObjectHideFlags: 0
