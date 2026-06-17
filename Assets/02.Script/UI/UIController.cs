@@ -23,8 +23,10 @@ namespace _01.Scenes.PhaseValidation.UI
         [Header("옵션 창")]
         [Tooltip("ESC 입력 시(스택 0 상태) 열릴 옵션 창 프리팹. 씬에 미리 배치하지 않고 런타임에 Instantiate합니다.")]
         [SerializeField] private GameObject optionsMenuPrefab;
-        [Tooltip("옵션 창을 생성할 부모 Transform (보통 Canvas). 비워두면 최상위(root)에 생성됩니다.")]
-        [SerializeField] private Transform optionsMenuParent;
+        [Tooltip("옵션 창을 생성할 부모 오브젝트의 이름. 각 씬의 Canvas 아래에 이 이름으로 미리 배치되어 있어야 합니다.\n" +
+                 "UIController는 DontDestroyOnLoad로 씬을 넘어 유지되지만, 이 부모 오브젝트는 씬마다 새로 생성되므로\n" +
+                 "Transform을 직접 들고 있지 않고 씬 전환마다 이름으로 다시 찾는다.")]
+        [SerializeField] private string optionsMenuParentName = "OptionUIRoot";
 
         private GameObject _optionsMenuInstance;
         private bool _isCursorOverridden;
@@ -33,6 +35,10 @@ namespace _01.Scenes.PhaseValidation.UI
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
+
+            // 씬 전환 후에도 UI 스택/옵션 창 기능이 계속 동작하도록 파괴되지 않게 한다.
+            // (LobyScene에서 다른 씬으로 넘어가도 이 오브젝트는 유지된다.)
+            DontDestroyOnLoad(gameObject);
         }
 
         private void Update()
@@ -122,9 +128,30 @@ namespace _01.Scenes.PhaseValidation.UI
             }
 
             EnableUIMode();
-            _optionsMenuInstance = Instantiate(optionsMenuPrefab, optionsMenuParent);
+            Transform parent = FindOptionsMenuParent();
+            _optionsMenuInstance = Instantiate(optionsMenuPrefab, parent);
             _optionsMenuInstance.SetActive(true);
             Push(_optionsMenuInstance, CloseOptionsMenu);
+        }
+
+        /// <summary>
+        /// 현재 활성화된 씬에서 "OptionUIRoot"(또는 지정한 이름) 오브젝트를 찾아 부모로 사용한다.
+        /// UIController는 씬을 넘어 유지되지만, 각 씬의 Canvas 하위 오브젝트는 씬마다 새로 생성되므로
+        /// Transform을 캐시하지 않고 옵션 창을 열 때마다 다시 찾는다.
+        /// </summary>
+        private Transform FindOptionsMenuParent()
+        {
+            if (string.IsNullOrEmpty(optionsMenuParentName))
+                return null;
+
+            var found = GameObject.Find(optionsMenuParentName);
+            if (found == null)
+            {
+                Debug.LogWarning($"[UIController] '{optionsMenuParentName}' 오브젝트를 현재 씬에서 찾을 수 없습니다. 옵션 창이 부모 없이 생성됩니다.");
+                return null;
+            }
+
+            return found.transform;
         }
 
         /// <summary>옵션 창을 닫고, Instantiate된 인스턴스를 파괴합니다. (Pop()의 onClose 콜백으로 등록됨)</summary>
