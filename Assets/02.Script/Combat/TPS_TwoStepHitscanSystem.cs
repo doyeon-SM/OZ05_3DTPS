@@ -1,3 +1,4 @@
+using _00.ChoiHeesu._01.Script;
 using _01.Scenes.PhaseValidation;
 using UnityEngine;
 
@@ -130,18 +131,19 @@ namespace _02.Script.Combat
             return (baseDirection + right * randomOffset.x + up * randomOffset.y).normalized;
         }
 
-        private void HandleHit(RaycastHit hit, AimResult aimResult, HitscanFireRequest request)
+private void HandleHit(RaycastHit hit, AimResult aimResult, HitscanFireRequest request)
         {
             string aimName = aimResult.didHit ? aimResult.hit.collider.name : "없음";
             string shotName = hit.collider.name;
-            Debug.Log($"카메라 조준: {aimName} / 실제 사격: {shotName}");
+            Debug.Log($"카메라 조준: {aimName} / 실제 타격: {shotName}");
+
+            HitFeedbackEvents.RaiseHit(hit);
 
             IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
             if (damageable != null)
             {
                 damageable.TakeDamage(request.Damage);
             }
-
         }
 
         private void DrawDebugRays(AimResult aim, ShotResult shot, HitscanFireRequest request)
