@@ -18,6 +18,18 @@ public class StageUIManager : MonoBehaviour
     [Header("P_Goal 프리팹")]
     [SerializeField] private GameObject goalSlotPrefab;
 
+    [Header("보스 안내 (목표 100% 달성 시 표시)")]
+    [Tooltip("100% 달성 시 안내 문구를 표시할 텍스트")]
+    [SerializeField] private TextMeshProUGUI bossAnnounceText;
+
+    [Tooltip("Inspector에서 자유롭게 설정하는 안내 문구 (예: 보스가 등장합니다!)")]
+    [SerializeField] private string bossAnnounceMessage = "보스가 등장합니다!";
+
+    [Tooltip("안내 문구를 감싸는 패널(선택). 비워두면 텍스트만 갱신한다.")]
+    [SerializeField] private GameObject bossAnnouncePanel;
+
+    private bool _hasShownBossAnnounce;
+
     private void Start()
     {
         StageManager stage = StageManager.Instance;
@@ -47,6 +59,21 @@ public class StageUIManager : MonoBehaviour
     {
         if (goalPercentText != null)
             goalPercentText.text = $"{Mathf.RoundToInt(percent)}%";
+
+        if (percent >= 100f && !_hasShownBossAnnounce)
+            ShowBossAnnounce();
+    }
+
+    /// <summary>목표 100% 달성 시 1회 호출 — Inspector에 설정된 안내 문구를 표시한다.</summary>
+    private void ShowBossAnnounce()
+    {
+        _hasShownBossAnnounce = true;
+
+        if (bossAnnouncePanel != null)
+            bossAnnouncePanel.SetActive(true);
+
+        if (bossAnnounceText != null)
+            bossAnnounceText.text = bossAnnounceMessage;
     }
 
     private void SpawnGoalSlots(StageManager stage)

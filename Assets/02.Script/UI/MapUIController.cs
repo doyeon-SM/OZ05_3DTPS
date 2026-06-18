@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using StarterAssets;
 using System;
+using _01.Scenes.PhaseValidation.UI;
 
 /// <summary>
 /// 맵 UI에서 플레이어가 속한 구역을 표시하는 컨트롤러.
@@ -119,9 +120,36 @@ public class MapUIController : MonoBehaviour
 
     private void ToggleMap()
     {
-        _isMapOpen = !_isMapOpen;
+        if (_isMapOpen)
+            // ESC(UIClose)와 동일한 경로로 닫히도록 UIController.Pop()을 통해 닫는다.
+            UIController.Instance?.Pop();
+        else
+            OpenMap();
+    }
+
+    /// <summary>
+    /// 맵을 열고 UIController 스택에 등록한다 — ESC(UIClose) 입력 시 자동으로 CloseMap()이 호출된다.
+    /// 맵은 HUD 오버레이 성격이라 마우스 커서 잠금 상태는 그대로 유지한다(이동/시점 조작 가능).
+    /// </summary>
+    private void OpenMap()
+    {
+        _isMapOpen = true;
         if (mapRootUI != null)
-            mapRootUI.SetActive(_isMapOpen);
+            mapRootUI.SetActive(true);
+
+        UIController.Instance?.Push(mapRootUI, CloseMap);
+
+        // UIController.Push()의 기본 커서 표시 동작을 무시하고, 커서는 계속 잠긴 상태로 유지한다.
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    /// <summary>UIController.Pop()의 onClose 콜백으로 등록되어, ESC 또는 M키 토글로 맵을 닫을 때 호출된다.</summary>
+    private void CloseMap()
+    {
+        _isMapOpen = false;
+        if (mapRootUI != null)
+            mapRootUI.SetActive(false);
     }
 
     // -------------------------------------------------------
