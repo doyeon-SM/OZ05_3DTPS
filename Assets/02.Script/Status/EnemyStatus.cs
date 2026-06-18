@@ -15,6 +15,9 @@ namespace _01.Scenes.PhaseValidation
         // 섹터 매니저에서 구독 — 풀 반환 처리 위임
         public event Action<EnemyStatus> OnDied;
 
+        // 피격 시마다 발생 (데미지량 전달) — 피격 SFX/VFX 등에서 구독
+        public event Action<int> OnDamaged;
+
         public int AttackPower  => enemyData != null ? enemyData.attackPower  : 0;
         public float RespawnDelay => enemyData != null ? enemyData.respawnDelay : 5f;
         public EnemyData Data   => enemyData;
@@ -73,6 +76,8 @@ namespace _01.Scenes.PhaseValidation
             if (isDead) return;
 
             currentHealth -= value;
+            OnDamaged?.Invoke(value);
+
             if (currentHealth <= 0)
             {
                 currentHealth = 0;

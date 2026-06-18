@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// 모든 적 프리팹에 공통으로 붙이는 SFX/VFX 컨트롤러.
@@ -16,6 +16,14 @@ public class EnemyEffectController : MonoBehaviour
 {
     [Tooltip("적 공통 SFX/VFX 데이터 에셋 (EnemyEffectData ScriptableObject)")]
     [SerializeField] private EnemyEffectData effectData;
+
+    [Header("=== 발소리 SFX ===")]
+    [Tooltip("발소리로 재생할 사운드 클립들 (여러 개면 매 발소리마다 랜덤 재생)")]
+    [SerializeField] private AudioClip[] footstepSfxClips;
+
+    [Range(0f, 1f)]
+    [Tooltip("발소리 볼륨 (0~1)")]
+    [SerializeField] private float footstepVolume = 1f;
 
     private AudioSource audioSource;
 
@@ -65,6 +73,14 @@ public class EnemyEffectController : MonoBehaviour
         SpawnVFX(effectData.hitVFX, hitPoint, Quaternion.identity);
     }
 
+    /// <summary>
+    /// 발소리 애니메이션 이벤트에서 호출 — 발소리 SFX 재생 (랜덤 베리에이션)
+    /// </summary>
+    public void PlayFootstepEffects()
+    {
+        PlayRandomSFX(footstepSfxClips, footstepVolume);
+    }
+
     // ════════════════════════════════════════════════
     //  내부 헬퍼
     // ════════════════════════════════════════════════
@@ -74,6 +90,14 @@ public class EnemyEffectController : MonoBehaviour
     {
         if (clip == null) return;
         audioSource.PlayOneShot(clip, volume);
+    }
+
+    /// <summary>배열에서 클립을 무작위로 골라 1회 재생 (베리에이션용)</summary>
+    private void PlayRandomSFX(AudioClip[] clips, float volume)
+    {
+        if (clips == null || clips.Length == 0) return;
+        AudioClip clip = clips[Random.Range(0, clips.Length)];
+        PlaySFX(clip, volume);
     }
 
     /// <summary>VFX 프리팹을 지정 위치에 Instantiate, 수명 후 자동 삭제</summary>

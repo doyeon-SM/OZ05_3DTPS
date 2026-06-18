@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
@@ -35,6 +35,12 @@ namespace _01.Scenes.PhaseValidation
         public bool IsInvincible { get; set; }
 
         private bool _isDead;
+        private BossEffectController _effectController;
+
+        private void Awake()
+        {
+            _effectController = GetComponent<BossEffectController>();
+        }
 
         protected override void OnEnable()
         {
@@ -71,8 +77,9 @@ namespace _01.Scenes.PhaseValidation
 
             CurrentHP = Mathf.Max(CurrentHP - value, 0);
             OnHPChanged?.Invoke(CurrentHP, MaxHP);
-
             Debug.Log($"[BossStatus] 피해 -{value} | HP {CurrentHP}/{MaxHP}");
+
+            _effectController?.OnDamageTakenSFX();
 
             if (CurrentHP <= 0) Die();
         }

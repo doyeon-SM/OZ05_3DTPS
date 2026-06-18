@@ -50,6 +50,14 @@ namespace _01.Scenes.PhaseValidation
         [Tooltip("바닥 패턴 공격 판정(Hit) SFX")]
         [SerializeField] private AudioClip floorPatternHitSfxClip;
 
+        [Header("피격(데미지 받음) - SFX")]
+        [Tooltip("보스가 데미지를 받을 때마다 재생할 사운드 클립들 (여러 개면 랜덤 재생)")]
+        [SerializeField] private AudioClip[] hitTakenSfxClips;
+
+        [Range(0f, 1f)]
+        [Tooltip("피격 SFX 볼륨 (0~1)")]
+        [SerializeField] private float hitTakenSfxVolume = 1f;
+
         [Header("VFX 설정")]
         [Tooltip("생성된 VFX 오브젝트 자동 파괴 시간(초). ParticleSystem의 duration+lifetime보다 길게 설정.")]
         [SerializeField] private float vfxLifetime = 3f;
@@ -134,6 +142,16 @@ namespace _01.Scenes.PhaseValidation
             PlaySfx(floorPatternHitSfxClip);
         }
 
+        // ── SFX: 피격(데미지 받음) ─────────────────────────────
+        // BossStatus.TakeDamage() 등 데미지 처리 시점에서 직접 호출.
+        // 기존 Telegraph/Hit SFX(Stop()+Play() 방식)와 겹쳐도 끊기지 않도록 PlayOneShot으로 재생.
+
+        /// <summary>보스가 데미지를 받을 때 호출 — 피격 SFX 재생(랜덤 베리에이션).</summary>
+        public void OnDamageTakenSFX()
+        {
+            PlayRandomSfx(hitTakenSfxClips, hitTakenSfxVolume);
+        }
+
         private void PlaySfx(AudioClip clip)
         {
             if (clip == null || _audioSource == null) return;
@@ -142,6 +160,15 @@ namespace _01.Scenes.PhaseValidation
             _audioSource.Stop();
             _audioSource.clip = clip;
             _audioSource.Play();
+        }
+
+        /// <summary>배열에서 클립을 무작위로 골라 PlayOneShot 재생 (기존 재생 중인 SFX를 끊지 않음).</summary>
+        private void PlayRandomSfx(AudioClip[] clips, float volume)
+        {
+            if (clips == null || clips.Length == 0 || _audioSource == null) return;
+            AudioClip clip = clips[Random.Range(0, clips.Length)];
+            if (clip == null) return;
+            _audioSource.PlayOneShot(clip, volume);
         }
     }
 }
