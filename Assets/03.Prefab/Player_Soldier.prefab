@@ -1600,6 +1600,7 @@ MonoBehaviour:
   hitClips:
   - {fileID: 8300000, guid: 16b3b3703a8ea624aa3beaeda8ed3957, type: 3}
   volume: 0.839
+  pitch: 1
   minPlayInterval: 0.05
   randomizeClip: 1
   randomizePitch: 0

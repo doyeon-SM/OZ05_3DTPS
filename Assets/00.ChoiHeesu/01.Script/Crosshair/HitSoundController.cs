@@ -12,6 +12,7 @@ namespace _00.ChoiHeesu._01.Script
         [SerializeField] private AudioSource audioSource;
         [SerializeField] private AudioClip[] hitClips;
         [SerializeField, Range(0f, 1f)] private float volume = 1f;
+        [SerializeField, Range(-3f, 3f)] private float pitch = 1f;
         [SerializeField, Min(0f)] private float minPlayInterval = 0.05f;
         [SerializeField] private bool randomizeClip = true;
         [SerializeField] private bool randomizePitch;
@@ -47,7 +48,11 @@ namespace _00.ChoiHeesu._01.Script
         private void OnValidate()
         {
             volume = Mathf.Clamp01(volume);
+            pitch = Mathf.Clamp(pitch, -3f, 3f);
             minPlayInterval = Mathf.Max(minPlayInterval, 0f);
+
+            pitchRange.x = Mathf.Clamp(pitchRange.x, -3f, 3f);
+            pitchRange.y = Mathf.Clamp(pitchRange.y, -3f, 3f);
 
             if (pitchRange.x > pitchRange.y)
             {
@@ -78,7 +83,7 @@ namespace _00.ChoiHeesu._01.Script
             if (audioSource == null)
                 return;
 
-            audioSource.pitch = randomizePitch ? Random.Range(pitchRange.x, pitchRange.y) : 1f;
+            audioSource.pitch = randomizePitch ? Random.Range(pitchRange.x, pitchRange.y) : pitch;
             audioSource.PlayOneShot(clip, volume);
             lastPlayTime = Time.unscaledTime;
         }
