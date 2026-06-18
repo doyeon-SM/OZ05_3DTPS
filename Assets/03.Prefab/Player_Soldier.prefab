@@ -3103,6 +3103,7 @@ MonoBehaviour:
   hitEffectPrefab: {fileID: 1801918589960200, guid: 03280e26db9a2524c8409f02a2ab4d7d, type: 3}
   hitEffectLifeTime: 2
   AmmoChangeChannel: {fileID: 11400000, guid: 2026284826e790c46914b524eb862bbd, type: 2}
+  ReloadTimeEvent: {fileID: 11400000, guid: 4426cf16f53b14649988c01428c78d20, type: 2}
   VariableChange: 0
   _animationController: {fileID: 608903216306100104}
 --- !u!114 &4212851093045489019

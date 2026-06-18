@@ -436,7 +436,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.UI.HPSliderController
   hpChanged: {fileID: 11400000, guid: e9a282dbd9ffd8b45945d00a4e21d732, type: 2}
-  slider: {fileID: 333026411632374850}
+  afterSlider: {fileID: 333026411632374850}
+  beforeSlider: {fileID: 0}
+  delayTime: 0.25
+  valueChangeDuration: 0.25
 --- !u!1001 &6451416581756517175
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -601,8 +604,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_02.Script.UI.AmmoSliderController
   AmmoChanged: {fileID: 11400000, guid: 2026284826e790c46914b524eb862bbd, type: 2}
-  slider: {fileID: 142878227322186950}
-  AmmoText: {fileID: 6243639978865015809}
+  WeaponAmmoEvent: {fileID: 11400000, guid: cad162df12890ba49aba2a491a977f2b, type: 2}
+  ReloadTimeEvent: {fileID: 11400000, guid: 4426cf16f53b14649988c01428c78d20, type: 2}
+  CurrentAmmoSlider: {fileID: 142878227322186950}
+  CurrentAmmoText: {fileID: 6243639978865015809}
+  ReloadSlider: {fileID: 0}
+  WeaponAmmoText: {fileID: 0}
+  AmmoImage: {fileID: 0}
+  GrenadeCountText: {fileID: 0}
+  weaponRuntimeManager: {fileID: 0}
 --- !u!224 &142878227372417551 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6373600413064812856, guid: 1b6eaaca7381e3a44b39bd6c41ddd344, type: 3}

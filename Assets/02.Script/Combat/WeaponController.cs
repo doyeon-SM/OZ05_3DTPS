@@ -56,6 +56,7 @@ namespace _02.Script.Combat
         
         [Header("Event Channels")]
         [SerializeField] private DoubleIntEventChannel AmmoChangeChannel;
+        [SerializeField] private SingleFloatEventChannel ReloadTimeEvent;
 
         public float RPM => CurrentWeapon != null && CurrentWeapon.data != null ? CurrentWeapon.data.RPM : 0f;
         public int Damage => CurrentWeapon != null && CurrentWeapon.data != null ? CurrentWeapon.data.Damage : 0;
@@ -294,6 +295,7 @@ namespace _02.Script.Combat
             {
                 StopCoroutine(_reloadCoroutine);
                 _reloadCoroutine = null;
+                SendReloadTimeUI(0f);
             }
 
             weaponSoundController?.StopAllSounds();
@@ -667,6 +669,15 @@ namespace _02.Script.Combat
 
             AmmoChangeChannel.Raise(currentAmmo, magazineSize);
         }
+
+        private void SendReloadTimeUI(float reloadTime)
+        {
+            if (ReloadTimeEvent == null)
+                return;
+
+            ReloadTimeEvent.Raise(Mathf.Max(reloadTime, 0f));
+        }
+
         public void TryReload()
         {
             WeaponRuntime currentWeapon = CurrentWeapon;
@@ -752,6 +763,7 @@ namespace _02.Script.Combat
             LogWeaponState(LogReloadStart);
 
             float reloadTime = Mathf.Max(reloadWeapon.data.ReloadTime, 0f);
+            SendReloadTimeUI(reloadTime);
             weaponSoundController?.PlayReload(reloadWeapon.data, reloadTime);
             yield return new WaitForSeconds(reloadTime);
 
