@@ -86,10 +86,6 @@ namespace StarterAssets
         [Tooltip("For locking the camera position on all axis")]
         public bool LockCameraPosition;
 
-        [Header("마우스 감도")]
-        [SerializeField, Range(0.5f, 2f)] private float mouseSensitivityXMultiplier = 1f;
-        [SerializeField, Range(0.5f, 2f)] private float mouseSensitivityYMultiplier = 1f;
-
         public void SetCameraAngleLimit(Vector2 angleLimit)
         {
             BottomClamp = Mathf.Min(angleLimit.x, angleLimit.y);
@@ -100,19 +96,6 @@ namespace StarterAssets
         public void AddCameraPitch(float pitchDelta)
         {
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch + pitchDelta, BottomClamp, TopClamp);
-        }
-
-        public void SetMouseSensitivityFromSliderValue(float xAxisValue, float yAxisValue)
-        {
-            SetMouseSensitivityMultiplier(
-                ConvertMouseSensitivitySliderValueToMultiplier(xAxisValue),
-                ConvertMouseSensitivitySliderValueToMultiplier(yAxisValue));
-        }
-
-        public void SetMouseSensitivityMultiplier(float xMultiplier, float yMultiplier)
-        {
-            mouseSensitivityXMultiplier = Mathf.Clamp(xMultiplier, MinMouseSensitivityMultiplier, MaxMouseSensitivityMultiplier);
-            mouseSensitivityYMultiplier = Mathf.Clamp(yMultiplier, MinMouseSensitivityMultiplier, MaxMouseSensitivityMultiplier);
         }
         
         
@@ -150,10 +133,6 @@ namespace StarterAssets
         private bool _missingWeaponControllerLogged;
 
         private const float _threshold = 0.01f;
-        private const float MinMouseSensitivitySliderValue = -1f;
-        private const float MaxMouseSensitivitySliderValue = 1f;
-        private const float MinMouseSensitivityMultiplier = 0.5f;
-        private const float MaxMouseSensitivityMultiplier = 2f;
 
         // 공격을 위한 컴포넌트
         [SerializeField]private WeaponController _weaponController;
@@ -228,8 +207,6 @@ namespace StarterAssets
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
 
-            LoadMouseSensitivityFromSave();
-
             if (!HasRequiredReferences())
                 enabled = false;
         }
@@ -255,21 +232,6 @@ namespace StarterAssets
                 return;
 
             CameraRotation();
-        }
-
-        private void LoadMouseSensitivityFromSave()
-        {
-            SetMouseSensitivityFromSliderValue(
-                SaveManager.Instance.GetMouseSensitivity(SaveManager.MouseSensitivityXKey),
-                SaveManager.Instance.GetMouseSensitivity(SaveManager.MouseSensitivityYKey));
-        }
-
-        private static float ConvertMouseSensitivitySliderValueToMultiplier(float sliderValue)
-        {
-            float clampedValue = Mathf.Clamp(sliderValue, MinMouseSensitivitySliderValue, MaxMouseSensitivitySliderValue);
-            float displayPercent = clampedValue < 0f ? clampedValue * 50f : clampedValue * 100f;
-
-            return Mathf.Clamp(1f + displayPercent / 100f, MinMouseSensitivityMultiplier, MaxMouseSensitivityMultiplier);
         }
 
         
@@ -463,8 +425,8 @@ namespace StarterAssets
                 //Don't multiply mouse input by Time.deltaTime;
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-                _cinemachineTargetYaw += _input.look.x * mouseSensitivityXMultiplier * deltaTimeMultiplier;
-                _cinemachineTargetPitch += _input.look.y * mouseSensitivityYMultiplier * deltaTimeMultiplier;
+                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
+                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
             }
 
             // clamp our rotations so our values are limited 360 degrees

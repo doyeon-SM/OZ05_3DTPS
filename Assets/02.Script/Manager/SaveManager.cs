@@ -14,13 +14,6 @@ public class AudioSaveData
 }
 
 [Serializable]
-public class MouseSensitivitySaveData
-{
-    public float xAxis = 0f;
-    public float yAxis = 0f;
-}
-
-[Serializable]
 public class StageClearEntry
 {
     public string stageId;
@@ -31,7 +24,6 @@ public class StageClearEntry
 public class SaveData
 {
     public AudioSaveData audio = new AudioSaveData();
-    public MouseSensitivitySaveData mouseSensitivity = new MouseSensitivitySaveData();
     public List<StageClearEntry> stageClears = new List<StageClearEntry>();
 }
 
@@ -52,9 +44,6 @@ public class SaveData
 /// </summary>
 public class SaveManager : MonoBehaviour
 {
-    public const string MouseSensitivityXKey = "MouseSensitivityX";
-    public const string MouseSensitivityYKey = "MouseSensitivityY";
-
     private static SaveManager _instance;
 
     public static SaveManager Instance
@@ -126,7 +115,6 @@ public class SaveManager : MonoBehaviour
 
         if (Data == null) Data = new SaveData();
         if (Data.audio == null) Data.audio = new AudioSaveData();
-        if (Data.mouseSensitivity == null) Data.mouseSensitivity = new MouseSensitivitySaveData();
         if (Data.stageClears == null) Data.stageClears = new List<StageClearEntry>();
     }
 
@@ -174,44 +162,6 @@ public class SaveManager : MonoBehaviour
                 Debug.LogWarning($"[SaveManager] 알 수 없는 오디오 키: {key}");
                 break;
         }
-    }
-
-    // ── 마우스 감도 설정 ─────────────────────────────────────
-
-    public float GetMouseSensitivity(string key)
-    {
-        switch (key)
-        {
-            case MouseSensitivityXKey: return Data.mouseSensitivity.xAxis;
-            case MouseSensitivityYKey: return Data.mouseSensitivity.yAxis;
-            default:
-                Debug.LogWarning($"[SaveManager] 알 수 없는 마우스 감도 키: {key}");
-                return 0f;
-        }
-    }
-
-    public void SetMouseSensitivity(string key, float sliderValue)
-    {
-        float clampedValue = Mathf.Clamp(sliderValue, -1f, 1f);
-
-        switch (key)
-        {
-            case MouseSensitivityXKey:
-                Data.mouseSensitivity.xAxis = clampedValue;
-                break;
-            case MouseSensitivityYKey:
-                Data.mouseSensitivity.yAxis = clampedValue;
-                break;
-            default:
-                Debug.LogWarning($"[SaveManager] 알 수 없는 마우스 감도 키: {key}");
-                break;
-        }
-    }
-
-    public void SetMouseSensitivity(float xAxisValue, float yAxisValue)
-    {
-        Data.mouseSensitivity.xAxis = Mathf.Clamp(xAxisValue, -1f, 1f);
-        Data.mouseSensitivity.yAxis = Mathf.Clamp(yAxisValue, -1f, 1f);
     }
 
     // ── 스테이지 클리어 ───────────────────────────────────────
