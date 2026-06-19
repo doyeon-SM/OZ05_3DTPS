@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using _01.Scenes.PhaseValidation.UI;
 
 namespace _01.Scenes.PhaseValidation
@@ -86,6 +86,10 @@ namespace _01.Scenes.PhaseValidation
 
             _bossInstance.InitializeBoss(bossData);
 
+            // 보스 등장에 맞춰 BGM 전환
+            if (BGMManager.Instance != null && bossData.bossBgmClip != null)
+                BGMManager.Instance.PlayBGM(bossData.bossBgmClip);
+
             // HUD 연결
             if (BossHUDManager.Instance != null)
             {
@@ -115,6 +119,10 @@ namespace _01.Scenes.PhaseValidation
             // (stageId는 StageInfoSO.sceneName과 동일한 규칙인 현재 씬 이름을 사용한다.
             //  실제 파일 저장은 게임 종료 시 SaveManager가 일괄 처리한다.)
             SaveManager.Instance.SetStageCleared(gameObject.scene.name, true);
+
+            // 보스 처치 후 원래 스테이지 BGM으로 복귀
+            if (BGMManager.Instance != null)
+                BGMManager.Instance.PlayBGMForScene(gameObject.scene.name);
 
             if (_bossInstance != null)
             {

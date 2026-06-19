@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using System.Collections;
+using UnityEngine;
 
 namespace _01.Scenes.PhaseValidation
 {
@@ -10,6 +11,7 @@ namespace _01.Scenes.PhaseValidation
     ///    BossFloorPatternController.ApplyFloorDamage 호출 시점)에 코드에서 직접 Instantiate.
     ///  - 멜리/바닥패턴 프리팹을 Inspector에서 할당.
     ///  - 레이저 VFX는 LaserHitbox에서 직접 처리(이 컨트롤러에서 제거됨).
+    ///  - 사망 폭발 VFX는 사망 애니메이션의 Animation Event에서 OnDeathExplosionVfx()를 호출하여 재생.
     ///
     /// [SFX]
     ///  - 예고(Telegraph) / 판정(Hit) 단계를 구분하여 각각 재생.
@@ -58,6 +60,19 @@ namespace _01.Scenes.PhaseValidation
         [Tooltip("피격 SFX 볼륨 (0~1)")]
         [SerializeField] private float hitTakenSfxVolume = 1f;
 
+        [Header("사망 연출 - 폭발 VFX")]
+        [Tooltip("보스 사망 시 보스 주변에 생성할 폭발 VFX 프리팹")]
+        [SerializeField] private GameObject deathExplosionVfxPrefab;
+
+        [Tooltip("사망 시 생성할 폭발 VFX 개수")]
+        [SerializeField] private int deathExplosionCount = 3;
+
+        [Tooltip("보스 위치를 기준으로 폭발이 생성될 수평 반경")]
+        [SerializeField] private float deathExplosionRadius = 1.5f;
+
+        [Tooltip("폭발과 폭발 사이의 생성 간격(초). 0이면 한 번에 모두 생성한다.")]
+        [SerializeField] private float deathExplosionInterval = 0.08f;
+
         [Header("VFX 설정")]
         [Tooltip("생성된 VFX 오브젝트 자동 파괴 시간(초). ParticleSystem의 duration+lifetime보다 길게 설정.")]
         [SerializeField] private float vfxLifetime = 3f;
@@ -98,6 +113,38 @@ namespace _01.Scenes.PhaseValidation
 
             GameObject instance = Instantiate(prefab, position, rotation);
             Destroy(instance, vfxLifetime);
+        }
+
+        // ── VFX: 사망 폭발 ────────────────────────────────────
+        // [Animation Event 전용] 사망(Die) 애니메이션 클립에서 호출하세요.
+
+        /// <summary>
+        /// [Animation Event 전용] 보스 주변(deathExplosionRadius 반경 내) 랜덤 위치에
+        /// deathExplosionCount개의 폭발 VFX를 deathExplosionInterval 간격으로 순차 생성한다.
+        /// 사망 애니메이션의 Animation Event에서 호출하도록 연결하세요.
+        /// </summary>
+        public void OnDeathExplosionVfx()
+        {
+            StartCoroutine(SpawnDeathExplosionsRoutine());
+        }
+
+        private IEnumerator SpawnDeathExplosionsRoutine()
+        {
+            if (deathExplosionVfxPrefab == null)
+            {
+                Debug.LogWarning("[BossEffectController] deathExplosionVfxPrefab이 설정되지 않았습니다.");
+                yield break;
+            }
+
+            for (int i = 0; i < deathExplosionCount; i++)
+            {
+                Vector2 offset2D = Random.insideUnitCircle * deathExplosionRadius;
+                Vector3 spawnPos = transform.position + new Vector3(offset2D.x, 0f, offset2D.y);
+                SpawnVfx(deathExplosionVfxPrefab, spawnPos, Quaternion.identity);
+
+                if (deathExplosionInterval > 0f)
+                    yield return new WaitForSeconds(deathExplosionInterval);
+            }
         }
 
         // ── SFX: 예고(Telegraph) ─────────────────────────────

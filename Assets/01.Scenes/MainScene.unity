@@ -212,6 +212,10 @@ MonoBehaviour:
   sceneBGMEntries:
   - sceneName: MainScene
     bgmClip: {fileID: 8300000, guid: 9cd3fbfabd7c80e458a6b9ec2bcd389b, type: 3}
+  - sceneName: LobyScene
+    bgmClip: {fileID: 8300000, guid: 9cd3fbfabd7c80e458a6b9ec2bcd389b, type: 3}
+  - sceneName: EasyStageScene
+    bgmClip: {fileID: 8300000, guid: 9cd3fbfabd7c80e458a6b9ec2bcd389b, type: 3}
   bgmMixerGroup: {fileID: 7048549839887141121, guid: 8e7aa2bc443f4724f8eaf2489211d9e2, type: 2}
   crossFadeDuration: 1
 --- !u!1 &886734373

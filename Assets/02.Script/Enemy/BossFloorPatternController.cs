@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using _01.Scenes.PhaseValidation._26._05._14;
@@ -52,6 +52,25 @@ namespace _01.Scenes.PhaseValidation
         public void SetTelegraphDurationOverride(float seconds)
         {
             _telegraphDurationOverride = seconds;
+        }
+
+        /// <summary>
+        /// 보스 사망 등으로 즉시 모든 바닥 패턴을 중단해야 할 때 BossController가 호출합니다.
+        /// 이 컴포넌트에서 자기 자신의 StartCoroutine으로 실행 중인 내부 코루틴
+        /// (PlayHashPattern/PlayWavePattern/PlayBranchPatternOnce 등)까지 모두 멈추고,
+        /// 표시 중인 인디케이터(격자/원형)를 숨깁니다.
+        /// </summary>
+        public void StopAllPatternsAndHide()
+        {
+            StopAllCoroutines();
+
+            if (floorIndicatorPool != null)
+            {
+                foreach (var indicator in floorIndicatorPool)
+                    indicator?.Hide();
+            }
+
+            circleIndicator?.Hide();
         }
 
         [Header("데미지 배율")]
