@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using StarterAssets;
 
 namespace _01.Scenes.PhaseValidation.UI
@@ -39,6 +40,46 @@ namespace _01.Scenes.PhaseValidation.UI
             // 씬 전환 후에도 UI 스택/옵션 창 기능이 계속 동작하도록 파괴되지 않게 한다.
             // (LobyScene에서 다른 씬으로 넘어가도 이 오브젝트는 유지된다.)
             DontDestroyOnLoad(gameObject);
+
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        /// <summary>
+        /// 씬 전환 감지 — 스택에 쌓여 있던 UI(옵션 창 인스턴스 등)는 이전 씬의 Canvas 아래에
+        /// 생성되어 있었기 때문에 씬이 바뀌면 함께 파괴된다. UIController 자신은 DontDestroyOnLoad라
+        /// 정리하지 않으면 _activeUIStack에 파괴된(destroyed) 참조가 그대로 남는다.
+        ///
+        /// 이 상태로 ESC를 누르면 스택이 비어있지 않다고 판단해 Pop()이 호출되고,
+        /// Pop() 내부에서 파괴된 오브젝트에 접근해 MissingReferenceException이 발생한다.
+        /// (예외가 나도 스택은 한 칸씩 줄어들기 때문에, 여러 번 재시도하면 스택이 결국 비워져서
+        ///  그제서야 옵션 창이 정상적으로 열리는 것처럼 보였던 것 — 사실은 매번 실패하고 있었다.)
+        ///
+        /// 따라서 새 씬이 로드되는 시점에 스택과 관련 참조를 모두 정리해서, 첫 ESC 입력부터
+        /// 곧바로 옵션 창이 열리도록 한다.
+        /// </summary>
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            // Additive 로드는 메인 씬 UI 상태를 유지해야 하므로 건드리지 않는다.
+            if (mode == LoadSceneMode.Additive)
+                return;
+
+            if (_activeUIStack.Count > 0)
+                Debug.Log($"[UIController] 씬 전환 감지 — 이전 씬에 속한 UI 스택 {_activeUIStack.Count}개를 정리합니다.");
+
+            _activeUIStack.Clear();
+            _optionsMenuInstance = null;
+            _isCursorOverridden = false;
+
+            // 새 씬의 Player를 다시 찾도록 초기화 (Update()에서 지연 탐색됨)
+            _input = null;
+
+            // 스택을 비웠으니 게임플레이 기본 상태(커서 잠금)로 복귀
+            HideCursor();
         }
 
         private void Update()
@@ -90,7 +131,13 @@ namespace _01.Scenes.PhaseValidation.UI
             }
 
             var (ui, onClose) = _activeUIStack.Pop();
-            Debug.Log($"[UIController] Pop: {ui?.name} (남은 스택: {_activeUIStack.Count})");
+
+            // [주의] Unity 오브젝트는 파괴되어도 C# 참조 자체는 null이 아닐 수 있다.
+            // ui?.name 처럼 ?. 연산자를 사용하면 Unity가 오버라이드한 == 연산자를 거치지 않고
+            // 순수 C# 참조만 검사하기 때문에, 파괴된 오브젝트에서 MissingReferenceException이
+            // 발생할 수 있다. 반드시 ui != null (오버로드된 ==)로 먼저 검사한다.
+            string uiName = (ui != null) ? ui.name : "(destroyed)";
+            Debug.Log($"[UIController] Pop: {uiName} (남은 스택: {_activeUIStack.Count})");
 
             // 콜백이 있으면 콜백으로 닫기 (StageSelectUI.CloseUI 등 커스텀 닫기 로직)
             // 콜백이 없으면 단순 SetActive(false)
