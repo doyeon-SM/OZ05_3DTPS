@@ -47,6 +47,7 @@ public class StageUIManager : MonoBehaviour
 
         // 목표 슬롯 생성
         SpawnGoalSlots(stage);
+
     }
 
     private void OnDestroy()
@@ -109,6 +110,11 @@ public class StageUIManager : MonoBehaviour
             GameObject obj = Instantiate(goalSlotPrefab, goalGrid);
             GoalSlot slot = obj.GetComponent<GoalSlot>();
             if (slot != null) slot.Initialize(repair);
+        }
+
+        if(bossAnnounceText != null)
+        { 
+            bossAnnounceText.text = "";
         }
     }
 }
