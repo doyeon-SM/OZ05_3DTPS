@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using StarterAssets;
+using UnityEngine.EventSystems;
 
 namespace _01.Scenes.PhaseValidation.UI
 {
@@ -30,6 +32,7 @@ namespace _01.Scenes.PhaseValidation.UI
 
         private GameObject _optionsMenuInstance;
         private bool _isCursorOverridden;
+        private Coroutine _cursorRestoreCoroutine;
 
         private void Awake()
         {
@@ -45,7 +48,7 @@ namespace _01.Scenes.PhaseValidation.UI
         {
             // StarterAssetsInputs를 지연 탐색 (씬 전환 후 Player가 새로 생성되므로)
             if (_input == null)
-                _input = FindObjectOfType<StarterAssetsInputs>();
+                _input = FindFirstObjectByType<StarterAssetsInputs>();
 
             if (_input == null) return;
 
@@ -170,14 +173,64 @@ namespace _01.Scenes.PhaseValidation.UI
 
         private void ShowCursor()
         {
+            StopCursorRestoreCoroutine();
+
+            if (_input != null)
+                _input.cursorLocked = false;
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
 
         private void HideCursor()
         {
+            RestoreGameplayCursorState();
+            RestartCursorRestoreCoroutine();
+        }
+
+        private void RestoreGameplayCursorState()
+        {
+            if (_input == null)
+                _input = FindFirstObjectByType<StarterAssetsInputs>();
+
+            if (_input != null)
+                _input.cursorLocked = true;
+
+            if (EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(null);
+
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+        }
+
+        private void RestartCursorRestoreCoroutine()
+        {
+            StopCursorRestoreCoroutine();
+            _cursorRestoreCoroutine = StartCoroutine(RestoreCursorAfterUIClose());
+        }
+
+        private void StopCursorRestoreCoroutine()
+        {
+            if (_cursorRestoreCoroutine == null)
+                return;
+
+            StopCoroutine(_cursorRestoreCoroutine);
+            _cursorRestoreCoroutine = null;
+        }
+
+        private IEnumerator RestoreCursorAfterUIClose()
+        {
+            yield return new WaitForEndOfFrame();
+
+            if (_activeUIStack.Count == 0)
+                RestoreGameplayCursorState();
+
+            yield return null;
+
+            if (_activeUIStack.Count == 0)
+                RestoreGameplayCursorState();
+
+            _cursorRestoreCoroutine = null;
         }
 
         // ── UI 모드 전환 (마우스 표시 / 카메라·공격 입력 차단) ──────────
