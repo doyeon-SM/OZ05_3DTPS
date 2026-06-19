@@ -48,7 +48,7 @@ GameObject:
   - component: {fileID: 8733524541533856421}
   - component: {fileID: 4104588782197328714}
   m_Layer: 5
-  m_Name: CurrentValue
+  m_Name: SliderName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -101,7 +101,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Y \uAC12"
+  m_text: "Y \uAC10\uB3C4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
   m_sharedMaterial: {fileID: -7194432874131732980, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 7398979522838693485}
   - component: {fileID: 984609786448209476}
   m_Layer: 5
-  m_Name: CurrentValue
+  m_Name: SliderName
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -238,7 +238,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "X \uAC12"
+  m_text: "X \uAC10\uB3C4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
   m_sharedMaterial: {fileID: -7194432874131732980, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
@@ -570,7 +570,7 @@ GameObject:
   - component: {fileID: 7750161269024292169}
   - component: {fileID: 2531264015941717227}
   m_Layer: 5
-  m_Name: SliderName
+  m_Name: CurrentValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -623,7 +623,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 0%
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
   m_sharedMaterial: {fileID: -7194432874131732980, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
@@ -1011,7 +1011,7 @@ GameObject:
   - component: {fileID: 8257772974894849552}
   - component: {fileID: 3354229939081509379}
   m_Layer: 5
-  m_Name: SliderName
+  m_Name: CurrentValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1064,7 +1064,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 0%
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
   m_sharedMaterial: {fileID: -7194432874131732980, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
@@ -1539,6 +1539,7 @@ GameObject:
   - component: {fileID: 8894088520414647108}
   - component: {fileID: 5702544968232871399}
   - component: {fileID: 4112819121931389831}
+  - component: {fileID: 6782878137582227287}
   m_Layer: 5
   m_Name: P_Game
   m_TagString: Untagged
@@ -1604,3 +1605,28 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6782878137582227287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9178511361567644271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 151f1a4a775ef4240ad7efb3d8a6ef6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MouseSensitivityController
+  xAxis:
+    prefsKey: MouseSensitivityX
+    displayName: "X \uAC10\uB3C4"
+    slider: {fileID: 0}
+    nameText: {fileID: 0}
+    valueText: {fileID: 0}
+  yAxis:
+    prefsKey: MouseSensitivityY
+    displayName: "Y \uAC10\uB3C4"
+    slider: {fileID: 0}
+    nameText: {fileID: 0}
+    valueText: {fileID: 0}
+  thirdPersonController: {fileID: 0}
