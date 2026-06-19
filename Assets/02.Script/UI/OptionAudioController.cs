@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 using TMPro;
@@ -19,6 +19,10 @@ using TMPro;
 ///  - SaveManager(JSON 단일 파일)를 통해 저장/로드한다.
 ///    슬라이더 조작 시 SaveManager의 메모리 상 값만 갱신되고, 실제 파일 저장은
 ///    게임 종료 시 SaveManager.OnApplicationQuit()에서 한 번에 처리된다.
+///
+/// [참고]
+///  - 게임 시작 시점(이 패널을 열기 전)의 초기 적용은 AudioSettingsManager가 담당한다.
+///  - dB 변환 공식은 AudioVolumeUtility를 공유하여 두 곳의 결과가 항상 일치한다.
 /// </summary>
 public class OptionAudioController : MonoBehaviour
 {
@@ -48,8 +52,6 @@ public class OptionAudioController : MonoBehaviour
         new AudioChannel { exposedParameterName = "SFXVolume",    prefsKey = "SFXVolume" },
         new AudioChannel { exposedParameterName = "BGMVolume",    prefsKey = "BGMVolume" },
     };
-
-    private const float MinLinearVolume = 0.0001f;   // 0% 근처를 -80dB(완전 무음)로 처리하기 위한 최소값
 
     private void Awake()
     {
@@ -82,15 +84,8 @@ public class OptionAudioController : MonoBehaviour
 
     private void ApplyVolume(AudioChannel channel, float percent)
     {
-        float linear = Mathf.Clamp01(percent / 100f);
-        float dB = linear <= 0f ? -80f : Mathf.Log10(Mathf.Max(linear, MinLinearVolume)) * 20f;
-
-        if (audioMixer != null && !string.IsNullOrEmpty(channel.exposedParameterName))
-        {
-            bool applied = audioMixer.SetFloat(channel.exposedParameterName, dB);
-            if (!applied)
-                Debug.LogWarning($"[OptionAudioController] '{channel.exposedParameterName}' 파라미터를 찾을 수 없습니다. AudioMixer에서 Expose 했는지 확인하세요.");
-        }
+        if (audioMixer != null)
+            AudioVolumeUtility.ApplyVolume(audioMixer, channel.exposedParameterName, percent);
 
         if (channel.percentText != null)
             channel.percentText.text = Mathf.RoundToInt(percent) + "%";
