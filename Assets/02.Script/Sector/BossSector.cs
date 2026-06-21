@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Cinemachine;
 using _01.Scenes.PhaseValidation.UI;
 
 namespace _01.Scenes.PhaseValidation
@@ -35,6 +36,13 @@ namespace _01.Scenes.PhaseValidation
 
         [Tooltip("BossExitObject를 보스 사망 위치에서 얼마나 떨어진 곳에 소환할지. 보상 아이템(BossData.rewardPrefab)과 같은 위치에 겹쳐 상호작용이 잘못 인식되는 문제를 막기 위함.")]
         [SerializeField] private Vector3 exitObjectSpawnOffset = new Vector3(0f, 0f, 2f);
+
+        [Header("시네머신 컷씬 카메라 (씬에 직접 배치 — 보스 프리팹 자식 아님)")]
+        [Tooltip("보스 입장 시 보스를 응시할 CinemachineCamera")]
+        [SerializeField] private CinemachineCamera introCamera;
+
+        [Tooltip("보스 사망 시 보스를 응시할 CinemachineCamera")]
+        [SerializeField] private CinemachineCamera deathCamera;
 
         private BossStatus _bossInstance;
 
@@ -85,6 +93,13 @@ namespace _01.Scenes.PhaseValidation
                 _bossInstance = obj.AddComponent<BossStatus>();
 
             _bossInstance.InitializeBoss(bossData);
+
+            // 시네머신 컷씬 카메라 연결 (씬에 배치된 카메라를 이 보스 인스턴스에 바인딩)
+            BossCinematicController cinematic = _bossInstance.GetComponent<BossCinematicController>();
+            if (cinematic != null)
+                cinematic.BindCutsceneCameras(introCamera, deathCamera);
+            else
+                Debug.LogWarning("[BossSector] 보스 프리팹에 BossCinematicController가 없습니다. 컷씬이 재생되지 않습니다.");
 
             // 보스 등장에 맞춰 BGM 전환
             if (BGMManager.Instance != null && bossData.bossBgmClip != null)

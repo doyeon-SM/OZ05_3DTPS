@@ -443,6 +443,7 @@ GameObject:
   - component: {fileID: 5911241932344724095}
   - component: {fileID: 6211287304930853872}
   - component: {fileID: 3580752338399412360}
+  - component: {fileID: 6464452600556749377}
   m_Layer: 8
   m_Name: BossTest
   m_TagString: Untagged
@@ -537,6 +538,7 @@ MonoBehaviour:
   fanAttackHitbox: {fileID: 5743511203858680887}
   laserHitbox: {fileID: 996882534936744607}
   floorPatternController: {fileID: 5911241932344724095}
+  bossCinematic: {fileID: 0}
   entranceFreezeDuration: 1
   fanAngle: 90
   fanTelegraphDuration: 2
@@ -715,6 +717,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6464452600556749377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4610476503097255726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f9f203067c0ef44e90b835c24dc2f2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.BossCinematicController
+  introHoldDuration: 2
+  introBlendOutDuration: 0.5
+  introBlendInDuration: 0.5
+  deathHoldDuration: 1
+  deathBlendOutDuration: 0.5
+  deathBlendInDuration: 0
+  cutsceneActivePriority: 50
+  cutsceneInactivePriority: 0
+  blendStyle: 1
 --- !u!1 &4969767904747338847
 GameObject:
   m_ObjectHideFlags: 0

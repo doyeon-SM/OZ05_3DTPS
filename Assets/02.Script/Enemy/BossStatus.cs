@@ -52,11 +52,13 @@ namespace _01.Scenes.PhaseValidation
         private bool _isDead;
         private BossEffectController _effectController;
         private BossController _bossController;
+        private BossCinematicController _bossCinematic;
 
         private void Awake()
         {
             _effectController = GetComponent<BossEffectController>();
             _bossController    = GetComponent<BossController>();
+            _bossCinematic     = GetComponent<BossCinematicController>();
             if (animator == null) animator = GetComponent<Animator>();
         }
 
@@ -119,6 +121,9 @@ namespace _01.Scenes.PhaseValidation
 
             // 공격 패턴/판정을 즉시 중단해서 사망 애니메이션 도중 추가 공격이 나가지 않도록 한다.
             _bossController?.StopAllPatterns();
+
+            // 사망 컷씬 재생 (fire-and-forget — 사망 애니메이션/폭발 VFX와 병렬로 진행)
+            _bossCinematic?.TriggerDeathCutscene();
 
             // 사망 애니메이션 재생. 폭발 VFX 생성과 보상 소환·오브젝트 파괴는
             // 애니메이션의 Animation Event에서 호출되는 메서드들이 담당한다. (아래 AnimEvent_* 메서드 참고)

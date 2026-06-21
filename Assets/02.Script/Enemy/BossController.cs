@@ -49,10 +49,12 @@ namespace _01.Scenes.PhaseValidation
         [Tooltip("특수패턴(바닥패턴) 컨트롤러")]
         [SerializeField] private BossFloorPatternController floorPatternController;
 
+        [Tooltip("입장/사망 시네머신 컷씬 컨트롤러 (비워두면 자동으로 GetComponent 시도)")]
+        [SerializeField] private BossCinematicController bossCinematic;
+
         [Header("입장 연출")]
-        [Tooltip("보스 룸 입장(보스 소환) 직후 플레이어 이동을 멈추고 보스가 공격하지 않는(Idle) 상태로 대기하는 시간(초).\n" +
-                 "이 시간 동안 PatternLoop가 시작되지 않으므로 보스는 자연히 Idle 애니메이션 상태를 유지한다.\n" +
-                 "추후 시네머신 카메라 연출이 추가되면 이 시간 동안 카메라 컷이 재생될 예정이다.")]
+        [Tooltip("[폴백 전용] bossCinematic이 연결되지 않았을 때만 사용되는 플레이어 정지 시간(초).\n" +
+                 "bossCinematic이 연결되어 있으면 실제 정지 시간은 BossCinematicController.TotalIntroDuration(입장 응시 + 복귀 블렌드)을 따른다.")]
         [SerializeField] private float entranceFreezeDuration = 1f;
 
         [Header("부채꼴 공격 설정")]
@@ -107,6 +109,7 @@ namespace _01.Scenes.PhaseValidation
             if (bossStatus == null)       bossStatus       = GetComponent<BossStatus>();
             if (effectController == null) effectController = GetComponent<BossEffectController>();
             if (animator == null)         animator         = GetComponent<Animator>();
+            if (bossCinematic == null)    bossCinematic    = GetComponent<BossCinematicController>();
         }
 
         private void Start()
@@ -134,8 +137,6 @@ namespace _01.Scenes.PhaseValidation
         /// </summary>
         private IEnumerator PlayEntranceFreeze()
         {
-            if (entranceFreezeDuration <= 0f) yield break;
-
             if (_player == null) TryBindPlayer();
 
             StarterAssets.ThirdPersonController playerController =
@@ -144,7 +145,12 @@ namespace _01.Scenes.PhaseValidation
             if (playerController != null)
                 playerController.enabled = false;
 
-            yield return new WaitForSeconds(entranceFreezeDuration);
+            // bossCinematic이 연결되어 있으면 입장 컷씬(응시 + 복귀 블렌드)을 재생하며 그 시간만큼 대기한다.
+            // 연결되지 않았다면 entranceFreezeDuration만큼만 단순 대기한다 (폴백).
+            if (bossCinematic != null)
+                yield return StartCoroutine(bossCinematic.PlayIntroCutscene());
+            else if (entranceFreezeDuration > 0f)
+                yield return new WaitForSeconds(entranceFreezeDuration);
 
             if (playerController != null)
                 playerController.enabled = true;
