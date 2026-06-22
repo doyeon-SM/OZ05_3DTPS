@@ -193,13 +193,18 @@ public class PlayerInventory : MonoBehaviour
 
     private bool CacheWeaponRuntimeManager(bool logIfMissing)
     {
+        WeaponRuntimeManager runtimeManagerInstance = WeaponRuntimeManager.Instance;
+        if (runtimeManagerInstance != null)
+        {
+            weaponRuntimeManager = runtimeManagerInstance;
+            missingWeaponRuntimeManagerLogged = false;
+            return true;
+        }
+
         if (weaponRuntimeManager != null)
             return true;
 
-        weaponRuntimeManager = WeaponRuntimeManager.Instance;
-
-        if (weaponRuntimeManager == null)
-            weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
+        weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
 
         if (weaponRuntimeManager != null)
         {

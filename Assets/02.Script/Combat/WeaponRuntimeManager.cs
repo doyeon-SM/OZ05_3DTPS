@@ -134,6 +134,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
         public bool HasGrenades => grenadeCount > 0;
 
         public event Action<int> OnGrenadeCountChanged;
+        public event Action<string, bool> OnWeaponUnlockStateChanged;
 
         private readonly Dictionary<string, int> weaponAmmoByItemId = new Dictionary<string, int>();
         private readonly Dictionary<WeaponClass, string> ammoItemIdByWeaponClass = new Dictionary<WeaponClass, string>();
@@ -389,7 +390,15 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
                 return false;
             }
 
+            bool wasUnlocked = runtime.UnLocked;
             runtime.UnLocked = true;
+
+            if (!wasUnlocked)
+            {
+                string unlockedWeaponId = runtime.data != null ? runtime.data.WeaponId : itemId.Trim();
+                OnWeaponUnlockStateChanged?.Invoke(unlockedWeaponId, true);
+            }
+
             return true;
         }
 

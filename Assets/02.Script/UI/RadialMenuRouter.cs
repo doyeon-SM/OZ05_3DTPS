@@ -61,11 +61,13 @@ namespace ProjectSpedex
 
         private bool missingStarterAssetsInputsLogged;
         private bool missingWeaponRuntimeManagerLogged;
+        private WeaponRuntimeManager subscribedWeaponRuntimeManager;
         private bool wasWeaponSelectHeld;
 
         private void Awake()
         {
             CacheReferences();
+            SyncWeaponRuntimeManagerSubscription();
             SyncWeaponSelectState();
 
             if (startClosed)
@@ -75,6 +77,7 @@ namespace ProjectSpedex
         private void OnEnable()
         {
             CacheReferences();
+            SyncWeaponRuntimeManagerSubscription();
             SyncWeaponSelectState();
             RefreshRadialMenu();
             SetLookInputBlocked(radialMenuRoot != null && radialMenuRoot.activeSelf);
@@ -83,6 +86,7 @@ namespace ProjectSpedex
         private void Start()
         {
             CacheReferences();
+            SyncWeaponRuntimeManagerSubscription();
             SyncWeaponSelectState();
             RefreshRadialMenu();
             SetLookInputBlocked(radialMenuRoot != null && radialMenuRoot.activeSelf);
@@ -95,13 +99,15 @@ namespace ProjectSpedex
 
         private void OnDisable()
         {
+            UnsubscribeFromWeaponRuntimeManager();
             SetLookInputBlocked(false);
         }
 
         private void CacheReferences()
         {
-            if (weaponRuntimeManager == null)
-                weaponRuntimeManager = WeaponRuntimeManager.Instance;
+            WeaponRuntimeManager runtimeManagerInstance = WeaponRuntimeManager.Instance;
+            if (runtimeManagerInstance != null && weaponRuntimeManager != runtimeManagerInstance)
+                weaponRuntimeManager = runtimeManagerInstance;
 
             if (weaponRuntimeManager == null)
                 weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
@@ -126,6 +132,37 @@ namespace ProjectSpedex
 
             if (radialMenuRoot == null && radialMenu != null)
                 radialMenuRoot = radialMenu.gameObject;
+        }
+
+        private void SyncWeaponRuntimeManagerSubscription()
+        {
+            if (subscribedWeaponRuntimeManager == weaponRuntimeManager)
+                return;
+
+            UnsubscribeFromWeaponRuntimeManager();
+
+            if (weaponRuntimeManager == null)
+                return;
+
+            weaponRuntimeManager.OnWeaponUnlockStateChanged += HandleWeaponUnlockStateChanged;
+            subscribedWeaponRuntimeManager = weaponRuntimeManager;
+        }
+
+        private void UnsubscribeFromWeaponRuntimeManager()
+        {
+            if (subscribedWeaponRuntimeManager == null)
+                return;
+
+            subscribedWeaponRuntimeManager.OnWeaponUnlockStateChanged -= HandleWeaponUnlockStateChanged;
+            subscribedWeaponRuntimeManager = null;
+        }
+
+        private void HandleWeaponUnlockStateChanged(string weaponId, bool isUnlocked)
+        {
+            if (!isUnlocked)
+                return;
+
+            RefreshRadialMenu();
         }
 
         private StarterAssetsInputs FindStarterAssetsInputsByObjectName()
@@ -240,6 +277,9 @@ namespace ProjectSpedex
 
         public void RefreshRadialMenu()
         {
+            CacheReferences();
+            SyncWeaponRuntimeManagerSubscription();
+
             if (!CanRefresh())
                 return;
 
@@ -534,6 +574,8 @@ namespace ProjectSpedex
         {
             if (radialMenuRoot == null || !radialMenuRoot.activeSelf)
                 return;
+
+            RefreshRadialMenu();
 
             if (!HasCenterSelection() && IsPointerInDeadZone())
             {

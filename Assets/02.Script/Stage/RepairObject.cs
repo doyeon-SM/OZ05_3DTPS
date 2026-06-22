@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// 수리 오브젝트 — IInteraction 구현
 /// 상호작용 1회당 5~12% 랜덤 누적, 1초 쿨타임, 100% 달성 시 수리 완료
 /// </summary>
-public class RepairObject : MonoBehaviour, IInteraction
+public class RepairObject : MonoBehaviour, IInteraction, IPlayerInteractionAnimationTarget
 {
     [Header("상호작용 UI")]
     [SerializeField] private string _interactionLabel = "[E] 수리";
@@ -44,6 +44,7 @@ public class RepairObject : MonoBehaviour, IInteraction
 
     public bool   IsRepaired => _isRepaired;
     public string RepairName => repairName;
+    public bool CanPlayPlayerInteractionAnimation => !_isRepaired && Time.time - _lastInteractTime >= cooldown;
 
     // IInteraction
     public string InteractionLabel => _interactionLabel;
@@ -102,7 +103,7 @@ public class RepairObject : MonoBehaviour, IInteraction
     public void Interaction()
     {
         if (_isRepaired) { Debug.Log("[RepairObject] 이미 수리 완료."); return; }
-        if (Time.time - _lastInteractTime < cooldown) { Debug.Log($"[RepairObject] 쿨타임 중"); return; }
+        if (!CanPlayPlayerInteractionAnimation) { Debug.Log($"[RepairObject] 쿨타임 중"); return; }
 
         if (repairSliderUI != null) repairSliderUI.SetActive(true);
 

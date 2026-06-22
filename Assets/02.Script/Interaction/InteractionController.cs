@@ -114,8 +114,11 @@ public class InteractionController : MonoBehaviour
             if (_currentTarget != null)
             {
                 UnityEngine.Debug.Log($"[InteractionController] 상호작용 실행: {(_currentTarget as UnityEngine.MonoBehaviour)?.gameObject.name}");
+                bool shouldPlayInteractionAnimation = ShouldPlayPlayerInteractionAnimation(_currentTarget);
                 _currentTarget.Interaction();
-                _animationController?.SetInteractive();
+
+                if (shouldPlayInteractionAnimation)
+                    _animationController?.SetInteractive();
             }
             else if (TryInteractWeaponItem())
             {
@@ -129,6 +132,12 @@ public class InteractionController : MonoBehaviour
         }
     }
 
+
+    private static bool ShouldPlayPlayerInteractionAnimation(IInteraction target)
+    {
+        return target is IPlayerInteractionAnimationTarget animationTarget &&
+               animationTarget.CanPlayPlayerInteractionAnimation;
+    }
 
     private void CacheRaycastInteractor()
     {

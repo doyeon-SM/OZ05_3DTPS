@@ -39,6 +39,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             }
 
             if (!referencesReady)
+                referencesReady = CacheReferences();
+
+            if (!referencesReady)
                 return false;
 
             weaponPrefabById.Clear();
@@ -117,7 +120,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         private bool CacheReferences()
         {
-            weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
+            weaponRuntimeManager = WeaponRuntimeManager.Instance;
+            if (weaponRuntimeManager == null)
+                weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
             if (weaponRuntimeManager == null)
             {
                 Debug.LogError("[WeaponSwitcher] 씬 내에서 WeaponRuntimeManager를 찾지 못했습니다.", this);
@@ -144,10 +149,29 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
 
         private bool EnsureInitialized()
         {
+            if (!EnsureWeaponRuntimeManagerReference())
+                return false;
+
             if (initialized)
                 return true;
 
             return Initialize();
+        }
+
+        private bool EnsureWeaponRuntimeManagerReference()
+        {
+            WeaponRuntimeManager runtimeManagerInstance = WeaponRuntimeManager.Instance;
+            if (runtimeManagerInstance != null)
+            {
+                weaponRuntimeManager = runtimeManagerInstance;
+                return true;
+            }
+
+            if (weaponRuntimeManager != null)
+                return true;
+
+            weaponRuntimeManager = FindFirstObjectByType<WeaponRuntimeManager>(FindObjectsInactive.Include);
+            return weaponRuntimeManager != null;
         }
 
         private void RegisterInitialWeaponPrefabs()
