@@ -59,6 +59,9 @@ namespace _01.Scenes.PhaseValidation.UI
 
             if (clearPanel != null)
                 clearPanel.SetActive(false);
+
+            if (rewardText != null)
+                rewardText.text = "획득 : " + gold.ToString();
         }
 
         // ── 커서 / 입력 제어 (StageSelectUI와 동일 패턴) ───────

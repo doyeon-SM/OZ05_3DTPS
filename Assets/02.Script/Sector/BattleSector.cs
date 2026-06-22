@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using TurretDemo;
 
 namespace _01.Scenes.PhaseValidation
 {
@@ -13,6 +15,9 @@ namespace _01.Scenes.PhaseValidation
 
         private int remainingEnemyCount = 0;
 
+        // 스폰된 오브젝트 중 터렛인 것만 별도 추적
+        private readonly List<NearestEnemyTurretController> sectorTurrets = new();
+
         protected override void OnSectorStart()
         {
             if (sectorData == null)
@@ -21,8 +26,7 @@ namespace _01.Scenes.PhaseValidation
                 return;
             }
 
-            // 적을 씬 시작 시점에 미리 소환해두고(화면에 보이는 상태), AI는 꺼둔다(추적 off).
-            // 입장문을 열고 영역에 들어와 StartBattle()이 호출되어야 AI가 켜진다.
+            sectorTurrets.Clear();
             remainingEnemyCount = sectorData.enemyPlacements.Length;
 
             foreach (var placement in sectorData.enemyPlacements)
@@ -41,23 +45,31 @@ namespace _01.Scenes.PhaseValidation
                 activeEnemies.Add(enemy);
                 enemy.OnDied += OnEnemyDied;
                 enemy.SetAIActive(false);
+
+                // 스폰된 오브젝트가 터렛이면 별도 목록에 등록
+                var turret = enemy.GetComponent<NearestEnemyTurretController>();
+                if (turret != null)
+                    sectorTurrets.Add(turret);
             }
 
-            Debug.Log($"[{sectorData.sectorName}] 적 {remainingEnemyCount}마리 미리 소환 완료 (대기 상태)");
+            Debug.Log($"[{sectorData.sectorName}] 소환 완료 — 적 {remainingEnemyCount}마리 (터렛 {sectorTurrets.Count}개 포함, 대기 상태)");
         }
 
         protected override void StartBattle()
         {
             if (sectorData == null) return;
 
-            // 이미 미리 소환되어 대기 중인 적들의 AI를 켠다(추적 시작).
             foreach (var enemy in activeEnemies)
             {
                 if (enemy != null)
                     enemy.SetAIActive(true);
             }
 
-            Debug.Log($"[{sectorData.sectorName}] 전투 시작 — 적 {remainingEnemyCount}마리 활성화");
+            // 터렛은 enemy.SetAIActive()와 별개로 자체 AI 활성화 필요
+            foreach (var turret in sectorTurrets)
+                if (turret != null) turret.SetAIActive(true);
+
+            Debug.Log($"[{sectorData.sectorName}] 전투 시작 — 적 {remainingEnemyCount}마리 + 터렛 {sectorTurrets.Count}개 활성화");
         }
 
         private void OnEnemyDied(EnemyStatus enemy)

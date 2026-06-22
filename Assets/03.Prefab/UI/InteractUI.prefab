@@ -485,8 +485,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: be94920f10862714fac8a204c0d1dc29, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -758,9 +758,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_00.ChoiHeesu._02.RayCastInteract.InteractPrintUI
   itemName: {fileID: 8801327851490009011}
   itemDescript: {fileID: 6033121455550720485}
-  tier: {fileID: 4951733991350120375}
   itemIcon: {fileID: 4968803088454649284}
   itemNameObjectName: ItemName_Text
   itemDescriptObjectName: ItemDescript_Text
-  tierObjectName: Tier_Text
   itemIconObjectName: ItemIcon_Image

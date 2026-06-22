@@ -30,6 +30,11 @@ namespace TurretDemo
         private bool isPatrolling;
         private TurretEffectController effectController;
 
+        // 섹터 활성화 전까지 공격 금지 (적과 동일한 패턴)
+        private bool isAIActive = false;
+
+        public void SetAIActive(bool active) => isAIActive = active;
+
         // ── 초기화 ─────────────────────────────────
         private void Start()
         {
@@ -77,6 +82,13 @@ namespace TurretDemo
         // ── 타겟 선택 ──────────────────────────────
         protected override Transform GetCurrentTarget()
         {
+            // 섹터가 아직 시작되지 않았으면 추적·공격 금지
+            if (!isAIActive)
+            {
+                isPatrolling = true;
+                return null;
+            }
+
             if (cachedPlayer == null)
                 TryBindPlayer();
 
