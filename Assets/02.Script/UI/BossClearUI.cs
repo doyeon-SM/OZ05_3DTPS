@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UnityEngine.SceneManagement;
 using StarterAssets;
+using _00.ChoiHeesu._04.MoneyPickup;
 
 namespace _01.Scenes.PhaseValidation.UI
 {
@@ -35,6 +37,13 @@ namespace _01.Scenes.PhaseValidation.UI
 
         [Tooltip("로비 씬 도착 시 위치할 스폰 포인트 이름")]
         [SerializeField] private string spawnPointName = "SpawnPoint";
+
+        [Header("보상")]
+        [Tooltip("확인 버튼 클릭 시 플레이어에게 지급할 골드")]
+        [SerializeField] private int gold;
+
+        [Tooltip("보상 골드 금액을 표시할 텍스트")]
+        [SerializeField] private TextMeshProUGUI rewardText;
 
         private StarterAssetsInputs _inputs;
         private bool _isCursorOverridden;
@@ -104,6 +113,14 @@ namespace _01.Scenes.PhaseValidation.UI
                 ScenePositionManager.Instance.SetNextSpawnPoint(spawnPointName);
             else
                 Debug.LogWarning("[BossClearUI] ScenePositionManager 인스턴스가 없습니다.");
+
+            if (PlayerRuntimeDataManager.Instance != null)
+            {
+                PlayerRuntimeDataManager.Instance.GetMoney(gold);
+                Debug.Log($"[BossClearUI] 골드 {gold} 지급 완료.");
+            }
+            else
+                Debug.LogWarning("[BossClearUI] PlayerRuntimeDataManager 인스턴스가 없습니다.");
 
             Debug.Log($"[BossClearUI] '{lobySceneName}' 씬으로 이동합니다.");
             SceneManager.LoadScene(lobySceneName);
