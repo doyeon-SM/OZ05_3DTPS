@@ -15,5 +15,5 @@ MonoBehaviour:
   enemyType: 1
   prefab: {fileID: 2396910611539952586, guid: 20dcf994d2dd91a4796ecdfc1966aa95, type: 3}
   maxHealth: 100
-  attackPower: 10
+  attackPower: 25
   respawnDelay: 5

@@ -16,4 +16,6 @@ MonoBehaviour:
   occupyDuration: 10
   enemyEntries:
   - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
+    count: 5
+  - enemyData: {fileID: 11400000, guid: 24e741cc2de626b4f91a5dc09c6e312d, type: 2}
     count: 2

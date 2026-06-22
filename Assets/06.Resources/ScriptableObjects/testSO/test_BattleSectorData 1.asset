@@ -10,19 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7df8f5377d5848a45b18251c3366d6ec, type: 3}
-  m_Name: test_BattleSectorData
+  m_Name: test_BattleSectorData 1
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.BattleSectorData
   sectorName: "\uC804\uD22C \uC139\uD130"
   enemyPlacements:
   - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
-    spawnPosition: {x: 10, y: 1, z: 27}
+    spawnPosition: {x: 13, y: 1, z: 1}
     spawnRotation: {x: 0, y: 0, z: 0}
   - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
-    spawnPosition: {x: 9, y: 1, z: 22}
+    spawnPosition: {x: 14, y: 1, z: 1}
     spawnRotation: {x: 0, y: 0, z: 0}
-  - enemyData: {fileID: 11400000, guid: 24e741cc2de626b4f91a5dc09c6e312d, type: 2}
-    spawnPosition: {x: 0, y: 0, z: 22}
+  - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
+    spawnPosition: {x: 15, y: 1, z: 1}
     spawnRotation: {x: 0, y: 0, z: 0}
-  - enemyData: {fileID: 11400000, guid: 24e741cc2de626b4f91a5dc09c6e312d, type: 2}
-    spawnPosition: {x: 1, y: 0, z: 20}
+  - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
+    spawnPosition: {x: 16, y: 1, z: 1}
+    spawnRotation: {x: 0, y: 0, z: 0}
+  - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
+    spawnPosition: {x: 14, y: 1, z: 3}
+    spawnRotation: {x: 0, y: 0, z: 0}
+  - enemyData: {fileID: 11400000, guid: 67c67982b798c9a40959438e6477ce87, type: 2}
+    spawnPosition: {x: 15, y: 1, z: 3}
     spawnRotation: {x: 0, y: 0, z: 0}
