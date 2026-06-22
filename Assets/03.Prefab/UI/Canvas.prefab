@@ -2717,6 +2717,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6574207439137474028}
     m_Modifications:
+    - target: {fileID: 220705547856249856, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 87
+      objectReference: {fileID: 0}
+    - target: {fileID: 220705547856249856, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 87
+      objectReference: {fileID: 0}
     - target: {fileID: 1346595949470502554, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2823,6 +2831,10 @@ PrefabInstance:
       propertyPath: centerSelectionRadius
       value: 105
       objectReference: {fileID: 0}
+    - target: {fileID: 3499018525785378522, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 71b301195bce60c4182d8bfd3c44c75f, type: 3}
     - target: {fileID: 3516057367241610742, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
       propertyPath: m_Name
       value: ElementB
@@ -2860,6 +2872,18 @@ PrefabInstance:
     - target: {fileID: 4290623095736147713, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5302590489761186640, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: pressedColor.b
+      value: 0.57630545
+      objectReference: {fileID: 0}
+    - target: {fileID: 5302590489761186640, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: pressedColor.g
+      value: 0.8962264
+      objectReference: {fileID: 0}
+    - target: {fileID: 5302590489761186640, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
+      propertyPath: pressedColor.r
+      value: 0.5453453
       objectReference: {fileID: 0}
     - target: {fileID: 5623048405949133043, guid: b9bc6e8ec9c98ea429e83af104f6fdbf, type: 3}
       propertyPath: m_text

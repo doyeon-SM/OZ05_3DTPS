@@ -506,8 +506,9 @@ namespace ProjectSpedex
             if (isUnlocked)
             {
                 colorBlock.normalColor = normalColor;
+                colorBlock.highlightedColor = pressedColor;
                 colorBlock.pressedColor = pressedColor;
-                colorBlock.selectedColor = hasAmmo ? selectHasAmmoColor : notAmmoSelectedColor;
+                colorBlock.selectedColor = pressedColor;
             }
 
             element.button.colors = colorBlock;

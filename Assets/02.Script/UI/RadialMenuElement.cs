@@ -38,6 +38,8 @@ namespace ProjectSpedex
         [HideInInspector] public int assignedIndex = 0;
 
         private CanvasGroup cg;
+        private Graphic buttonTargetGraphic;
+        private Color defaultButtonTargetColor;
 
         private void Awake()
         {
@@ -51,6 +53,9 @@ namespace ProjectSpedex
 
             if (button == null)
                 Debug.LogError("Radial Menu: " + gameObject.name + "에 Button이 연결되어 있지 않습니다.", this);
+
+            if (button != null)
+                CacheButtonTargetGraphic();
 
             if (Icon == null)
                 Debug.LogError("Radial Menu: " + gameObject.name + "에 Icon이 연결되어 있지 않습니다.", this);
@@ -96,6 +101,7 @@ namespace ProjectSpedex
                 return;
 
             ExecuteEvents.Execute(button.gameObject, p, ExecuteEvents.selectHandler);
+            ApplyManualSelectionColor(true);
             active = true;
         }
 
@@ -105,7 +111,31 @@ namespace ProjectSpedex
                 return;
 
             ExecuteEvents.Execute(button.gameObject, p, ExecuteEvents.deselectHandler);
+            ApplyManualSelectionColor(false);
             active = false;
+        }
+
+        private void CacheButtonTargetGraphic()
+        {
+            if (button == null || button.targetGraphic == null)
+                return;
+
+            buttonTargetGraphic = button.targetGraphic;
+            defaultButtonTargetColor = buttonTargetGraphic.color;
+        }
+
+        private void ApplyManualSelectionColor(bool isSelected)
+        {
+            if (button == null || button.transition != Selectable.Transition.None)
+                return;
+
+            if (buttonTargetGraphic == null)
+                CacheButtonTargetGraphic();
+
+            if (buttonTargetGraphic == null)
+                return;
+
+            buttonTargetGraphic.color = isSelected ? button.colors.selectedColor : defaultButtonTargetColor;
         }
 
         public void clickMeTest()

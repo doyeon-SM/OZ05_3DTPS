@@ -2504,6 +2504,8 @@ MonoBehaviour:
   BottomClamp: -30
   CameraAngleOverride: 0
   LockCameraPosition: 0
+  mouseSensitivityXMultiplier: 1
+  mouseSensitivityYMultiplier: 1
   _weaponController: {fileID: 9036437321398294158}
   _raycastInteractor: {fileID: 8308339330082520230}
 --- !u!114 &608903216306100104
