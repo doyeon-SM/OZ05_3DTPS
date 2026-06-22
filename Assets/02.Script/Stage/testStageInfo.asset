@@ -12,6 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8594b54a803688d4295c9f8c8068a4ec, type: 3}
   m_Name: testStageInfo
   m_EditorClassIdentifier: Assembly-CSharp::StageInfoSO
-  stageName: easystage
+  stageName: Sirius
+  stageLevel: Easy
+  stageInfoTitle: "SIRIUS \uBC30\uB2EC \uC77C\uC9C0"
+  stageInfo: "\uC624\uB298 \uC784\uBB34: SMG \uD0C4\uC57D \u2014 \uC2DC\uB9AC\uC6B0\uC2A4
+    \uAE30\uC9C0 \uB0A9\uD488.\n\uB531\uD788 \uC5B4\uB824\uC6B8 \uAC74 \uC5C6\uC5C8\uB2E4.\n\uB298
+    \uD558\uB358 \uAC83\uCC98\uB7FC, \uC2E4\uC5B4\uC11C, \uB0A0\uB9AC\uBA74 \uB05D.\n\uADF8\uB7F0\uB370.\n\uD56D\uB85C
+    \uD55C\uBCF5\uD310\uC5D0 \uC6EC \uD574\uC801\uC120\uC774 \uB5A1\uD558\uB2C8 \uC11C
+    \uC788\uB2E4.\n\uC544\uBB34\uB798\uB3C4 \uD654\uBB3C\uC774 \uB9C8\uC74C\uC5D0
+    \uB4DC\uC168\uB098\uBCF4\uB2E4.\n\uC904 \uC218\uB294 \uC5C6\uC9C0.\n\uB0A9\uD488
+    \uAE30\uD55C\uC774 \uC788\uC73C\uB2C8\uAE4C.\n\uD574\uC801\uB2E8 \uBCF4\uC2A4
+    XO-2\n\uC774 \uCE5C\uAD6C\uB9CC \uCC98\uB9AC\uD558\uBA74 \uC77C\uC815\uB300\uB85C
+    \uB3C4\uCC29\uD560 \uC218 \uC788\uC744 \uAC83 \uAC19\uB2E4."
   sceneName: EasyStageScene
   spawnPointName: SpawnPoint

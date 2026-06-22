@@ -28,6 +28,9 @@ public class StageSelectUI : MonoBehaviour
     [Header("스테이지 정보 팝업")]
     [SerializeField] private GameObject stageInfoPopup;
     [SerializeField] private TextMeshProUGUI stageNameText;
+    [SerializeField] private TextMeshProUGUI stageLevel;
+    [SerializeField] private TextMeshProUGUI stageInfoTitle;
+    [SerializeField] private TextMeshProUGUI stageInfo;
     [SerializeField] private Button confirmButton;
     [SerializeField] private Button closePopupButton;
 
@@ -117,6 +120,9 @@ public class StageSelectUI : MonoBehaviour
     private void OpenPopup(StageInfoSO info)
     {
         stageNameText.text = info.stageName;
+        stageLevel.text = info.stageLevel;
+        stageInfoTitle.text = info.stageInfoTitle;
+        stageInfo.text = info.stageInfo;
         stageInfoPopup.SetActive(true);
         UIController.Instance?.Push(stageInfoPopup, ClosePopup);
     }

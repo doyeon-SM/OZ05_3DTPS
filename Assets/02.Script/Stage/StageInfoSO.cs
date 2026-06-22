@@ -10,6 +10,10 @@ public class StageInfoSO : ScriptableObject
     [Header("표시 정보")]
     [Tooltip("UI에 표시될 스테이지 이름")]
     public string stageName;
+    public string stageLevel;
+    public string stageInfoTitle;
+    [TextArea(3, 6)]
+    public string stageInfo;
 
     [Header("씬 이동 정보")]
     [Tooltip("이동할 씬 이름 (Build Settings에 등록된 이름)")]
