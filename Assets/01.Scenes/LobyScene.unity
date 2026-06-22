@@ -127,10 +127,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1129587840661099956, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
-      propertyPath: itemCatalogManager
-      value: 
-      objectReference: {fileID: 1820456284}
     - target: {fileID: 4396053498136997635, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.8312085
@@ -175,10 +171,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_Soldier
       objectReference: {fileID: 0}
-    - target: {fileID: 8645169118902040492, guid: de5cf5f05197e5d4c80fafb946b61682, type: 3}
-      propertyPath: itemCatalogManager
-      value: 
-      objectReference: {fileID: 1820456284}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2044,17 +2036,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a23b39dca895b1f49b2e1080774258b5, type: 3}
---- !u!114 &1820456284 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7101652177403218221, guid: a23b39dca895b1f49b2e1080774258b5, type: 3}
-  m_PrefabInstance: {fileID: 1820456283}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f02da1161d8e7a8418e5dd21fc2955a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemCatalogManager
 --- !u!1001 &1965554740
 PrefabInstance:
   m_ObjectHideFlags: 0

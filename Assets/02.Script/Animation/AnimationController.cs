@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace StarterAssets
@@ -10,11 +11,20 @@ namespace StarterAssets
         [SerializeField] private AudioSource landingAudio;
         [SerializeField] private AudioSource audioFoley;
 
+        [Header("Interaction Layer Suppression")]
+        [SerializeField] private string weaponActionLayerName = "WeaponAction";
+        [SerializeField] private string interactiveStateName = "Use";
+        [SerializeField] private float weaponActionSuppressMaxDuration = 2f;
+
         private Animator _animator;
         private bool _hasAnimator;
         private bool _missingAnimatorLogged;
         private bool _missingEnterGrenadeParameterLogged;
+        private bool _missingWeaponActionLayerLogged;
         private bool _animationIDsAssigned;
+        private Coroutine _weaponActionSuppressCoroutine;
+        private int _suppressedWeaponActionLayerIndex = -1;
+        private float _weaponActionLayerRestoreWeight = -1f;
 
         private int _animIDSpeed;
         private int _animIDGrounded;
@@ -173,6 +183,7 @@ namespace StarterAssets
         {
             if (!CanUseAnimator(nameof(SetInteractive))) return;
 
+            StartSuppressWeaponActionLayerForInteraction();
             _animator.SetTrigger(_animIDInteractive);
         }
 
@@ -214,6 +225,118 @@ namespace StarterAssets
 
             ReportMissingAnimator(callerName);
             return false;
+        }
+
+        private void OnDisable()
+        {
+            RestoreSuppressedWeaponActionLayer();
+        }
+
+        private void StartSuppressWeaponActionLayerForInteraction()
+        {
+            int layerIndex = GetWeaponActionLayerIndex();
+            if (layerIndex < 0)
+                return;
+
+            if (_weaponActionSuppressCoroutine != null)
+                StopCoroutine(_weaponActionSuppressCoroutine);
+
+            if (_weaponActionLayerRestoreWeight < 0f || _suppressedWeaponActionLayerIndex != layerIndex)
+                _weaponActionLayerRestoreWeight = _animator.GetLayerWeight(layerIndex);
+
+            _suppressedWeaponActionLayerIndex = layerIndex;
+            _weaponActionSuppressCoroutine = StartCoroutine(SuppressWeaponActionLayerUntilInteractionEnds(layerIndex));
+        }
+
+        private IEnumerator SuppressWeaponActionLayerUntilInteractionEnds(int layerIndex)
+        {
+            _animator.SetLayerWeight(layerIndex, 0f);
+
+            int interactiveStateHash = Animator.StringToHash(interactiveStateName);
+            float elapsedTime = 0f;
+            bool enteredInteractiveState = false;
+
+            yield return null;
+
+            while (elapsedTime < Mathf.Max(weaponActionSuppressMaxDuration, 0f))
+            {
+                if (_animator == null || layerIndex >= _animator.layerCount)
+                    break;
+
+                bool isInInteractiveState = IsInAnimatorState(interactiveStateHash);
+                enteredInteractiveState |= isInInteractiveState;
+
+                if (enteredInteractiveState && !isInInteractiveState)
+                    break;
+
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            _weaponActionSuppressCoroutine = null;
+            RestoreWeaponActionLayerWeight();
+        }
+
+        private bool IsInAnimatorState(int stateHash)
+        {
+            for (int i = 0; i < _animator.layerCount; i++)
+            {
+                AnimatorStateInfo currentState = _animator.GetCurrentAnimatorStateInfo(i);
+                if (currentState.shortNameHash == stateHash)
+                    return true;
+
+                if (!_animator.IsInTransition(i))
+                    continue;
+
+                AnimatorStateInfo nextState = _animator.GetNextAnimatorStateInfo(i);
+                if (nextState.shortNameHash == stateHash)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private void RestoreSuppressedWeaponActionLayer()
+        {
+            if (_weaponActionSuppressCoroutine != null)
+            {
+                StopCoroutine(_weaponActionSuppressCoroutine);
+                _weaponActionSuppressCoroutine = null;
+            }
+
+            RestoreWeaponActionLayerWeight();
+        }
+
+        private void RestoreWeaponActionLayerWeight()
+        {
+            if (_animator != null &&
+                _suppressedWeaponActionLayerIndex >= 0 &&
+                _suppressedWeaponActionLayerIndex < _animator.layerCount &&
+                _weaponActionLayerRestoreWeight >= 0f)
+            {
+                _animator.SetLayerWeight(_suppressedWeaponActionLayerIndex, _weaponActionLayerRestoreWeight);
+            }
+
+            _suppressedWeaponActionLayerIndex = -1;
+            _weaponActionLayerRestoreWeight = -1f;
+        }
+
+        private int GetWeaponActionLayerIndex()
+        {
+            if (_animator == null || string.IsNullOrWhiteSpace(weaponActionLayerName))
+                return -1;
+
+            int layerIndex = _animator.GetLayerIndex(weaponActionLayerName);
+            if (layerIndex >= 0)
+                return layerIndex;
+
+            if (!_missingWeaponActionLayerLogged)
+            {
+                Debug.LogWarning($"[AnimationController] Animator Layer '{weaponActionLayerName}'를 찾을 수 없어 상호작용 중 WeaponAction 레이어 억제를 건너뜁니다.", this);
+                _missingWeaponActionLayerLogged = true;
+            }
+
+            return -1;
         }
 
         private bool TryCacheAnimator()
