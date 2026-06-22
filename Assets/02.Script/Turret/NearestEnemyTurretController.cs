@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using _01.Scenes.PhaseValidation;
 
 namespace TurretDemo
@@ -28,6 +28,7 @@ namespace TurretDemo
         // ── 런타임 ─────────────────────────────────
         private Transform cachedPlayer;
         private bool isPatrolling;
+        private TurretEffectController effectController;
 
         // ── 초기화 ─────────────────────────────────
         private void Start()
@@ -41,7 +42,16 @@ namespace TurretDemo
             else
                 Debug.LogWarning("[NearestEnemyTurretController] EnemyStatus 없음 — 기본 데미지 사용");
 
+            effectController = GetComponent<TurretEffectController>();
+
             TryBindPlayer();
+        }
+
+        // ── 발사 콜백 (BaseTurretController 확장 포인트) ─
+        // 발사 직후 머즐 VFX + 공격 SFX 재생
+        protected override void OnProjectileFired(ProjectileMover projectile)
+        {
+            effectController?.PlayAttackEffects(MuzzleTransform);
         }
 
         private void TryBindPlayer()

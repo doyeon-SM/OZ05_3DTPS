@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public class Door : MonoBehaviour, IInteraction
@@ -18,6 +18,10 @@ public class Door : MonoBehaviour, IInteraction
 
     [Tooltip("문이 이동하는 데 걸리는 시간(초)")]
     [SerializeField] private float slideDuration = 0.5f;
+
+    [Header("잠금 표시")]
+    [Tooltip("상호작용이 막힌 상태(비활성)일 때만 표시할 오브젝트. SetDoorActive(false)이면 ON, SetDoorActive(true)이면 OFF.")]
+    [SerializeField] private GameObject _lockedIndicatorObject;
 
     [Header("SFX")]
     [Tooltip("열릴 때 재생할 SFX")]
@@ -48,15 +52,25 @@ public class Door : MonoBehaviour, IInteraction
         _audioSource = GetComponent<AudioSource>();
         if (_audioSource == null)
             _audioSource = gameObject.AddComponent<AudioSource>();
-        _audioSource.playOnAwake = false;
+        _audioSource.playOnAwake  = false;
         _audioSource.spatialBlend = 1f; // 3D 사운드
+
+        // 초기 상태(_isActive = true)에 맞춰 잠금 표시 오브젝트 동기화
+        ApplyLockedIndicator();
     }
 
     public void Interaction()
     {
+        // 비활성 상태(SetDoorActive(false))면 어떤 동작도 하지 않는다.
+        if (!_isActive)
+        {
+            Debug.Log("[Door] 비활성 상태 — 상호작용 무시");
+            return;
+        }
+
         Debug.Log("[Door] 상호작용 실행 - 현재 상태: " + (_isDoorOpen ? "열림" : "닫힘"));
-        if (!_isDoorOpen && _isActive) Open();
-        else                           Close();
+        if (!_isDoorOpen) Open();
+        else              Close();
     }
 
     private void PlaySFX(bool isOpening)
@@ -103,7 +117,18 @@ public class Door : MonoBehaviour, IInteraction
         _slideCoroutine = null;
     }
 
-    public void SetDoorActive(bool set) { _isActive = set; }
+    public void SetDoorActive(bool set)
+    {
+        _isActive = set;
+        ApplyLockedIndicator();
+    }
+
+    /// <summary>_isActive 상태에 맞춰 잠금 표시 오브젝트를 켜고 끈다.</summary>
+    private void ApplyLockedIndicator()
+    {
+        if (_lockedIndicatorObject != null)
+            _lockedIndicatorObject.SetActive(!_isActive);
+    }
 
     private void OnDrawGizmosSelected()
     {

@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 5100165712530858700}
   - component: {fileID: 624920987570915483}
   - component: {fileID: -5662021419786752306}
+  - component: {fileID: 4561197250060562936}
   - component: {fileID: 5345350256897173958}
   - component: {fileID: -2246808162262941960}
   m_Layer: 8
@@ -239,6 +240,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.EnemyStatus
   enemyData: {fileID: 11400000, guid: 24e741cc2de626b4f91a5dc09c6e312d, type: 2}
   currentHealth: 0
+--- !u!114 &4561197250060562936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2396910611539952586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73ca5e3dc4c7cc546a3cde1aa81eba6d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TurretDemo.TurretEffectController
+  muzzleFlashPrefab: {fileID: 4161884984212218005, guid: 11d6300d2e189704bacfbeb2a897f627, type: 3}
+  muzzleFlashLifetimeSeconds: 1
+  attackSfxClips:
+  - {fileID: 8300000, guid: fb7ced569bdd6354297a6fe120e4211c, type: 3}
+  attackSfxVolume: 0.6
+  hitSfxClips:
+  - {fileID: 8300000, guid: 402eedb89cbab2443955399aa106629b, type: 3}
+  hitSfxVolume: 0.3
+  deathSfxClip: {fileID: 8300000, guid: 1df97258c1ad0ba4581d8d3bee70dc42, type: 3}
+  deathSfxVolume: 0.6
 --- !u!65 &5345350256897173958
 BoxCollider:
   m_ObjectHideFlags: 0

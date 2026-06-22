@@ -48,11 +48,13 @@ namespace _01.Scenes.PhaseValidation
                 return;
             }
 
-            // 씬 시작 시 필요한 적 풀 미리 생성 (비활성 상태로 대기)
+            // 적을 씬 시작 시점에 미리 소환해두고(화면에 보이는 상태), AI는 꺼둔다(추적 off).
+            // 점령 구역에 입장해 StartBattle()이 호출되기 전까지는 isOccupying이 false이므로,
+            // 이 상태에서 적이 죽어도 OnEnemyDied()의 재소환 로직이 동작하지 않는다.
             foreach (var entry in sectorData.enemyEntries)
             {
-                if (entry.enemyData != null)
-                    EnemyPoolManager.Instance.PrewarmPool(entry.enemyData, entry.count);
+                for (int i = 0; i < entry.count; i++)
+                    SpawnEnemy(entry.enemyData, activateAI: false);
             }
         }
 
@@ -64,11 +66,11 @@ namespace _01.Scenes.PhaseValidation
             isOccupying = true;
             isWaitingForClear = false;
 
-            // 초기 소환: 풀에서 꺼내 활성화
-            foreach (var entry in sectorData.enemyEntries)
+            // 이미 미리 소환되어 대기 중인 적들의 AI를 켠다(점령 시작과 동시에 추적 시작).
+            foreach (var enemy in activeEnemies)
             {
-                for (int i = 0; i < entry.count; i++)
-                    SpawnEnemy(entry.enemyData);
+                if (enemy != null)
+                    enemy.SetAIActive(true);
             }
 
             if (timerUI != null) timerUI.Show();
@@ -76,8 +78,8 @@ namespace _01.Scenes.PhaseValidation
             Debug.Log($"[{sectorData.sectorName}] 점령 시작 — {sectorData.occupyDuration}초 버티기");
         }
 
-        /// <summary>풀에서 꺼내 활성화하고 activeEnemies에 등록한다.</summary>
-        private void SpawnEnemy(EnemyData data)
+        /// <summary>풀에서 꺼내 activeEnemies에 등록한다. activateAI가 false면 추적을 끈 채로 소환한다.</summary>
+        private void SpawnEnemy(EnemyData data, bool activateAI = true)
         {
             Vector3 spawnPos = GetRandomSpawnPosition();
             EnemyStatus enemy = EnemyPoolManager.Instance.Spawn(data, spawnPos, Quaternion.identity);
@@ -86,6 +88,7 @@ namespace _01.Scenes.PhaseValidation
 
             activeEnemies.Add(enemy);
             enemy.OnDied += OnEnemyDied;
+            enemy.SetAIActive(activateAI);
         }
 
         private void OnEnemyDied(EnemyStatus enemy)

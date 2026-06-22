@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +26,8 @@ public class RepairObject : MonoBehaviour, IInteraction
 
     [Header("VFX")]
     [SerializeField] private GameObject ambientVFX;
+    [Tooltip("ambientVFX를 몇 초 간격으로 재생할지 (1회성 파티클이라 반복 재생이 필요함)")]
+    [SerializeField] private float ambientVfxInterval = 0.5f;
 
     [Header("SFX")]
     [SerializeField] private AudioSource repairSFX;
@@ -36,6 +39,8 @@ public class RepairObject : MonoBehaviour, IInteraction
     private bool      _isRepaired       = false;
     private float     _lastInteractTime = -999f;
     private Transform _playerTransform;
+    private ParticleSystem _ambientParticles;
+    private Coroutine _ambientVfxCoroutine;
 
     public bool   IsRepaired => _isRepaired;
     public string RepairName => repairName;
@@ -55,7 +60,32 @@ public class RepairObject : MonoBehaviour, IInteraction
             repairSlider.value    = 0f;
         }
         if (repairSliderUI != null) repairSliderUI.SetActive(false);
-        if (ambientVFX != null)     ambientVFX.SetActive(true);
+
+        if (ambientVFX != null)
+        {
+            ambientVFX.SetActive(true);
+
+            // ambientVFX가 1회성(loop=false) 파티클이라 SetActive(true) 한 번으로는
+            // 한 번만 재생되고 끝남 — 코루틴으로 일정 간격마다 다시 Play() 해준다.
+            _ambientParticles = ambientVFX.GetComponent<ParticleSystem>();
+            if (_ambientParticles == null)
+                _ambientParticles = ambientVFX.GetComponentInChildren<ParticleSystem>(true);
+
+            if (_ambientParticles != null)
+                _ambientVfxCoroutine = StartCoroutine(AmbientVFXLoop());
+            else
+                Debug.LogWarning("[RepairObject] ambientVFX에 ParticleSystem이 없어 반복 재생을 할 수 없습니다.");
+        }
+    }
+
+    /// <summary>ambientVFX(1회성 파티클)를 일정 간격마다 다시 재생한다. 수리 완료 시 정지된다.</summary>
+    private IEnumerator AmbientVFXLoop()
+    {
+        while (!_isRepaired)
+        {
+            _ambientParticles.Play(true); // withChildren: 자식 파티클도 함께 재생
+            yield return new WaitForSeconds(ambientVfxInterval);
+        }
     }
 
     private void Update()
@@ -91,6 +121,13 @@ public class RepairObject : MonoBehaviour, IInteraction
     private void CompleteRepair()
     {
         _isRepaired = true;
+
+        if (_ambientVfxCoroutine != null)
+        {
+            StopCoroutine(_ambientVfxCoroutine);
+            _ambientVfxCoroutine = null;
+        }
+
         if (repairSliderUI != null) repairSliderUI.SetActive(false);
         if (ambientVFX != null)     ambientVFX.SetActive(false);
         Debug.Log("[RepairObject] 수리 완료!");

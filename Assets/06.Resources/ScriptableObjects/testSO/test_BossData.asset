@@ -19,3 +19,4 @@ MonoBehaviour:
   rotationSpeed: 180
   laserRange: 20
   rewardPrefab: {fileID: 744766547663389368, guid: c52596e3278a19941b06351044c098c8, type: 3}
+  bossBgmClip: {fileID: 8300000, guid: 753c12cf07d5268449895b5d4804e40a, type: 3}

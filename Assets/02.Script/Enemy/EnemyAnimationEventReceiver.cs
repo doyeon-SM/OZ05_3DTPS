@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using _01.Scenes.PhaseValidation;
 
 /// <summary>
@@ -27,10 +27,16 @@ public class EnemyAnimationEventReceiver : MonoBehaviour
     }
 
     // RPG controller FootL AnimationEvent
-    public void FootL() { }
+    public void FootL()
+    {
+        effectController?.PlayFootstepEffects();
+    }
 
     // RPG controller FootR AnimationEvent
-    public void FootR() { }
+    public void FootR()
+    {
+        effectController?.PlayFootstepEffects();
+    }
 
     /// <summary>
     /// 공격 판정 구간 시작 — 애니메이션 이벤트에서 호출
@@ -53,6 +59,9 @@ public class EnemyAnimationEventReceiver : MonoBehaviour
         meleeHitbox.Deactivate();
     }
 
-    // Footstep 이벤트 수신 (경고 제거용)
-    public void OnFootstep(AnimationEvent animationEvent) { }
+    // Footstep 이벤트 수신 (일부 Mixamo 계열 애니메이션은 FootL/FootR 대신 이 이벤트를 사용)
+    public void OnFootstep(AnimationEvent animationEvent)
+    {
+        effectController?.PlayFootstepEffects();
+    }
 }

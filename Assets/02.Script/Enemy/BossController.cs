@@ -14,6 +14,7 @@ namespace _01.Scenes.PhaseValidation
     ///  - SA_attack : 바닥패턴 #자
     ///  - SB_attack : 바닥패턴 파도
     ///  - SC_attack : 바닥패턴 컨테이너
+    ///  - Die       : 사망 (BossStatus가 트리거. 사망 연출 관련 코드는 BossStatus 참고)
     /// </summary>
     public class BossController : MonoBehaviour
     {
@@ -47,6 +48,14 @@ namespace _01.Scenes.PhaseValidation
 
         [Tooltip("특수패턴(바닥패턴) 컨트롤러")]
         [SerializeField] private BossFloorPatternController floorPatternController;
+
+        [Tooltip("입장/사망 시네머신 컷씬 컨트롤러 (비워두면 자동으로 GetComponent 시도)")]
+        [SerializeField] private BossCinematicController bossCinematic;
+
+        [Header("입장 연출")]
+        [Tooltip("[폴백 전용] bossCinematic이 연결되지 않았을 때만 사용되는 플레이어 정지 시간(초).\n" +
+                 "bossCinematic이 연결되어 있으면 실제 정지 시간은 BossCinematicController.TotalIntroDuration(입장 응시 + 복귀 블렌드)을 따른다.")]
+        [SerializeField] private float entranceFreezeDuration = 1f;
 
         [Header("부채꼴 공격 설정")]
         [SerializeField] private float fanAngle = 90f;
@@ -100,14 +109,51 @@ namespace _01.Scenes.PhaseValidation
             if (bossStatus == null)       bossStatus       = GetComponent<BossStatus>();
             if (effectController == null) effectController = GetComponent<BossEffectController>();
             if (animator == null)         animator         = GetComponent<Animator>();
+            if (bossCinematic == null)    bossCinematic    = GetComponent<BossCinematicController>();
         }
 
         private void Start()
         {
             TryBindPlayer();
             SyncHitboxesWithBossData();
-            StartCoroutine(PatternLoop());
             SetupWall();
+            StartCoroutine(EntranceThenPatternLoop());
+        }
+
+        /// <summary>
+        /// 보스 소환 직후 entranceFreezeDuration 동안 입장 연출(플레이어 정지 + 보스 Idle 대기)을 재생한 뒤
+        /// 패턴 루프를 시작한다.
+        /// </summary>
+        private IEnumerator EntranceThenPatternLoop()
+        {
+            yield return StartCoroutine(PlayEntranceFreeze());
+            yield return StartCoroutine(PatternLoop());
+        }
+
+        /// <summary>
+        /// 플레이어 이동을 entranceFreezeDuration(초) 동안 멈춘다.
+        /// 이 시간 동안 PatternLoop가 시작되지 않으므로 보스는 별도 처리 없이 자연히 Idle 상태로 대기한다.
+        /// (추후 시네머신 카메라 연출이 추가되면 이 코루틴 안에서 카메라 컷을 재생하면 된다.)
+        /// </summary>
+        private IEnumerator PlayEntranceFreeze()
+        {
+            if (_player == null) TryBindPlayer();
+
+            StarterAssets.ThirdPersonController playerController =
+                _player != null ? _player.GetComponent<StarterAssets.ThirdPersonController>() : null;
+
+            if (playerController != null)
+                playerController.enabled = false;
+
+            // bossCinematic이 연결되어 있으면 입장 컷씬(응시 + 복귀 블렌드)을 재생하며 그 시간만큼 대기한다.
+            // 연결되지 않았다면 entranceFreezeDuration만큼만 단순 대기한다 (폴백).
+            if (bossCinematic != null)
+                yield return StartCoroutine(bossCinematic.PlayIntroCutscene());
+            else if (entranceFreezeDuration > 0f)
+                yield return new WaitForSeconds(entranceFreezeDuration);
+
+            if (playerController != null)
+                playerController.enabled = true;
         }
 
         /// <summary>
@@ -157,6 +203,27 @@ namespace _01.Scenes.PhaseValidation
         {
             GameObject go = GameObject.FindGameObjectWithTag(PlayerTag);
             if (go != null) _player = go.transform;
+        }
+
+        // ── 사망 처리 (BossStatus.Die()에서 호출) ──────────────
+
+        /// <summary>
+        /// 보스가 죽었을 때 BossStatus가 호출 — 진행 중인 모든 공격 패턴 코루틴(부채꼴/레이저/바닥패턴 내부 코루틴 포함)을
+        /// 즉시 중단하고, 표시 중인 판정 이펙트(부채꼴/레이저/바닥 인디케이터)를 숨긴다.
+        ///
+        /// [주의] floorPatternController의 PlayHashPattern/PlayWavePattern 등은 자기 자신의 StartCoroutine으로
+        /// 실행되므로(코루틴 소유자가 BossController가 아닌 BossFloorPatternController), 이 메서드의
+        /// StopAllCoroutines()만으로는 멈추지 않는다. 따라서 floorPatternController에도 별도로 중단을 위임한다.
+        /// </summary>
+        public void StopAllPatterns()
+        {
+            StopAllCoroutines();
+
+            fanAttackHitbox?.Hide();
+            laserHitbox?.Hide();
+            floorPatternController?.StopAllPatternsAndHide();
+
+            _isAttacking = false;
         }
 
         // ── 애니메이션 헬퍼 ─────────────────────────────────

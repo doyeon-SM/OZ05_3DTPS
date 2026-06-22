@@ -25,5 +25,9 @@ namespace _01.Scenes.PhaseValidation
         [Header("보상")]
         [Tooltip("보스 처치 시 보스 사망 위치에 고정으로 소환할 보상 오브젝트. 보스는 더 이상 StageManager의 확률 기반 랜덤 드랍을 사용하지 않고 이 오브젝트 하나만 소환한다.")]
         public GameObject rewardPrefab;
+
+        [Header("BGM")]
+        [Tooltip("보스 등장(소환) 시점에 BGMManager를 통해 재생할 BGM 클립. 비워두면 BGM이 바뀌지 않습니다.")]
+        public AudioClip bossBgmClip;
     }
 }
