@@ -2523,6 +2523,9 @@ MonoBehaviour:
   audioFootsteps: {fileID: 555292445168803334}
   landingAudio: {fileID: 2279062208422874666}
   audioFoley: {fileID: 0}
+  weaponActionLayerName: WeaponAction
+  interactiveStateName: Use
+  weaponActionSuppressMaxDuration: 2
 --- !u!114 &3185084648428192086
 MonoBehaviour:
   m_ObjectHideFlags: 0
