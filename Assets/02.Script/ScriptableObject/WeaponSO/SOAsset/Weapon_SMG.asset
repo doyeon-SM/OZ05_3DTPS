@@ -21,7 +21,7 @@ MonoBehaviour:
   HolderPosition: {x: 0.071, y: 0.149, z: 0.222}
   HolderRotation: {x: 3.439, y: 22.775, z: 1.443}
   fireMode: 2
-  Damage: 5
+  Damage: 8
   CriticalMultiplier: 2
   RPM: 800
   ReloadTime: 1
@@ -29,8 +29,8 @@ MonoBehaviour:
   BulletCost: 1
   UseAmmo: 1
   InfiniteAmmo: 0
-  basicSpreadAngle: 2
-  recoil: 1.5
+  basicSpreadAngle: 1.2
+  recoil: 1.2
   crossHairstylePrefab: {fileID: 419521975320727389, guid: 325cce3a5aa9a134a99e0dcdeedd51a1, type: 3}
   pelletCount: 1
   burstCount: 1

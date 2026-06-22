@@ -32,7 +32,7 @@ MonoBehaviour:
   basicSpreadAngle: 6
   recoil: 6
   crossHairstylePrefab: {fileID: 8680997968888354179, guid: 32e0483e0ab6da1439ce776d4f7af0b6, type: 3}
-  pelletCount: 8
+  pelletCount: 5
   burstCount: 1
   FireEffect: {fileID: 0}
   FireSound: {fileID: 0}
