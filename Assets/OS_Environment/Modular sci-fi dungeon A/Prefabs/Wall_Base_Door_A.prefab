@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 33208960650363894}
   - component: {fileID: 23414263361598090}
   - component: {fileID: 64396199770981540}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: Wall_Base_Door_A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
