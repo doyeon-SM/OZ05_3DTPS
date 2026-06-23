@@ -1,21 +1,22 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using TMPro;
 using StarterAssets;
 using _01.Scenes.PhaseValidation.UI;
 
 /// <summary>
 /// 스테이지 선택 UI 전체를 관리한다.
 ///
-/// [UI 계층 구조 예시]
+/// [UI 계층 구조]
 /// StageSelectUI (이 컴포넌트)
 ///  ├─ StageListPanel          ← stageListPanel
-///  │   └─ StageButton (x N)  ← stageButtons[ ] (각 버튼에 StageInfoSO 연결)
-///  └─ StageInfoPopup          ← stageInfoPopup
-///      ├─ TMP_Text (이름)     ← stageNameText
-///      ├─ Button [이동]       ← confirmButton
-///      └─ Button [닫기]       ← closePopupButton
+///  │   └─ StageButton (x N)  ← stageButtons[ ]  (각 버튼에 StageInfoSO 연결)
+///  └─ StageInfoPopup          ← stageInfoPopup   (StageInfoUI 컴포넌트 부착)
+///
+/// [다음 스테이지 잠금 규칙]
+///  - stageButtons[0]  : 항상 활성화 (흰색)
+///  - stageButtons[i]  : stageInfos[i-1] 씬의 보스를 클리어한 경우에만 흰색/클릭 가능
+///                       그 외에는 검정색/클릭 불가
 /// </summary>
 public class StageSelectUI : MonoBehaviour
 {
@@ -27,12 +28,8 @@ public class StageSelectUI : MonoBehaviour
 
     [Header("스테이지 정보 팝업")]
     [SerializeField] private GameObject stageInfoPopup;
-    [SerializeField] private TextMeshProUGUI stageNameText;
-    [SerializeField] private TextMeshProUGUI stageLevel;
-    [SerializeField] private TextMeshProUGUI stageInfoTitle;
-    [SerializeField] private TextMeshProUGUI stageInfo;
-    [SerializeField] private Button confirmButton;
-    [SerializeField] private Button closePopupButton;
+    /// <summary>자식 패널(StageInfoPopup)에 부착된 StageInfoUI 컴포넌트</summary>
+    [SerializeField] private StageInfoUI stageInfoUI;
 
     private StageInfoSO _selectedStage;
     private StarterAssetsInputs _inputs;
@@ -46,12 +43,10 @@ public class StageSelectUI : MonoBehaviour
             stageButtons[index].onClick.AddListener(() => OnStageButtonClicked(index));
         }
 
-        confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        // 닫기 버튼은 CloseUI/ClosePopup을 직접 호출하지 않고 UIController.Pop()을 통해 닫는다.
-        // → Pop()이 등록된 onClose(CloseUI/ClosePopup)를 그대로 실행해주면서, 스택도 함께 정리되고
-        //    스택 기준 커서 처리(HideCursor)도 일관되게 트리거된다.
+        stageInfoUI.OnConfirmClicked += OnConfirmButtonClicked;
+
+        // Pop()이 등록된 onClose 콜백(CloseUI / ClosePopup)을 통해 스택과 커서를 일관되게 처리한다.
         closeStageButton.onClick.AddListener(() => UIController.Instance?.Pop());
-        closePopupButton.onClick.AddListener(() => UIController.Instance?.Pop());
 
         stageListPanel.SetActive(false);
         stageInfoPopup.SetActive(false);
@@ -68,7 +63,7 @@ public class StageSelectUI : MonoBehaviour
         if (_inputs != null)
         {
             _inputs.SetLookInputBlocked(true);
-            _inputs.SetAttackInputBlocked(true);   // 입력 발생 즉시 차단 (Update 순서 무관)
+            _inputs.SetAttackInputBlocked(true);
         }
         _isCursorOverridden = true;
     }
@@ -92,6 +87,7 @@ public class StageSelectUI : MonoBehaviour
     public void OpenStageList()
     {
         EnableUIMode();
+        RefreshStageButtonStates();
         stageListPanel.SetActive(true);
         stageInfoPopup.SetActive(false);
         UIController.Instance?.Push(stageListPanel, CloseUI);
@@ -102,6 +98,46 @@ public class StageSelectUI : MonoBehaviour
         DisableUIMode();
         stageListPanel.SetActive(false);
         stageInfoPopup.SetActive(false);
+    }
+
+    // ── 스테이지 버튼 잠금 / 해제 ─────────────────────────────
+
+    /// <summary>
+    /// 보스 클리어 기록을 바탕으로 각 스테이지 버튼의 잠금 상태를 갱신한다.
+    /// OpenStageList() 시점에 호출된다.
+    /// </summary>
+    private void RefreshStageButtonStates()
+    {
+        for (int i = 0; i < stageButtons.Length; i++)
+        {
+            // 첫 번째 스테이지는 항상 해제, 이후는 이전 스테이지 보스 클리어 여부로 결정
+            bool unlocked = (i == 0) || IsPreviousStageCleared(i);
+            SetButtonLocked(stageButtons[i], !unlocked);
+        }
+    }
+
+    /// <summary>index 번째 스테이지의 바로 이전 스테이지가 클리어되었는지 반환한다.</summary>
+    private bool IsPreviousStageCleared(int index)
+    {
+        if (index <= 0) return true;
+        if (SaveManager.Instance == null) return false;
+        if (stageInfos == null || index - 1 >= stageInfos.Length) return false;
+        StageInfoSO prev = stageInfos[index - 1];
+        if (prev == null) return false;
+        return SaveManager.Instance.IsStageCleared(prev.sceneName);
+    }
+
+    /// <summary>
+    /// 버튼의 잠금 상태를 시각적으로 설정한다.
+    /// locked = true  → 검정색 / 클릭 불가
+    /// locked = false → 흰색   / 클릭 가능
+    /// </summary>
+    private void SetButtonLocked(Button btn, bool locked)
+    {
+        btn.interactable = !locked;
+        Image img = btn.GetComponent<Image>();
+        if (img != null)
+            img.color = locked ? Color.black : Color.white;
     }
 
     // ── 내부 흐름 ─────────────────────────────────────────────
@@ -119,10 +155,7 @@ public class StageSelectUI : MonoBehaviour
 
     private void OpenPopup(StageInfoSO info)
     {
-        stageNameText.text = info.stageName;
-        stageLevel.text = info.stageLevel;
-        stageInfoTitle.text = info.stageInfoTitle;
-        stageInfo.text = info.stageInfo;
+        stageInfoUI.Populate(info);
         stageInfoPopup.SetActive(true);
         UIController.Instance?.Push(stageInfoPopup, ClosePopup);
     }
@@ -132,18 +165,20 @@ public class StageSelectUI : MonoBehaviour
         DisableUIMode();
         stageListPanel.SetActive(false);
         stageInfoPopup.SetActive(false);
+        stageInfoUI.Clear();
         _selectedStage = null;
     }
 
     private void ClosePopup()
     {
         stageInfoPopup.SetActive(false);
+        stageInfoUI.Clear();
         _selectedStage = null;
     }
 
-    private void OnConfirmButtonClicked()
+    private void OnConfirmButtonClicked(StageInfoSO info)
     {
-        if (_selectedStage == null)
+        if (info == null)
         {
             Debug.LogWarning("[StageSelectUI] 선택된 스테이지 정보가 없습니다.");
             return;
@@ -153,11 +188,11 @@ public class StageSelectUI : MonoBehaviour
             Debug.LogError("[StageSelectUI] ScenePositionManager 인스턴스가 없습니다.");
             return;
         }
-        ScenePositionManager.Instance.SetNextSpawnPoint(_selectedStage.spawnPointName);
+        ScenePositionManager.Instance.SetNextSpawnPoint(info.spawnPointName);
         DisableUIMode();
         stageListPanel.SetActive(false);
         stageInfoPopup.SetActive(false);
-        Debug.Log($"[StageSelectUI] '{_selectedStage.sceneName}' 씬으로 이동합니다.");
-        SceneManager.LoadScene(_selectedStage.sceneName);
+        Debug.Log($"[StageSelectUI] '{info.sceneName}' 씬으로 이동합니다.");
+        SceneManager.LoadScene(info.sceneName);
     }
 }
