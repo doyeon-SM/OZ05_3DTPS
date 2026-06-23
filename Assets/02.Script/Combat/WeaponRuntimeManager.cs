@@ -1,4 +1,4 @@
-using _02.Script.Combat;
+﻿using _02.Script.Combat;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,6 +40,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             EnsureWeaponRuntimeArray();
             SyncWeaponRuntimesWithWeaponDataArray();
             InitializeWeaponRuntimeMagazines();
+            LoadWeaponUnlocksFromSave();
             SyncWeaponAmmoDictionary();
             ValidateWeaponRuntimeData();
             isInitialized = true;
@@ -352,6 +353,30 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             weaponAmmoEntries[entryCount] = new WeaponAmmoEntry(itemId, Mathf.Max(ammo, 0));
         }
 
+        private void LoadWeaponUnlocksFromSave()
+        {
+            if (SaveManager.Instance == null)
+            {
+                Debug.LogWarning("[WeaponRuntimeManager] SaveManager.Instance가 없어 무기 해금 정보를 불러올 수 없습니다.");
+                return;
+            }
+
+            int loadedCount = 0;
+            for (int i = 0; i < weaponRuntimes.Length; i++)
+            {
+                WeaponRuntime runtime = weaponRuntimes[i];
+                if (runtime == null || runtime.data == null) continue;
+
+                if (SaveManager.Instance.IsWeaponUnlocked(runtime.data.WeaponId))
+                {
+                    runtime.UnLocked = true;
+                    loadedCount++;
+                }
+            }
+
+            Debug.Log($"[WeaponRuntimeManager] 저장된 무기 해금 정보 적용: {loadedCount}종");
+        }
+
         private void ValidateWeaponRuntimeData()
         {
             for (int i = 0; i < weaponRuntimes.Length; i++)
@@ -396,6 +421,9 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             if (!wasUnlocked)
             {
                 string unlockedWeaponId = runtime.data != null ? runtime.data.WeaponId : itemId.Trim();
+                // 해금정보 즉시 SaveManager에 반영 (실제 파일 저장은 종료 시 일괄 처리)
+                if (SaveManager.Instance != null)
+                    SaveManager.Instance.SetWeaponUnlocked(unlockedWeaponId, true);
                 OnWeaponUnlockStateChanged?.Invoke(unlockedWeaponId, true);
             }
 

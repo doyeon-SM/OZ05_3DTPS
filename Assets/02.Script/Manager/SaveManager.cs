@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -28,11 +28,20 @@ public class StageClearEntry
 }
 
 [Serializable]
+public class WeaponUnlockEntry
+{
+    /// <summary>WeaponData.WeaponId 와 동일한 키</summary>
+    public string weaponId;
+    public bool isUnlocked;
+}
+
+[Serializable]
 public class SaveData
 {
     public AudioSaveData audio = new AudioSaveData();
     public MouseSensitivitySaveData mouseSensitivity = new MouseSensitivitySaveData();
     public List<StageClearEntry> stageClears = new List<StageClearEntry>();
+    public List<WeaponUnlockEntry> weaponUnlocks = new List<WeaponUnlockEntry>();
 }
 
 /// <summary>
@@ -41,6 +50,7 @@ public class SaveData
 /// [저장 항목] (하나의 JSON 파일에 함께 저장)
 ///  - 오디오 설정 (Master/Player/Enemy/SFX/BGM, 0~100%)
 ///  - 스테이지 클리어 여부 (stageId(씬 이름) -> bool)
+///  - 무기 해금 여부 (weaponId(WeaponData.WeaponId) -> bool)
 ///
 /// [동작]
 ///  - 게임 시작 시 [RuntimeInitializeOnLoadMethod]로 자동 생성되어 저장 파일을 불러온다.
@@ -128,6 +138,7 @@ public class SaveManager : MonoBehaviour
         if (Data.audio == null) Data.audio = new AudioSaveData();
         if (Data.mouseSensitivity == null) Data.mouseSensitivity = new MouseSensitivitySaveData();
         if (Data.stageClears == null) Data.stageClears = new List<StageClearEntry>();
+        if (Data.weaponUnlocks == null) Data.weaponUnlocks = new List<WeaponUnlockEntry>();
     }
 
     public void SaveToDisk()
@@ -235,5 +246,28 @@ public class SaveManager : MonoBehaviour
             }
         }
         Data.stageClears.Add(new StageClearEntry { stageId = stageId, isCleared = isCleared });
+    }
+
+    // ── 무기 해금 ───────────────────────────────────────────
+
+    /// <summary>weaponId 는 WeaponData.WeaponId 와 동일한 값을 사용한다.</summary>
+    public bool IsWeaponUnlocked(string weaponId)
+    {
+        foreach (var entry in Data.weaponUnlocks)
+            if (entry.weaponId == weaponId) return entry.isUnlocked;
+        return false;
+    }
+
+    public void SetWeaponUnlocked(string weaponId, bool isUnlocked)
+    {
+        foreach (var entry in Data.weaponUnlocks)
+        {
+            if (entry.weaponId == weaponId)
+            {
+                entry.isUnlocked = isUnlocked;
+                return;
+            }
+        }
+        Data.weaponUnlocks.Add(new WeaponUnlockEntry { weaponId = weaponId, isUnlocked = isUnlocked });
     }
 }
