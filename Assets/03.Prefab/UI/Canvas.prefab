@@ -1638,6 +1638,9 @@ MonoBehaviour:
   closeStageButton: {fileID: 4232885032544625170}
   stageInfoPopup: {fileID: 2745468626686051975}
   stageNameText: {fileID: 4009095609239063132}
+  stageLevel: {fileID: 0}
+  stageInfoTitle: {fileID: 0}
+  stageInfo: {fileID: 0}
   confirmButton: {fileID: 3469965420995216301}
   closePopupButton: {fileID: 3512003868870769447}
 --- !u!1 &5391311125988279570
@@ -3033,6 +3036,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1772749028083318737, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6033121455550720485, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
+      propertyPath: m_text
+      value: "\uC548\uB155\uD558\uC138\uC694."
+      objectReference: {fileID: 0}
+    - target: {fileID: 6033121455550720485, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
+    - target: {fileID: 6033121455550720485, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7194432874131732980, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
+    - target: {fileID: 6033121455550720485, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8801327851490009011, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
+    - target: {fileID: 8801327851490009011, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7194432874131732980, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
+    - target: {fileID: 8801327851490009011, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}
+      propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8932778047957864634, guid: 5886f788b384cc94e8dbd5551eb7e427, type: 3}

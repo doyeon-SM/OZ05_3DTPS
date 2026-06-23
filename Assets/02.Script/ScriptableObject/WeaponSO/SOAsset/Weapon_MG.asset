@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Weapon_MG
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   WeaponId: Weapon_MG
-  WeaponName: MG_Name
-  WeaponDescription: Based on high elastic capacity, it is an overwhelming weapon
-    based on high elastic capacity.
+  WeaponName: M2049
+  WeaponDescription: "\uAC15\uB825\uD55C \uC5F0\uC0AC \uD654\uB825\uC744 \uC81C\uACF5\uD558\uB294
+    \uAC70\uCE58\uD615 \uBA38\uC2E0\uAC74. \uB2E4\uC218\uC758 \uC801 \uC81C\uC555\uC5D0
+    \uD6A8\uACFC\uC801\uC785\uB2C8\uB2E4."
   WeaponType: 4
   WeaponPrefab: {fileID: 4291767186260726639, guid: e4135797c343fbc4892502e4f7ca0a30, type: 3}
   HolderPosition: {x: 0.067, y: 0.255, z: 0.092}

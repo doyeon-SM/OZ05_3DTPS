@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Weapon_Pistol
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.WeaponData
   WeaponId: Weapon_Pistol
-  WeaponName: Pistol
-  WeaponDescription: It's a basic weapon.
+  WeaponName: P925
+  WeaponDescription: "\uC678\uACC4 \uD574\uC801 \uCE68\uD22C\uC2DC \uC0AC\uC6A9\uD558\uB294
+    \uAE30\uBCF8\uC801\uC778 \uBB34\uAE30\uC785\uB2C8\uB2E4"
   WeaponType: 0
   WeaponPrefab: {fileID: 8152767091756984911, guid: 2b4c7039bb2793e4a813c56ab1faf020, type: 3}
   HolderPosition: {x: 0.01, y: 0.089, z: 0.061}

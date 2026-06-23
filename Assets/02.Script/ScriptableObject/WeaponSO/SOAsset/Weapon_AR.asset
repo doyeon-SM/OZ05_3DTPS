@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Weapon_AR
   m_EditorClassIdentifier: Assembly-CSharp::_01.Scenes.PhaseValidation.WeaponData
   WeaponId: Weapon_AR
-  WeaponName: AR_Name
-  WeaponDescription: It is a balanced weapon with an even range, accuracy, damage,
-    and continuous power.
+  WeaponName: AR-2066
+  WeaponDescription: "\uADE0\uC77C\uD55C \uC0AC\uAC70\uB9AC, \uC815\uD655\uC131,
+    \uD53C\uD574, \uC9C0\uC18D\uC801\uC778 \uD798\uC744 \uAC16\uCD98 \uADE0\uD615
+    \uC7A1\uD78C \uBB34\uAE30\uC785\uB2C8\uB2E4."
   WeaponType: 3
   WeaponPrefab: {fileID: 6734225644313519354, guid: df4dd6fc522d5ef4a87c7f05b96d292e, type: 3}
   HolderPosition: {x: 0.017, y: 0.141, z: 0.047}

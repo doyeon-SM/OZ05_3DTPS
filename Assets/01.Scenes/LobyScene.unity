@@ -367,6 +367,18 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1253740900465898817, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
+    - target: {fileID: 1253740900465898817, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -7194432874131732980, guid: 458db422db9b6bc498bb12ff21cb7d40, type: 2}
+    - target: {fileID: 1253740900465898817, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1275108096974173908, guid: 1ec02e2b877410f4baf5704020b80991, type: 3}
       propertyPath: stageInfo
       value: 

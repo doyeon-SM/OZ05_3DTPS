@@ -2864,6 +2864,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: RuntimeManager
       objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[3].data
+      value: 
+      objectReference: {fileID: 11400000, guid: bf6534bd29872454894d6c0c08e84348, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[4].data
+      value: 
+      objectReference: {fileID: 11400000, guid: caf629978d350c44090fcae34d5017ec, type: 2}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[3].ShotDelayTime
+      value: 0.08571429
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545327516180840327, guid: dd69053011a0eea458f6f3ffc6c86509, type: 3}
+      propertyPath: weaponRuntimes.Array.data[4].ShotDelayTime
+      value: 0.1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
