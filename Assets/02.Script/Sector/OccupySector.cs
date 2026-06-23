@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TurretDemo;
 
 namespace _01.Scenes.PhaseValidation
 {
@@ -31,6 +32,9 @@ namespace _01.Scenes.PhaseValidation
 
         [Header("UI 연동 (선택)")]
         [SerializeField] private OccupyTimerUI timerUI;
+
+        // 스폰된 오브젝트 중 터렛인 것만 별도 추적 (BattleSector와 동일 패턴)
+        private readonly List<NearestEnemyTurretController> sectorTurrets = new();
 
         private float remainingTime;
 
@@ -73,6 +77,10 @@ namespace _01.Scenes.PhaseValidation
                     enemy.SetAIActive(true);
             }
 
+            // 터렛은 EnemyStatus.SetAIActive()와 별개로 자체 AI 활성화가 필요
+            foreach (var turret in sectorTurrets)
+                if (turret != null) turret.SetAIActive(true);
+
             if (timerUI != null) timerUI.Show();
             StartCoroutine(OccupyTimerCoroutine());
             Debug.Log($"[{sectorData.sectorName}] 점령 시작 — {sectorData.occupyDuration}초 버티기");
@@ -89,6 +97,14 @@ namespace _01.Scenes.PhaseValidation
             activeEnemies.Add(enemy);
             enemy.OnDied += OnEnemyDied;
             enemy.SetAIActive(activateAI);
+
+            // 터렛 컴포넌트가 있으면 별도 목록에 등록하고 AI 상태 동기화
+            var turret = enemy.GetComponent<NearestEnemyTurretController>();
+            if (turret != null)
+            {
+                sectorTurrets.Add(turret);
+                turret.SetAIActive(activateAI);
+            }
         }
 
         private void OnEnemyDied(EnemyStatus enemy)
@@ -96,6 +112,10 @@ namespace _01.Scenes.PhaseValidation
             // 이벤트 구독 해제 & activeEnemies 제거
             enemy.OnDied -= OnEnemyDied;
             activeEnemies.Remove(enemy);
+
+            // 터렛이었다면 별도 목록에서도 제거
+            var dyingTurret = enemy.GetComponent<NearestEnemyTurretController>();
+            if (dyingTurret != null) sectorTurrets.Remove(dyingTurret);
 
             // [풀 반환] 사망한 적을 즉시 풀에 반환 (비활성화)
             EnemyData data = enemy.Data;
@@ -155,6 +175,7 @@ namespace _01.Scenes.PhaseValidation
         {
             isOccupying = false;
             isWaitingForClear = false;
+            sectorTurrets.Clear();
             StopAllCoroutines();
             // 잔여 적 풀 반환은 SectorBase.ClearSector()가 처리
             if (timerUI != null) timerUI.Hide();

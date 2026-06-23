@@ -42,8 +42,9 @@ public class StageUIManager : MonoBehaviour
     private bool _hasShownBossAnnounce;
     private int  _visibleCount;
 
-    // 화면에 아직 표시되지 않은 목표들의 초기화 액션 큐
-    private readonly Queue<Action<GoalSlot>> _pendingGoals = new();
+    // 화면에 아직 표시되지 않은 목표들 — (완료 여부 판별자, 슬롯 초기화 액션) 쌍으로 보관
+    // isDone()이 true면 대기 중 완료된 목표이므로 SpawnNextSlot에서 건너뛴다.
+    private readonly Queue<(Func<bool> isDone, Action<GoalSlot> init)> _pendingGoals = new();
 
     private void Start()
     {
@@ -102,14 +103,14 @@ public class StageUIManager : MonoBehaviour
         {
             if (sector == null || sector.IsCleared) continue;
             var captured = sector;
-            _pendingGoals.Enqueue(slot => slot.Initialize(captured));
+            _pendingGoals.Enqueue((() => captured.IsCleared, slot => slot.Initialize(captured)));
         }
 
         foreach (var repair in stage.GetRepairList())
         {
             if (repair == null || repair.IsRepaired) continue;
-            var captured = repair;
-            _pendingGoals.Enqueue(slot => slot.Initialize(captured));
+            var capturedRepair = repair;
+            _pendingGoals.Enqueue((() => capturedRepair.IsRepaired, slot => slot.Initialize(capturedRepair)));
         }
 
         // 첫 maxVisibleGoals개만 표시
@@ -123,19 +124,27 @@ public class StageUIManager : MonoBehaviour
             bossAnnounceText.text = "";
     }
 
-    /// <summary>큐에서 목표를 하나 꺼내 슬롯을 생성한다.</summary>
+    /// <summary>큐에서 목표를 하나 꺼내 슬롯을 생성한다.
+    /// 대기 중 이미 완료된 목표는 건너뛰어 슬롯을 생성하지 않는다.</summary>
     private void SpawnNextSlot()
     {
-        if (_pendingGoals.Count == 0) return;
+        while (_pendingGoals.Count > 0)
+        {
+            var (isDone, initAction) = _pendingGoals.Dequeue();
 
-        Action<GoalSlot> initAction = _pendingGoals.Dequeue();
-        GameObject obj  = Instantiate(goalSlotPrefab, goalGrid);
-        GoalSlot   slot = obj.GetComponent<GoalSlot>();
-        if (slot == null) return;
+            // 큐 대기 중에 이미 완료된 목표는 표시하지 않고 건너뛴다
+            if (isDone())
+                continue;
 
-        initAction(slot);
-        slot.SetOnCompleted(OnSlotCompleted);
-        _visibleCount++;
+            GameObject obj  = Instantiate(goalSlotPrefab, goalGrid);
+            GoalSlot   slot = obj.GetComponent<GoalSlot>();
+            if (slot == null) return;
+
+            initAction(slot);
+            slot.SetOnCompleted(OnSlotCompleted);
+            _visibleCount++;
+            return;
+        }
     }
 
     /// <summary>GoalSlot이 완료됐을 때 호출된다.</summary>
@@ -143,9 +152,8 @@ public class StageUIManager : MonoBehaviour
     {
         _visibleCount--;
 
-        // 대기 중인 목표가 있으면 다음 것을 표시
-        if (_pendingGoals.Count > 0)
-            SpawnNextSlot();
+        // 대기 중인 목표가 있으면 다음 것을 표시 (이미 완료된 항목은 SpawnNextSlot 내부에서 건너뜀)
+        SpawnNextSlot();
 
         RefreshMoreIndicator();
     }

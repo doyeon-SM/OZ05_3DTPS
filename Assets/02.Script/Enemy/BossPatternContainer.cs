@@ -56,7 +56,12 @@ namespace _01.Scenes.PhaseValidation
         private const string SmgAmmoItemId = "smgammo";
         private const string ShotgunAmmoItemId = "sgammo";
 
+        [Header("상호작용 보상 (체력)")]
+        [Tooltip("상호작용 시 회복할 플레이어 체력")]
+        [SerializeField] private int healthReward = 20;
+
         private PlayerInventory _playerInventory;
+        private PlayerStatus _playerStatus;
 
         /// <summary>
         /// 낙하를 시작한다. 호출 전 transform.localPosition의 X,Z는 목표 지점으로,
@@ -112,6 +117,7 @@ namespace _01.Scenes.PhaseValidation
 
         public void Interaction()
         {
+            GrantHealthReward();
             GrantAmmoReward();
 
             _isFalling = false;
@@ -121,6 +127,19 @@ namespace _01.Scenes.PhaseValidation
         }
 
         /// <summary>상호작용 보상으로 SMG/샷건 탄약을 플레이어 인벤토리에 지급한다.</summary>
+        /// <summary>상호작용 보상으로 플레이어 체력을 회복한다.</summary>
+        private void GrantHealthReward()
+        {
+            if (!CachePlayerStatus())
+            {
+                Debug.LogWarning("[BossPatternContainer] PlayerStatus를 찾을 수 없어 체력 보상을 지급하지 못했습니다.");
+                return;
+            }
+
+            _playerStatus.Heal(healthReward);
+            Debug.Log($"[BossPatternContainer] 체력 보상 지급 | +{healthReward}");
+        }
+
         private void GrantAmmoReward()
         {
             if (!CachePlayerInventory())
@@ -145,6 +164,13 @@ namespace _01.Scenes.PhaseValidation
             if (_playerInventory != null) return true;
             _playerInventory = FindFirstObjectByType<PlayerInventory>(FindObjectsInactive.Include);
             return _playerInventory != null;
+        }
+
+        private bool CachePlayerStatus()
+        {
+            if (_playerStatus != null) return true;
+            _playerStatus = FindFirstObjectByType<PlayerStatus>(FindObjectsInactive.Include);
+            return _playerStatus != null;
         }
     }
 }

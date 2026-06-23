@@ -52,6 +52,17 @@ namespace _01.Scenes.PhaseValidation._26._05._14
                 HandleDeath();
         }
 
+public void Heal(int value)
+        {
+            if (deathHandled || value <= 0)
+                return;
+
+            currentHP = Mathf.Min(currentHP + value, maxHP);
+            RaiseHPChanged();
+            Debug.Log($"[PlayerStatus] 체력 회복 | +{value} → {currentHP}/{maxHP}");
+        }
+
+
         public void Die()
         {
             if (deathHandled)
