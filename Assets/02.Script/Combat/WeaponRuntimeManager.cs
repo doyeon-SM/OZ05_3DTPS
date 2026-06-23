@@ -42,6 +42,7 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             InitializeWeaponRuntimeMagazines();
             LoadWeaponUnlocksFromSave();
             SyncWeaponAmmoDictionary();
+            LoadWeaponAmmoFromSave();
             ValidateWeaponRuntimeData();
             isInitialized = true;
             return true;
@@ -375,6 +376,31 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
             }
 
             Debug.Log($"[WeaponRuntimeManager] 저장된 무기 해금 정보 적용: {loadedCount}종");
+        }
+
+        private void LoadWeaponAmmoFromSave()
+        {
+            if (SaveManager.Instance == null)
+            {
+                Debug.LogWarning("[WeaponRuntimeManager] SaveManager.Instance가 없어 탄약 정보를 불러올 수 없습니다.");
+                return;
+            }
+
+            int loadedCount = 0;
+            var keys = new System.Collections.Generic.List<string>(weaponAmmoByItemId.Keys);
+            foreach (var itemId in keys)
+            {
+                int savedAmmo = SaveManager.Instance.GetWeaponAmmo(itemId);
+                if (savedAmmo < 0) continue;  // -1 = 저장 기록 없음 → Inspector 초기값 유지
+
+                weaponAmmoByItemId[itemId] = savedAmmo;
+                loadedCount++;
+            }
+
+            if (loadedCount > 0)
+                SyncWeaponAmmoEntriesFromDictionary();
+
+            Debug.Log($"[WeaponRuntimeManager] 저장된 탄약 정보 적용: {loadedCount}종");
         }
 
         private void ValidateWeaponRuntimeData()
@@ -840,8 +866,14 @@ namespace _00.ChoiHeesu._03.WeaponChangeSystem
                 return;
 
             string normalizedItemId = NormalizeId(itemId);
-            weaponAmmoByItemId[normalizedItemId] = Mathf.Max(ammo, 0);
+            int safeAmmo = Mathf.Max(ammo, 0);
+            weaponAmmoByItemId[normalizedItemId] = safeAmmo;
             SyncWeaponAmmoEntriesFromDictionary();
+
+            // 초기화 완료 후의 실제 게임플레이 변경분만 SaveManager 메모리에 반영
+            // (실제 파일 저장은 종료 시 SaveManager.OnApplicationQuit에서 일괄 처리)
+            if (isInitialized && SaveManager.Instance != null)
+                SaveManager.Instance.SetWeaponAmmo(normalizedItemId, safeAmmo);
         }
 
         private bool TryGetWeaponRuntimeByItemId(string itemId, out WeaponRuntime foundRuntime)

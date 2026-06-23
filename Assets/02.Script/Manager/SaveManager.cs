@@ -36,12 +36,21 @@ public class WeaponUnlockEntry
 }
 
 [Serializable]
+public class WeaponAmmoSaveEntry
+{
+    /// <summary>탄약 종류 키 (예: "smgammo", "pistolammo")</summary>
+    public string itemId;
+    public int ammo;
+}
+
+[Serializable]
 public class SaveData
 {
     public AudioSaveData audio = new AudioSaveData();
     public MouseSensitivitySaveData mouseSensitivity = new MouseSensitivitySaveData();
     public List<StageClearEntry> stageClears = new List<StageClearEntry>();
     public List<WeaponUnlockEntry> weaponUnlocks = new List<WeaponUnlockEntry>();
+    public List<WeaponAmmoSaveEntry> weaponAmmos  = new List<WeaponAmmoSaveEntry>();
 }
 
 /// <summary>
@@ -51,6 +60,7 @@ public class SaveData
 ///  - 오디오 설정 (Master/Player/Enemy/SFX/BGM, 0~100%)
 ///  - 스테이지 클리어 여부 (stageId(씬 이름) -> bool)
 ///  - 무기 해금 여부 (weaponId(WeaponData.WeaponId) -> bool)
+///  - 탄약 보유량  (itemId(ammoItemId) -> int)
 ///
 /// [동작]
 ///  - 게임 시작 시 [RuntimeInitializeOnLoadMethod]로 자동 생성되어 저장 파일을 불러온다.
@@ -139,6 +149,7 @@ public class SaveManager : MonoBehaviour
         if (Data.mouseSensitivity == null) Data.mouseSensitivity = new MouseSensitivitySaveData();
         if (Data.stageClears == null) Data.stageClears = new List<StageClearEntry>();
         if (Data.weaponUnlocks == null) Data.weaponUnlocks = new List<WeaponUnlockEntry>();
+        if (Data.weaponAmmos   == null) Data.weaponAmmos   = new List<WeaponAmmoSaveEntry>();
     }
 
     public void SaveToDisk()
@@ -269,5 +280,32 @@ public class SaveManager : MonoBehaviour
             }
         }
         Data.weaponUnlocks.Add(new WeaponUnlockEntry { weaponId = weaponId, isUnlocked = isUnlocked });
+    }
+
+    // ── 탄약 보유량 ─────────────────────────────────────────
+
+    /// <summary>
+    /// 저장된 탄약 보유량을 반환한다.
+    /// 저장 기록이 없으면 -1을 반환하여 호출측에서 초기값 유지 여부를 판단하도록 한다.
+    /// </summary>
+    public int GetWeaponAmmo(string itemId)
+    {
+        foreach (var entry in Data.weaponAmmos)
+            if (entry.itemId == itemId) return entry.ammo;
+        return -1;  // 기록 없음
+    }
+
+    public void SetWeaponAmmo(string itemId, int ammo)
+    {
+        int safeAmmo = Mathf.Max(ammo, 0);
+        foreach (var entry in Data.weaponAmmos)
+        {
+            if (entry.itemId == itemId)
+            {
+                entry.ammo = safeAmmo;
+                return;
+            }
+        }
+        Data.weaponAmmos.Add(new WeaponAmmoSaveEntry { itemId = itemId, ammo = safeAmmo });
     }
 }
